@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import sendVerificationEmail from '../common/utility/sendVerificationEmail.js';
-import{createUserData,checkIfUserExists,loginUser, getUserData, updateUserData,deleteUserData,addAsAdmin} from '../models/userModel.js';
+import{createUserData,checkIfUserExists,loginUser, getUserData, updateUserData,deleteUserData,addAsAdmin,removeAdminAuthority} from '../models/userModel.js';
 import { MESSAGE, STATUS_CODE } from '../common/constants/statusConstant.js';
 dotenv.config();
 
@@ -88,7 +88,7 @@ const addAdmin =async(req,res)=>{
 await addAsAdmin(is_admin,email);
 throw{
   status: STATUS_CODE.SUCCESS,
-  message: "admin is added"
+  message: MESSAGE.ADD_ADMIN
 };
 } catch (error) {
 console.error(error.message)
@@ -98,6 +98,28 @@ return res.status(error.status ||STATUS_CODE.SERVER_ERROR).send({
 
 });
 }
+}
+
+// **************************************************************
+
+const removeAdmin=async(req,res)=>{
+  try{
+    const { admin: is_admin} = req.user;
+    const { email} = req.body;
+  
+  await removeAdminAuthority(is_admin,email);
+  throw{
+    status: STATUS_CODE.SUCCESS,
+    message: MESSAGE.ADD_ADMIN
+  };
+  } catch (error) {
+  console.error(error.message)
+  return res.status(error.status ||STATUS_CODE.SERVER_ERROR).send({
+    status:error.status ||STATUS_CODE.SERVER_ERROR,
+    message: error.message ||  MESSAGE.SERVER_ERROR_MESSAGE,
+  
+  });
+  }
 }
 // **************************************************************
 
@@ -174,4 +196,4 @@ const { Id: id } = req.user
 
 
 
-export default { register, login, getUser,updateUser, deleteUser,addAdmin};
+export default { register, login, getUser,updateUser, deleteUser,addAdmin,removeAdmin};

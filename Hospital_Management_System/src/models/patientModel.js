@@ -62,8 +62,7 @@ const createPersonalDetails = async (data, userId, email) => {
     } = data;
 
     const userAge = today.getFullYear() - new Date(date_of_birth).getFullYear();
-    let heightInMeters = height / 100;
-    let userBMI = weight / (heightInMeters * heightInMeters);
+    let userBMI = weight / (height * height);
 
     data = {
       user_id: userId,
@@ -107,6 +106,7 @@ const updatePersonalDetails = async (data, userId) => {
       userId,
     ];
     console.log(values);
+    if(is_admin)
     return new Promise((resolve, reject) => {
       db.query(
         "UPDATE personal_info SET date_of_birth = ?, height = ?, weight = ?, is_diabetic = ?, cardiac_issue = ?, blood_pressure = ?, country_of_origin = ? WHERE user_id = ?",

@@ -10,6 +10,7 @@ const STATUS_CODE = {
 };
 
 const MESSAGE = {
+  ADD_ADMIN:"Set as a admin successfully",
   ADMIN_LOGIN:"Admin login",
   SERVER_ERROR_MESSAGE: "Internal Server Error",
   INVALID_TOKEN_MESSAGE: "Invalid token.",

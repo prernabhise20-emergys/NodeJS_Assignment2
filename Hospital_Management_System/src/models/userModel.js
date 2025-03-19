@@ -103,6 +103,30 @@ const addAsAdmin = async (isAdmin,email) => {
 
 // **********************************************************
 
+const removeAdminAuthority=async(isAdmin,email)=>{
+  try {
+    if (isAdmin) {
+      return new Promise((resolve, reject) => {
+        db.query(
+          "update user_register set is_admin=false where email=?",
+          email,
+          (error, results) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(results);
+            }
+          }
+        );
+      });
+
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+// **********************************************************
+
 const updateUserData = async (formData, id) => {
   try {
     const { email, user_password, first_name, last_name, mobile_number } =
@@ -188,4 +212,5 @@ export {
   updateUserData,
   deleteUserData,
   addAsAdmin,
+  removeAdminAuthority
 };

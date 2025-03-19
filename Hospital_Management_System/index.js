@@ -12,16 +12,19 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
-app.use("/api/user", userRoutes).use("/api/patient", patientRoutes);
+
 // registerRoutes(app);
+
 const corsOptions = {
-  origin: "http://localhost:5173/",
+  origin: "*",
   methods: "GET, POST, PUT, DELETE",
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
 app.use(cors(corsOptions));
+
+app.use("/api/user", userRoutes).use("/api/patient", patientRoutes);
 
 const { env: { PORT }, } = process;
 const port = PORT || 3000;
