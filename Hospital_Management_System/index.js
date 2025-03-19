@@ -6,7 +6,11 @@ import registerRoutes from './src/routesRegister/routesRegister.js'
 import cors from 'cors'
 import helmet from 'helmet';
 dotenv.config();
-
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*"); // Allow all origins
+//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//   next();
+// });
 const app = express();
 app.use(helmet());
 app.use(express.json());
@@ -14,12 +18,22 @@ app.use(express.urlencoded({extended:false}));
 
 app.use("/api/user", userRoutes).use("/api/patient", patientRoutes);
 // registerRoutes(app);
+// const corsOptions = {
+//   "Access-Control-Allow-Origin":"*",
+//   origin: "*",
+//   methods: "GET, POST, PUT, DELETE",
+//   allowedHeaders: ["Content-Type", "Authorization"],
+//   credentials: true,
+// };
+
+
 const corsOptions = {
   origin: "*",
-  methods: "GET, POST, PUT, DELETE",
+  methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
+
 
 app.use(cors(corsOptions));
 
