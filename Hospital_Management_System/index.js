@@ -19,23 +19,20 @@ app.use(express.urlencoded({extended:false}));
 app.use("/api/user", userRoutes).use("/api/patient", patientRoutes);
 // registerRoutes(app);
 // const corsOptions = {
-//   "Access-Control-Allow-Origin":"*",
 //   origin: "*",
 //   methods: "GET, POST, PUT, DELETE",
 //   allowedHeaders: ["Content-Type", "Authorization"],
 //   credentials: true,
 // };
 
+app.options('*', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.sendStatus(200);
+});
 
-const corsOptions = {
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
-
-
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 const { env: { PORT }, } = process;
 const port = PORT || 3000;
