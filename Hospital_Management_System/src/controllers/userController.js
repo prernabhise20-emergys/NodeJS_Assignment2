@@ -20,7 +20,7 @@ const register = async (req, res) => {
 
     await createUserData(email, user_password, first_name, last_name, mobile_number);
 
-    // await sendVerificationEmail(email);  
+    await sendVerificationEmail(email);  
 
     res.status(STATUS_CODE.CREATED).json({
       status: STATUS_CODE.CREATED,
@@ -66,13 +66,6 @@ const login = async (req, res) => {
           { expiresIn: '3h' }
       );
 
-      const { admin: is_admin} = req.user;
-      console.log(is_admin);
-
-      // if(is_admin){
-
-      // res.json({ message:MESSAGE.LOGIN_SUCCESS_MESSAGE,message:MESSAGE.ADMIN_LOGIN,token });
-      // }
       res.json({ message:MESSAGE.LOGIN_SUCCESS_MESSAGE, token });
 
   } catch (error) {
