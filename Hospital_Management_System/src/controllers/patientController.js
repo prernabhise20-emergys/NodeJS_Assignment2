@@ -8,12 +8,11 @@ import {
   deletePersonalDetails,
   addDiseaseData,
   insertFamilyInfo,
-  getFamilyInfo,
+  getPatientInfo,
   updateFamilyInfo,
   deleteFamilyInfo,
   updateDiseaseDetails,
   deleteDiseaseDetails,
-  getDiseaseInfo,
   saveDocument,
   checkPersonalInfo,
   checkFamilyInfo,
@@ -57,7 +56,31 @@ const getAllInfo = async (req, res) => {
     });
   }
 };
+// *****************************************************************
 
+
+const showPatientDetails = async (req, res) => {
+  try {
+    const { userid: id } = req.user;
+
+    const patientInfo = await getPatientInfo(id);
+
+    return res.status(STATUS_CODE.SUCCESS).send({
+      status: STATUS_CODE.SUCCESS,
+      message: MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: patientInfo,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(error.status ||STATUS_CODE.ERROR).send({
+      status:error.status || STATUS_CODE.ERROR,
+      message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
+
+
+// *********************************************************************
 const createPersonalInfo = async (req, res) => {
   try {
     const {
@@ -255,24 +278,24 @@ const addFamilyInfo = async (req, res) => {
   }
 };
 
-const getFamilyDetails = async (req, res) => {
-  try {
-    const { userid: id } = req.user;
-    const familyInfo = await getFamilyInfo(id);
+// const getFamilyDetails = async (req, res) => {
+//   try {
+//     const { userid: id } = req.user;
+//     const familyInfo = await getFamilyInfo(id);
 
-    return res.status( STATUS_CODE.SUCCESS).send({
-      status: STATUS_CODE.SUCCESS,
-      message: MESSAGE.GET_FAMILY_INFO_MESSAGE,
-      data: familyInfo,
-    });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(error.status ||STATUS_CODE.ERROR).send({
-      status: error.status ||STATUS_CODE.ERROR,
-      message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
+//     return res.status( STATUS_CODE.SUCCESS).send({
+//       status: STATUS_CODE.SUCCESS,
+//       message: MESSAGE.GET_FAMILY_INFO_MESSAGE,
+//       data: familyInfo,
+//     });
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(error.status ||STATUS_CODE.ERROR).send({
+//       status: error.status ||STATUS_CODE.ERROR,
+//       message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
+//     });
+//   }
+// };
 
 const updateFamilyInfoDetails = async (req, res) => {
   try {
@@ -353,25 +376,25 @@ const deleteFamilyInfoDetails = async (req, res) => {
 
 // ********************************************************************
 
-const getDiseaseDetails = async (req, res) => {
-  try {
-    const { admin: is_admin } = req.user;
-    // const { userid: id } = req.user;
-    const personalInfo = await getDiseaseInfo(is_admin);
+// const getDiseaseDetails = async (req, res) => {
+//   try {
+//     const { admin: is_admin } = req.user;
+//     // const { userid: id } = req.user;
+//     const personalInfo = await getDiseaseInfo(is_admin);
 
-    return res.status(STATUS_CODE.SUCCESS).send({
-      status: STATUS_CODE.SUCCESS,
-      message: MESSAGE.DISEASE_DETAILS,
-      data: personalInfo,
-    });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(error.status ||STATUS_CODE.ERROR).send({
-      status: error.status ||STATUS_CODE.ERROR,
-      message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
+//     return res.status(STATUS_CODE.SUCCESS).send({
+//       status: STATUS_CODE.SUCCESS,
+//       message: MESSAGE.DISEASE_DETAILS,
+//       data: personalInfo,
+//     });
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(error.status ||STATUS_CODE.ERROR).send({
+//       status: error.status ||STATUS_CODE.ERROR,
+//       message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
+//     });
+//   }
+// };
 
 const addDiseaseInfo = async (req, res) => {
   try {
@@ -518,11 +541,10 @@ export default {
   uploadDocument,
   createPersonalInfo,
   updatePersonalInfo,
-  getDiseaseDetails,
   getAllInfo,
+  showPatientDetails,
   deletePersonalInfo,
   addFamilyInfo,
-  getFamilyDetails,
   updateFamilyInfoDetails,
   deleteFamilyInfoDetails,
   addDiseaseInfo,

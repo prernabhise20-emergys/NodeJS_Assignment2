@@ -11,17 +11,17 @@ const user_schemas = {
     user_password: Joi.string()
       .min(4)
       .required()
-      .error(new Error("user_password is required and must be at least 6 characters")),
+      .error(new Error("user_password is required and must be at least 4 characters")),
 
     first_name: Joi.string()
-      .min(3)
+      .min(2)
       .max(100)
       .pattern(/^[a-zA-Z\s]+$/)
       .required()
       .error(new Error("first_name is required and must have a minimum length of 3")),
 
     last_name: Joi.string()
-      .min(3)
+      .min(2)
       .max(100)
       .pattern(/^[a-zA-Z\s]+$/)
       .required()
@@ -42,7 +42,7 @@ const user_schemas = {
     user_password: Joi.string()
       .min(4)
       .required()
-      .error(new Error("user_password is required and must be at least 6 characters")),
+      .error(new Error("user_password is required and must be at least 4 characters")),
    }),
 
    updateUserSchema: Joi.object({
@@ -145,8 +145,8 @@ const user_schemas = {
     father_age: Joi.number().min(18).required().error(new Error("father_age is required")),
     father_country_origin: Joi.string().min(3).max(25).required().error(new Error("father_country_origin is required")),
     mother_name: Joi.string().min(3).max(100).required().error(new Error("mother_name is required and must be at least 3 characters")),
-    mother_age: Joi.number().min(18).required().error(new Error("father_age is required")),
-    mother_country_origin: Joi.string().min(3).max(25).required().error(new Error("father_country_origin is required")),
+    mother_age: Joi.number().min(18).required().error(new Error("mother_age is required")),
+    mother_country_origin: Joi.string().min(3).max(25).required().error(new Error("mother_country_origin is required")),
     parent_diabetic: Joi.boolean().required().error(new Error(" parent_diabetic is required")),
     parent_cardiac_issue: Joi.boolean().required().error(new Error("parent_cardiac_issue is required")),
     parent_bp: Joi.boolean().required().error(new Error("parent_bp is required field")),

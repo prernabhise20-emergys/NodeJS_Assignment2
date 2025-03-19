@@ -25,6 +25,7 @@ const authenticateUser = (req, res, next) => {
         });
       }
     }
+console.log(decoded);
 
     req.user = decoded;
     next();

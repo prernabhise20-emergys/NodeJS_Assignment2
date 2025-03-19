@@ -12,11 +12,11 @@ router.put('/updatePersonalInfo',authenticateUser,schemaValidator(user_schemas.u
 router.delete('/deleteInfo', authenticateUser, patientController.deletePersonalInfo);
 
 router.post('/familyInfo', authenticateUser, schemaValidator(user_schemas.createFamilyInfo), patientController.addFamilyInfo);
-router.get('/getFamilyInfo', authenticateUser, patientController.getFamilyDetails);
+router.get('/getPatientInfo', authenticateUser, patientController.showPatientDetails);
 router.put('/updateFamilyInfo', authenticateUser, schemaValidator(user_schemas.updateFamilyInfo), patientController.updateFamilyInfoDetails);
 router.delete('/deleteFamilyInfo', authenticateUser, patientController.deleteFamilyInfoDetails);
 
-router.get('/getDiseaseInfo', authenticateUser, patientController.getDiseaseDetails);
+// router.get('/getDiseaseInfo', authenticateUser, patientController.getDiseaseDetails);
 router.post('/diseaseInfo', authenticateUser, schemaValidator(user_schemas.createDiseaseInfo), patientController.addDiseaseInfo);
 router.put('/updateDiseaseInfo', authenticateUser, schemaValidator(user_schemas.updateDiseaseInfo), patientController.updateDiseaseInfo);
 router.delete('/deleteDiseaseInfo', authenticateUser, patientController.deleteDiseaseInfo);

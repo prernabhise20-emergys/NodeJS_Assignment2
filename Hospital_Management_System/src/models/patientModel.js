@@ -9,7 +9,7 @@ else{
  
     return new Promise((resolve, reject) => {
       db.query(
-        "SELECT *  FROM personal_info p join user_Register r on(p.user_id=r.id) where is_deleted=false LIMIT ? OFFSET ?",
+        "SELECT p.user_id,r.first_name,r.last_name,r.mobile_number,p.date_of_birth,p.age,p.weight,p.height,p.bmi,p.country_of_origin,p.is_diabetic,p.cardiac_issue,p.blood_pressure, f.father_name,f.father_age,f.mother_name,f.mother_age,f.father_country_origin,f.mother_country_origin,f.parent_diabetic,f.parent_cardiac_issue,f.parent_bp, d.disease_type,d.disease_description, do.document_type,do.document_url FROM personal_info p JOIN user_Register r ON p.user_id = r.id JOIN family_info f ON f.user_id = r.id JOIN disease d ON d.user_id = r.id JOIN documents do ON do.user_id = r.id WHERE r.is_deleted = false LIMIT ? OFFSET ?",
         [limit, offset],
         (error, result) => {
           if (error) {
@@ -26,6 +26,28 @@ else{
   }
 };
 
+
+const getPatientInfo=async (id)=>{
+  try {
+    
+      return new Promise((resolve, reject) => {
+        db.query(
+          "SELECT p.user_id,r.first_name,r.last_name,r.mobile_number,p.date_of_birth,p.age,p.weight,p.height,p.bmi,p.country_of_origin,p.is_diabetic,p.cardiac_issue,p.blood_pressure, f.father_name,f.father_age,f.mother_name,f.mother_age,f.father_country_origin,f.mother_country_origin,f.parent_diabetic,f.parent_cardiac_issue,f.parent_bp, d.disease_type,d.disease_description, do.document_type,do.document_url FROM personal_info p JOIN user_Register r ON p.user_id = r.id JOIN family_info f ON f.user_id = r.id JOIN disease d ON d.user_id = r.id JOIN documents do ON do.user_id = r.id WHERE r.is_deleted = false and r.id=?",
+          id,
+          (error, result) => {
+            if (error) {
+              return reject(error);
+            }
+          
+            return resolve(result);
+          }
+        );
+      });
+    
+   } catch (error) {
+      throw error;
+    }
+}
 const createPersonalDetails = async (data, userId, email) => {
   try {
     const today = new Date();
@@ -191,22 +213,22 @@ const checkFillForm = async (userId) => {
     throw error;
   }
 };
-const getFamilyInfo = async (userId) => {
-  try {
-    return new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM family_info WHERE user_id = ?",
-        [userId],
-        (error, result) => {
-          if (error) return reject(error);
-          return resolve(result);
-        }
-      );
-    });
-  } catch (error) {
-    throw error;
-  }
-};
+// const getFamilyInfo = async (userId) => {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         "SELECT * FROM family_info WHERE user_id = ?",
+//         [userId],
+//         (error, result) => {
+//           if (error) return reject(error);
+//           return resolve(result);
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const updateFamilyInfo = async (data, userId) => {
   try {
@@ -255,25 +277,25 @@ const deleteFamilyInfo = async (userId) => {
   }
 };
 
-const getDiseaseInfo = async ( admin) => {
-  try {
-    if(admin){
-    const data = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM disease",
-        (error, result) => {
-          if (error) return reject(error);
-          return resolve(result);
-        }
-      );
-    });
+// const getDiseaseInfo = async ( admin) => {
+//   try {
+//     if(admin){
+//     const data = await new Promise((resolve, reject) => {
+//       db.query(
+//         "SELECT * FROM disease",
+//         (error, result) => {
+//           if (error) return reject(error);
+//           return resolve(result);
+//         }
+//       );
+//     });
 
-    return data;
-  }
-  } catch (error) {
-    throw error;
-  }
-};
+//     return data;
+//   }
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const addDiseaseData = async (data, id) => {
   try {
@@ -427,17 +449,16 @@ const checkDiseaseInfo = async (userId) => {
 
 export {
   saveDocument,
-  getDiseaseInfo,
   createPersonalDetails,
   checkPersonalInfo,
   checkFamilyInfo,
   checkDiseaseInfo,
   updatePersonalDetails,
   getInfo,
+  getPatientInfo,
   deletePersonalDetails,
   checkFillForm,
   insertFamilyInfo,
-  getFamilyInfo,
   updateFamilyInfo,
   deleteFamilyInfo,
   addDiseaseData,

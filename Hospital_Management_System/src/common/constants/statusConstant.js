@@ -10,6 +10,7 @@ const STATUS_CODE = {
 };
 
 const MESSAGE = {
+  ADMIN_LOGIN:"Admin login",
   SERVER_ERROR_MESSAGE: "Internal Server Error",
   INVALID_TOKEN_MESSAGE: "Invalid token.",
   INVALID_USER_MESSAGE: "Invalid User",

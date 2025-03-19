@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv';
 import userRoutes from './src/routes/userRoutes.js';
 import patientRoutes from './src/routes/patientRoutes.js';
+import registerRoutes from './src/routesRegister/routesRegister.js'
 import cors from 'cors'
 import helmet from 'helmet';
 dotenv.config();
@@ -12,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 app.use("/api/user", userRoutes).use("/api/patient", patientRoutes);
-
+// registerRoutes(app);
 const corsOptions = {
   origin: "*",
   methods: "GET, POST, PUT, DELETE",

@@ -2,10 +2,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import sendVerificationEmail from '../common/utility/sendVerificationEmail.js';
-import{createUserData,checkIfUserExists,loginUser, getUserData, updateUserData,deleteUserData} from '../models/userModel.js';
+import{createUserData,checkIfUserExists,loginUser, getUserData, updateUserData,deleteUserData,addAsAdmin} from '../models/userModel.js';
 import { MESSAGE, STATUS_CODE } from '../common/constants/statusConstant.js';
 dotenv.config();
-
 
 const register = async (req, res) => {
   try {
@@ -21,7 +20,7 @@ const register = async (req, res) => {
 
     await createUserData(email, user_password, first_name, last_name, mobile_number);
 
-    await sendVerificationEmail(email);  
+    // await sendVerificationEmail(email);  
 
     res.status(STATUS_CODE.CREATED).json({
       status: STATUS_CODE.CREATED,
@@ -36,7 +35,6 @@ const register = async (req, res) => {
     });
   }
 };
-
 
 // *************************************************************
 
@@ -68,7 +66,15 @@ const login = async (req, res) => {
           { expiresIn: '3h' }
       );
 
+      const { admin: is_admin} = req.user;
+      console.log(is_admin);
+
+      // if(is_admin){
+
+      // res.json({ message:MESSAGE.LOGIN_SUCCESS_MESSAGE,message:MESSAGE.ADMIN_LOGIN,token });
+      // }
       res.json({ message:MESSAGE.LOGIN_SUCCESS_MESSAGE, token });
+
   } catch (error) {
       console.error(error.message)
       res.status(error.status ||STATUS_CODE.SERVER_ERROR).json({
@@ -79,6 +85,27 @@ const login = async (req, res) => {
   }
 };
 
+// *******************************************************************
+
+const addAdmin =async(req,res)=>{
+  try{
+  const { admin: is_admin} = req.user;
+  const { email} = req.body;
+
+await addAsAdmin(is_admin,email);
+throw{
+  status: STATUS_CODE.SUCCESS,
+  message: "admin is added"
+};
+} catch (error) {
+console.error(error.message)
+return res.status(error.status ||STATUS_CODE.SERVER_ERROR).send({
+  status:error.status ||STATUS_CODE.SERVER_ERROR,
+  message: error.message ||  MESSAGE.SERVER_ERROR_MESSAGE,
+
+});
+}
+}
 // **************************************************************
 
 const updateUser = async (req, res) => {
@@ -154,4 +181,4 @@ const { Id: id } = req.user
 
 
 
-export default { register, login, getUser,updateUser, deleteUser};
+export default { register, login, getUser,updateUser, deleteUser,addAdmin};
