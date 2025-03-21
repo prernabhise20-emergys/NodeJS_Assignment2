@@ -77,10 +77,16 @@ const user_schemas = {
    }),
 
    createPersonalInfo: Joi.object({
+    patient_name: Joi.string()
+    .required()
+    .error(new Error("patient name is required")),
     date_of_birth: Joi.date()
       .required()
       .error(new Error("date_of_birth is required and must be a valid date")),
-
+      gender: Joi.string()
+      .required()
+      .valid("male", "female","other")
+      .error(new Error("gender is required field and allowed this options male, female,other")),
     weight: Joi.number()
       .positive()
       .optional()
@@ -109,6 +115,13 @@ const user_schemas = {
    }),
 
    updatePersonalInfo: Joi.object({
+    patient_name: Joi.string()
+    .required()
+    .error(new Error("patient name is required")),
+      gender: Joi.string()
+      .required()
+      .valid("male", "female","other")
+      .error(new Error("gender is required field and allowed this options male, female,other")),
     date_of_birth: Joi.date()
       .required()
       .error(new Error("date_of_birth is required and must be a valid date")),
@@ -140,19 +153,24 @@ const user_schemas = {
       .error(new Error("blood_pressure must be a boolean")),
    }),
 
-  createFamilyInfo: Joi.object({
-    father_name: Joi.string().min(3).max(100).required().error(new Error("father_name is required and must be at least 3 characters")),
-    father_age: Joi.number().min(18).required().error(new Error("father_age is required")),
-    father_country_origin: Joi.string().min(3).max(25).required().error(new Error("father_country_origin is required")),
-    mother_name: Joi.string().min(3).max(100).required().error(new Error("mother_name is required and must be at least 3 characters")),
-    mother_age: Joi.number().min(18).required().error(new Error("mother_age is required")),
-    mother_country_origin: Joi.string().min(3).max(25).required().error(new Error("mother_country_origin is required")),
-    parent_diabetic: Joi.boolean().required().error(new Error(" parent_diabetic is required")),
-    parent_cardiac_issue: Joi.boolean().required().error(new Error("parent_cardiac_issue is required")),
-    parent_bp: Joi.boolean().required().error(new Error("parent_bp is required field")),
-  }),
+
+ createFamilyInfo : Joi.object({
+  familyDetails: Joi.object({
+    patient_id: Joi.number().required(),
+    father_name: Joi.string().min(3).max(100).optional().error(new Error("father_name is required and must be at least 3 characters")),
+    father_age: Joi.number().min(18).optional().error(new Error("father_age is required")),
+    father_country_origin: Joi.string().min(3).max(25).optional().error(new Error("father_country_origin is required")),
+    mother_name: Joi.string().min(3).max(100).optional().error(new Error("mother_name is required and must be at least 3 characters")),
+    mother_age: Joi.number().min(18).optional().error(new Error("mother_age is required")),
+    mother_country_origin: Joi.string().min(3).max(25).optional().error(new Error("mother_country_origin is required")),
+    parent_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
+    parent_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
+    parent_bp: Joi.boolean().optional().error(new Error("parent_bp is required field")),
+  }).required()
+}),
 
   updateFamilyInfo: Joi.object({
+    patient_id: Joi.number().required(),
     father_name: Joi.string().min(3).max(100).error(new Error("father_name must be at least 3 characters")),
     father_age: Joi.number().min(18).error(new Error("father_age is min 18")),
     father_country_origin: Joi.string().min(3).max(25).error(new Error("father_country_origin is string format and minimum 3 character are allowed")),
@@ -164,12 +182,15 @@ const user_schemas = {
     parent_bp: Joi.boolean().error(new Error("parent_bp is in boolean form")),
   }),
 
-  createDiseaseInfo: Joi.object({
-    disease_type:Joi.string().required().error(new Error("disease_type is required")),
-    disease_description:Joi.string().max(255).required().error(new Error("disease_description is required")),
+   createDiseaseInfo : Joi.object({
+    diseaseDetails: Joi.object({
+      patient_id: Joi.number().required(),
+      disease_type: Joi.string().required(),
+      disease_description: Joi.string().required()
+    }).required()
   }),
-
   updateDiseaseInfo: Joi.object({
+    patient_id: Joi.number().required(),
     disease_type:Joi.string().optional().error(new Error("disease_type is in string format")),
     disease_description:Joi.string().max(255).optional().error(new Error("disease_type is in string format")),
   }),

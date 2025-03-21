@@ -1,19 +1,14 @@
-import express from 'express'
+import express from 'express';
 import dotenv from 'dotenv';
-import userRoutes from './src/routes/userRoutes.js';
-import patientRoutes from './src/routes/patientRoutes.js';
-import registerRoutes from './src/routesRegister/routesRegister.js'
-import cors from 'cors'
+import registerRoutes from './src/routesRegister/routesRegister.js';
+import cors from 'cors';
 import helmet from 'helmet';
 dotenv.config();
 
 const app = express();
 app.use(helmet());
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
-
-
-// registerRoutes(app);
+app.use(express.urlencoded({ extended: false }));
 
 const corsOptions = {
   origin: "*",
@@ -24,9 +19,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use("/api/user", userRoutes).use("/api/patient", patientRoutes);
+registerRoutes(app);
 
-const { env: { PORT }, } = process;
+const { env: { PORT } } = process;
 const port = PORT || 3000;
 
 app.listen(port, () => {

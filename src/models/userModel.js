@@ -4,11 +4,12 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const getUserData = async () => {
+const getUserData = async (userid) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT * FROM user_register WHERE is_deleted =FALSE",
+        "SELECT email,first_name,last_name,mobile_number FROM user_register WHERE is_deleted =FALSE and id=?",
+        userid,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -60,7 +61,7 @@ const loginUser = (email) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        "SELECT *FROM user_register WHERE email = ?",
+        "SELECT * FROM user_register WHERE email = ?",
         email,
         (error, results) => {
           if (error) {
@@ -159,6 +160,25 @@ const updateUserData = async (formData, id) => {
 
 // ******************************************************************
 
+const checkAdminCount = async () => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = TRUE",
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results[0].adminCount);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+// ************************************************************
 const deleteUserData = async (userId) => {
   try {
     const data = await new Promise((resolve, reject) => {
@@ -190,8 +210,7 @@ const checkIfUserExists = async (email) => {
         [email],
         (error, results) => {
           if (error) {
-            console.error("Database query error:", error);
-            return reject(new Error("Failed to check user in data"));
+            return reject(error);
           }
           resolve(results);
         }
@@ -212,5 +231,6 @@ export {
   updateUserData,
   deleteUserData,
   addAsAdmin,
-  removeAdminAuthority
+  removeAdminAuthority,
+  checkAdminCount
 };
