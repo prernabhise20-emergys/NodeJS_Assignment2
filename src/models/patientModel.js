@@ -9,7 +9,7 @@ const getInfo = async (is_admin, limit, offset) => {
     return new Promise((resolve, reject) => {
       let query = `
         SELECT 
-          p.patient_id, u.first_name, u.last_name, u.mobile_number, 
+          p.patient_id,p.patient_name, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
           f.father_name, f.father_age, f.mother_name, f.mother_age, 
@@ -106,6 +106,22 @@ const getPatientInfo = async (id) => {
           const patientInfo = Object.values(patientData);
 
           return resolve(patientInfo);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getPersonalInfo = async (patient_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query("SELECT * FROM personal_info WHERE is_deleted=false patient_id = ?",
+        [patient_id],
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
         }
       );
     });
@@ -283,6 +299,21 @@ const checkFillForm = async (userId) => {
   }
 };
 
+const getFamilyInfo = async (patient_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query("SELECT * FROM family_info WHERE is_deleted=false patient_id = ?",
+        [patient_id],
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 const updateFamilyInfo = async (data, patient_id) => {
   try {
     const values = [
@@ -329,6 +360,26 @@ const deleteFamilyInfo = async (patient_id) => {
     throw error;
   }
 };
+
+const getDiseaseInfo = async (patient_id) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query( "SELECT * FROM disease d WHERE is_deleted = false and patient_id = ?",
+        patient_id,
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 const addDiseaseData = async (data) => {
   try {
     const { disease_type, disease_description, patient_id } = data;
@@ -391,6 +442,25 @@ const deleteDiseaseDetails = async (patient_id) => {
     throw error;
   }
 };
+
+const getUploadInfo = async (patient_id) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query( "SELECT * FROM documents WHERE is_deleted = false and patient_id = ?",
+        patient_id,
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const saveDocument = (documentData) => {
   return new Promise((resolve, reject) => {
@@ -512,23 +582,6 @@ const modifyDocument = (documentData) => {
   });
 };
 
-// const modifyDocument = (documentData) => {
-//   return new Promise((resolve, reject) => {
-//     const values = [
-//       documentData.document_type,
-//       documentData.document_url || null,
-//       documentData.patient_id,
-//     ];
-
-//     db.query(`UPDATE documents SET document_type = ?, document_url = ? WHERE patient_id = ?`
-//       , values, (error, result) => {
-//       if (error) {
-//         return reject(error);
-//       }
-//       resolve(result);
-//     });
-//   });
-// };
 
 
 const removeDocument = (patient_id, document_type) => {
@@ -546,13 +599,16 @@ const removeDocument = (patient_id, document_type) => {
 };
 
 export {
+  getFamilyInfo,
   checkDocumentExists,
+  getDiseaseInfo,
   modifyDocument,
   removeDocument,
   saveDocument,
   createPersonalDetails,
   checkPersonalInfo,
   checkFamilyInfo,
+  getPersonalInfo,
   checkDiseaseInfo,
   updatePersonalDetails,
   getInfo,
@@ -564,5 +620,6 @@ export {
   deleteFamilyInfo,
   addDiseaseData,
   updateDiseaseDetails,
+  getUploadInfo,
   deleteDiseaseDetails,
 };
