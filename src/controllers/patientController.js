@@ -433,51 +433,59 @@ const getUploadDocument = async (req, res) => {
     });
   }
 };
+
 const uploadDocument = async (req, res) => {
   try {
-    if (!req.files || req.files.length === 0) {
-           throw NO_FILE_FOUND;
 
-    }
+  console.log(" Received File:", req.file);
 
-    const { userid: id } = req.user;
-    const { document_type, patient_id } = req.body;
+  if (!req.file) {
+    throw {
+      status: STATUS_CODE.NOT_FOUND,
+      message: MESSAGE.NO_FILE,
+    };
+  }
+  const { userid: id } = req.user;
 
-    if (!document_type || !id) {
-            throw MISSING_REQUIRED;
+  const { document_type } = req.body;
+  
+  const diseaseExists = await checkDiseaseInfo(id);
+  if (!diseaseExists) {
+    throw{
+      message: MESSAGE.DISEASE_STEP,
+    };
+  }
 
-    }
+  if (!document_type || !id) {
+    throw {
+      status: STATUS_CODE.NOT_FOUND,
+      message: MESSAGE.MISSING_REQUIRED,
+    };
+  }
 
-    const documentUrls = [];
+    const result = await uploadFile(req.file);
+    const { secure_url: documentUrl } = result;
 
-    for (const file of req.files) {
-      const result = await uploadFile(file); 
-      const { secure_url: documentUrl } = result;
-      documentUrls.push(documentUrl);
-
-      const documentData = {
-        document_type,
-        document_url: documentUrl,
-        patient_id: patient_id,
-      };
-
-      await saveDocument(documentData); 
-    }
-
-    return res.status(SUCCESS_STATUS_CODE.CREATED).send({
-            status: SUCCESS_STATUS_CODE.CREATED,
-            message: SUCCESS_MESSAGE.DOCUMENT_UPLOAD,
-            document_url: documentUrl,
-          });
-  } catch (error) {
-    console.error(error.message);
-        return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-          status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-          message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-        });
-      }
+    const documentData = {
+      document_type,
+      document_url: documentUrl,
     };
 
+    await saveDocument(documentData,id);
+
+    return res.status(STATUS_CODE.CREATED).send({
+      status: STATUS_CODE.CREATED,
+      message: MESSAGE.DOCUMENT_UPLOAD,
+      document_url: documentUrl,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(error.status || STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || STATUS_CODE.SERVER_ERROR,
+      message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
 
 const updateDocument = async (req, res) => {
   try {
