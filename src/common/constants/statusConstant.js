@@ -29,7 +29,8 @@ const ERROR_MESSAGE = {
   PERSONAL_INFO_EXISTS:"Personal information is already exist, if you want to change then update the information",
   FAMILY_INFO_EXISTS:"Family information is already exists, if you want to change then update the information",
   DISEASE_INFO_EXISTS:"Disease information is already exists, if you want to change then update the information",
-  FORBIDDEN_MESSAGE:"Unauthorized access"
+  FORBIDDEN_MESSAGE:"Unauthorized access",
+  DOCUMENT_NOT_FOUND:"Document not found"
 };
 
 const SUCCESS_MESSAGE={

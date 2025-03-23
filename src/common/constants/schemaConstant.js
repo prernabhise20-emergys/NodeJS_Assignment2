@@ -115,6 +115,7 @@ const user_schemas = {
    }),
 
    updatePersonalInfo: Joi.object({
+    patient_id: Joi.number().required(),
     patient_name: Joi.string()
     .required()
     .error(new Error("patient name is required")),

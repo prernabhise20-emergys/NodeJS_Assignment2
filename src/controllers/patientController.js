@@ -22,11 +22,13 @@ import {
   saveDocument,
   modifyDocument,
   removeDocument,
+  checkDocumentExists,
   checkPersonalInfo,
   checkFamilyInfo,
   checkDiseaseInfo,
 } from "../models/patientModel.js";
 const {
+  DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
   FORBIDDEN,
   UPDATE_SUCCESSFULLY,
@@ -157,6 +159,7 @@ const updatePersonalInfo = async (req, res) => {
         is_diabetic,
         cardiac_issue,
         blood_pressure,
+        patient_id
       },
     } = req;
     const { userid: id } = req.user;
@@ -177,7 +180,7 @@ const updatePersonalInfo = async (req, res) => {
     }
 
     if (req.user.userid == id) {
-      await updatePersonalDetails(data, id);
+      await updatePersonalDetails(data, patient_id);
     }
     throw UPDATE_SUCCESSFULLY;
   } catch (error) {
@@ -387,8 +390,6 @@ const uploadDocument = async (req, res) => {
     });
   }
 };
-
-
 const updateDocument = async (req, res) => {
   try {
     if (!req.file) {
@@ -398,17 +399,24 @@ const updateDocument = async (req, res) => {
     if (!document_type || !patient_id) {
       throw MISSING_REQUIRED;
     }
-    console.log( document_type,patient_id);
+
+    const documentExists = await checkDocumentExists(document_type, patient_id);
+    if (!documentExists) {
+      throw DOCUMENT_NOT_FOUND;
+    }
 
     let documentUrl;
     if (req.file) {
       const result = await uploadFile(req.file);
       documentUrl = result.secure_url;
     }
-    const data={
-       document_type, document_url: documentUrl,patient_id:patient_id
-    }
-console.log( document_type, documentUrl,patient_id);
+
+    const data = {
+      document_type,
+      document_url: documentUrl,
+      patient_id,
+    };
+    console.log(document_type, documentUrl, patient_id);
 
     await modifyDocument(data);
 
@@ -425,10 +433,14 @@ console.log( document_type, documentUrl,patient_id);
   }
 };
 
-
 const deleteDocument = async (req, res) => {
   try {
     const{patient_id,document_type}=req.body;
+    
+    const documentExists = await checkDocumentExists(document_type, patient_id);
+    if (!documentExists) {
+      throw DOCUMENT_NOT_FOUND;
+    }
 
     await removeDocument(patient_id,document_type);
 
@@ -444,6 +456,7 @@ const deleteDocument = async (req, res) => {
     });
   }
 };
+
 
 export default {
   uploadDocument,
