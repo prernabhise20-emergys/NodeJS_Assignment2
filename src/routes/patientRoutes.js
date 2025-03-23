@@ -4,8 +4,7 @@ import { schemaValidator } from "../middlewares/userValidation.js";
 import { user_schemas } from "../common/constants/schemaConstant.js";
 import authenticateUser from "../middlewares/authMiddleware.js";
 import {
-  uploadMultiple,
-  uploadSingle,
+
   upload,
 } from "../config/uploadDocument.js";
 import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
@@ -120,13 +119,13 @@ router.get(
 router.post(
   UPLOAD_DOCUMENTS,
   authenticateUser,
-  uploadMultiple,
+  upload.single('file'),
   patientController.uploadDocument
 );
 router.put(
   UPDATE_DOCUMENT,
   authenticateUser,
-  uploadSingle,
+  upload.single('file'),
   patientController.updateDocument
 );
 
