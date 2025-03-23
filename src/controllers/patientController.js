@@ -8,10 +8,14 @@ import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 
 import {
+  getFamilyInfo,
+  getUploadInfo,
   createPersonalDetails,
+  getPersonalInfo,
   updatePersonalDetails,
   getInfo,
   deletePersonalDetails,
+  getDiseaseInfo,
   addDiseaseData,
   insertFamilyInfo,
   getPatientInfo,
@@ -98,6 +102,25 @@ const showPatientDetails = async (req, res) => {
 };
 
 // *********************************************************************
+const getPersonalDetails = async (req, res) => {
+  try {
+    const { uid: id } = req.user;
+    const {patient_id}=req.params;
+    const familyInfo = await getPersonalInfo(patient_id);
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: familyInfo,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message ||ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
 
 const createPersonalInfo = async (req, res) => {
   try {
@@ -219,7 +242,25 @@ const deletePersonalInfo = async (req, res) => {
 };
 
 // *************************************************************************
+const getFamilyDetails = async (req, res) => {
+  try {
+    const { uid: id } = req.user;
+    const {patient_id}=req.params;
+    const familyInfo = await getFamilyInfo(patient_id);
 
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: familyInfo,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(STATUS_CODE.SERVER_ERROR).send({
+      status: STATUS_CODE.SERVER_ERROR,
+      message: error.message ||ERROR_MESSAGE.SERVER_ERROR_MESSAGE
+    });
+  }
+};
 const addFamilyInfo = async (req, res) => {
   try {
     const { familyDetails } = req.body;
@@ -303,6 +344,26 @@ const deleteFamilyInfoDetails = async (req, res) => {
 
 // ********************************************************************
 
+const getDiseaseDetails = async (req, res) => {
+  try {
+    const { admin: is_admin } = req.user; 
+    const { patient_id } = req.params; 
+    const personalInfo = await getDiseaseInfo( patient_id);
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.DISEASE_DETAILS,
+      data: personalInfo,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
+
 const addDiseaseInfo = async (req, res) => {
   try {
     const { diseaseDetails } = req.body;
@@ -353,18 +414,54 @@ const deleteDiseaseInfo = async (req, res) => {
 };
 
 // **************************************************************************
+const getUploadDocument = async (req, res) => {
+  try {
+    const { admin: is_admin } = req.user; 
+    const { patient_id } = req.params; 
+    const personalInfo = await getUploadInfo( patient_id);
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: personalInfo,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(STATUS_CODE.SERVER_ERROR).send({
+      status: STATUS_CODE.SERVER_ERROR,
+      message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
 
 const uploadDocument = async (req, res) => {
   try {
-    if (!req.file) {
-      throw NO_FILE_FOUND;
-    }
-    const { userid: id } = req.user;
-    const { document_type, patient_id } = req.body;
 
-    if (!document_type || !id) {
-      throw MISSING_REQUIRED;
-    }
+  console.log(" Received File:", req.file);
+
+  if (!req.file) {
+    throw {
+      status: STATUS_CODE.NOT_FOUND,
+      message: MESSAGE.NO_FILE,
+    };
+  }
+  const { userid: id } = req.user;
+
+  const { document_type } = req.body;
+  
+  const diseaseExists = await checkDiseaseInfo(id);
+  if (!diseaseExists) {
+    throw{
+      message: MESSAGE.DISEASE_STEP,
+    };
+  }
+
+  if (!document_type || !id) {
+    throw {
+      status: STATUS_CODE.NOT_FOUND,
+      message: MESSAGE.MISSING_REQUIRED,
+    };
+  }
 
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
@@ -372,24 +469,69 @@ const uploadDocument = async (req, res) => {
     const documentData = {
       document_type,
       document_url: documentUrl,
-      patient_id: patient_id,
     };
 
-    await saveDocument(documentData);
+    await saveDocument(documentData,id);
 
-    return res.status(SUCCESS_STATUS_CODE.CREATED).send({
-      status: SUCCESS_STATUS_CODE.CREATED,
-      message: SUCCESS_MESSAGE.DOCUMENT_UPLOAD,
+    return res.status(STATUS_CODE.CREATED).send({
+      status: STATUS_CODE.CREATED,
+      message: MESSAGE.DOCUMENT_UPLOAD,
       document_url: documentUrl,
     });
   } catch (error) {
     console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    return res.status(error.status || STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || STATUS_CODE.SERVER_ERROR,
+      message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
     });
   }
 };
+// const uploadDocument = async (req, res) => {
+//   try {
+//     if (!req.files || req.files.length === 0) {
+//            throw NO_FILE_FOUND;
+
+//     }
+
+//     const { userid: id } = req.user;
+//     const { document_type, patient_id } = req.body;
+
+//     if (!document_type || !id) {
+//             throw MISSING_REQUIRED;
+
+//     }
+
+//     const documentUrls = [];
+
+//     for (const file of req.files) {
+//       const result = await uploadFile(file); 
+//       const { secure_url: documentUrl } = result;
+//       documentUrls.push(documentUrl);
+
+//       const documentData = {
+//         document_type,
+//         document_url: documentUrl,
+//         patient_id: patient_id,
+//       };
+
+//       await saveDocument(documentData); 
+//     }
+
+//     return res.status(SUCCESS_STATUS_CODE.CREATED).send({
+//             status: SUCCESS_STATUS_CODE.CREATED,
+//             message: SUCCESS_MESSAGE.DOCUMENT_UPLOAD,
+//             document_url: documentUrl,
+//           });
+//   } catch (error) {
+//     console.error(error.message);
+//         return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+//           status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+//           message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+//         });
+//       }
+//     };
+
+
 const updateDocument = async (req, res) => {
   try {
     if (!req.file) {
@@ -457,8 +599,11 @@ const deleteDocument = async (req, res) => {
   }
 };
 
-
 export default {
+  getUploadDocument,
+  getPersonalDetails,
+  getFamilyDetails,
+  getDiseaseDetails,
   uploadDocument,
   createPersonalInfo,
   updatePersonalInfo,
