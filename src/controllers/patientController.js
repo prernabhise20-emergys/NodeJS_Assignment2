@@ -441,25 +441,19 @@ const uploadDocument = async (req, res) => {
 
   if (!req.file) {
     throw {
-      status: STATUS_CODE.NOT_FOUND,
-      message: MESSAGE.NO_FILE,
+      status: ERROR_STATUS_CODE.NOT_FOUND,
+      message: ERROR_MESSAGE.NO_FILE,
     };
   }
-  const { userid: id } = req.user;
+  // const { userid: id } = req.user;
 
-  const { document_type } = req.body;
+  const { document_type,patient_id } = req.body;
   
-  const diseaseExists = await checkDiseaseInfo(id);
-  if (!diseaseExists) {
-    throw{
-      message: MESSAGE.DISEASE_STEP,
-    };
-  }
 
-  if (!document_type || !id) {
+  if (!document_type || !patient_id) {
     throw {
-      status: STATUS_CODE.NOT_FOUND,
-      message: MESSAGE.MISSING_REQUIRED,
+      status: ERROR_STATUS_CODE.NOT_FOUND,
+      message: ERROR_MESSAGE.MISSING_REQUIRED,
     };
   }
 
@@ -469,20 +463,21 @@ const uploadDocument = async (req, res) => {
     const documentData = {
       document_type,
       document_url: documentUrl,
+      patient_id
     };
 
-    await saveDocument(documentData,id);
+    await saveDocument(documentData);
 
-    return res.status(STATUS_CODE.CREATED).send({
-      status: STATUS_CODE.CREATED,
-      message: MESSAGE.DOCUMENT_UPLOAD,
+    return res.status(SUCCESS_STATUS_CODE.CREATED).send({
+      status: SUCCESS_STATUS_CODE.CREATED,
+      message: SUCCESS_MESSAGE.DOCUMENT_UPLOAD,
       document_url: documentUrl,
     });
   } catch (error) {
     console.error(error.message);
-    return res.status(error.status || STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || STATUS_CODE.SERVER_ERROR,
-      message: error.message || MESSAGE.SERVER_ERROR_MESSAGE,
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
     });
   }
 };
