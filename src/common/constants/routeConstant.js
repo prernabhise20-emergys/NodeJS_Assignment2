@@ -21,7 +21,11 @@ const ROUTE_CONSTANTS = {
   DELETE_DISEASE_INFO: "/deleteDiseaseInfo/:patient_id",
   UPLOAD_DOCUMENTS: "/upload",
   UPDATE_DOCUMENT:"/updateDocument",
-  DELETE_DOCUMENT:"/deleteDocument"
+  DELETE_DOCUMENT:"/deleteDocument",
+  GET_UPLOAD_INFO:"/getUploadInfo/:patient_id",
+  GET_FAMILY_INFO:"/getFamilyInfo/:patient_id",
+  GET_DISEASE_INFO:"/getDiseaseInfo/:patient_id",
+  GET_PERSONAL_INFO:"/getPersonalInfo/:patient_id"
 };
 
 export default ROUTE_CONSTANTS;
