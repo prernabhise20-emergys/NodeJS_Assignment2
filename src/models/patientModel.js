@@ -25,11 +25,53 @@ const getInfo = async (is_admin, limit, offset) => {
         WHERE p.is_deleted = FALSE ORDER BY p.patient_id LIMIT ? OFFSET ?
       `;
 
-      db.query(query,[limit,offset], (error, result) => {
+      db.query(query, [limit, offset], (error, result) => {
         if (error) {
           return reject(error);
+          
         }
-        return resolve(result);
+        const patientData = {};
+
+        result.forEach((row) => {
+          if (!patientData[row.patient_id]) {
+            patientData[row.patient_id] = {
+              patient_id: row.patient_id,
+              patient_name: row.patient_name,
+              mobile_number: row.mobile_number,
+              date_of_birth: row.date_of_birth,
+              age: row.age,
+              weight: row.weight,
+              height: row.height,
+              bmi: row.bmi,
+              country_of_origin: row.country_of_origin,
+              is_diabetic: row.is_diabetic,
+              cardiac_issue: row.cardiac_issue,
+              blood_pressure: row.blood_pressure,
+              father_name: row.father_name,
+              father_age: row.father_age,
+              mother_name: row.mother_name,
+              mother_age: row.mother_age,
+              father_country_origin: row.father_country_origin,
+              mother_country_origin: row.mother_country_origin,
+              parent_diabetic: row.parent_diabetic,
+              parent_cardiac_issue: row.parent_cardiac_issue,
+              parent_bp: row.parent_bp,
+              disease_type: row.disease_type,
+              disease_description: row.disease_description,
+              documents: [],
+            };
+          }
+
+          patientData[row.patient_id].documents.push({
+            document_type: row.document_type,
+            document_url: row.document_url,
+          });
+        });
+
+        const patientInfo = Object.values(patientData);
+
+        return resolve(patientInfo);
+        // return resolve(result);
       });
     });
   } catch (error) {
@@ -66,8 +108,7 @@ const getPatientInfo = async (id) => {
           const patientData = {};
 
           result.forEach((row) => {
-            if (!patientData[row.patient_id]) 
-              {
+            if (!patientData[row.patient_id]) {
               patientData[row.patient_id] = {
                 patient_id: row.patient_id,
                 patient_name: row.patient_name,
@@ -118,7 +159,8 @@ const getPatientInfo = async (id) => {
 const getPersonalInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
-      db.query(`SELECT patient_name,date_of_birth,gender,age,
+      db.query(
+        `SELECT patient_name,date_of_birth,gender,age,
         weight,height,bmi,country_of_origin,is_diabetic,cardiac_issue,blood_pressure
          FROM personal_info WHERE is_deleted=false and patient_id = ?`,
         [patient_id],
@@ -180,9 +222,14 @@ const createPersonalDetails = async (data, userId, email) => {
     throw error;
   }
 };
+
 const convertToBoolean = (value) => {
-  return value === true || value === 1 || value === '1' || value === 'true';
+
+  return value === true || value === 1 ? true : false;
+
 };
+
+
 const updatePersonalDetails = async (data, patient_id) => {
   try {
     const values = [
@@ -309,7 +356,8 @@ const checkFillForm = async (userId) => {
 const getFamilyInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
-      db.query(`SELECT father_name, father_age,father_country_origin,mother_name,
+      db.query(
+        `SELECT father_name, father_age,father_country_origin,mother_name,
         mother_age,mother_country_origin,parent_diabetic,parent_cardiac_issue,parent_bp 
         FROM family_info WHERE is_deleted=false and patient_id = ?`,
         [patient_id],
@@ -375,7 +423,8 @@ const deleteFamilyInfo = async (patient_id) => {
 const getDiseaseInfo = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      db.query( `SELECT disease_type,disease_description FROM disease d 
+      db.query(
+        `SELECT disease_type,disease_description FROM disease d 
         WHERE is_deleted = false and patient_id = ?`,
         patient_id,
         (error, result) => {
@@ -390,7 +439,6 @@ const getDiseaseInfo = async (patient_id) => {
     throw error;
   }
 };
-
 
 const addDiseaseData = async (data) => {
   try {
@@ -458,7 +506,8 @@ const deleteDiseaseDetails = async (patient_id) => {
 const getUploadInfo = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      db.query( "SELECT document_type,document_url FROM documents WHERE is_deleted = false and patient_id = ?",
+      db.query(
+        "SELECT document_type,document_url FROM documents WHERE is_deleted = false and patient_id = ?",
         patient_id,
         (error, result) => {
           if (error) return reject(error);
@@ -472,7 +521,6 @@ const getUploadInfo = async (patient_id) => {
     throw error;
   }
 };
-
 
 const saveDocument = (documentData) => {
   return new Promise((resolve, reject) => {
@@ -492,7 +540,6 @@ const saveDocument = (documentData) => {
     );
   });
 };
-
 
 // *************************************************************************************
 
@@ -595,11 +642,10 @@ const modifyDocument = (documentData) => {
   });
 };
 
-
-
 const removeDocument = (patient_id, document_type) => {
   return new Promise((resolve, reject) => {
-    const query = "UPDATE documents SET IS_DELETED = true WHERE patient_id = ? AND document_type = ?";
+    const query =
+      "UPDATE documents SET IS_DELETED = true WHERE patient_id = ? AND document_type = ?";
     const values = [patient_id, document_type];
 
     db.query(query, values, (error, result) => {

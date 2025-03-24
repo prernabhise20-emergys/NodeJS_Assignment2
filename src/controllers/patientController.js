@@ -186,7 +186,6 @@ const updatePersonalInfo = async (req, res) => {
       },
     } = req;
 
-
     const data = {
       patient_name,
       date_of_birth,
@@ -194,20 +193,16 @@ const updatePersonalInfo = async (req, res) => {
       weight,
       height,
       country_of_origin,
-      is_diabetic: convertToBoolean(is_diabetic),
-      cardiac_issue: convertToBoolean(cardiac_issue),
-      blood_pressure: convertToBoolean(blood_pressure),
+      is_diabetic,
+      cardiac_issue,
+      blood_pressure,
     };
     
-    const { userid: id, admin: is_admin } = req.user;
+    const { userid: id , admin: is_admin} = req.user;
 
-    if (req.user.userid !== id || !is_admin) {
-      throw INVALID_USER;
-    }
-
-    if (req.user.userid == id || is_admin) {
+    // if (req.user.userid == id || is_admin) {
       await updatePersonalDetails(data, patient_id);
-    }
+    // }
 
     throw UPDATE_SUCCESSFULLY;
 
@@ -220,22 +215,69 @@ const updatePersonalInfo = async (req, res) => {
   }
 };
 
+// const updatePersonalInfo = async (req, res) => {
+//   try {
+//     const {
+//       body: {
+//         patient_name,
+//         date_of_birth,
+//         gender,
+//         weight,
+//         height,
+//         country_of_origin,
+//         is_diabetic,
+//         cardiac_issue,
+//         blood_pressure,
+//         patient_id
+//       },
+//     } = req;
+
+//     const data = {
+//       patient_name,
+//       date_of_birth,
+//       gender,
+//       weight,
+//       height,
+//       country_of_origin,
+//       is_diabetic: convertToBoolean(is_diabetic),
+//       cardiac_issue: convertToBoolean(cardiac_issue),
+//       blood_pressure: convertToBoolean(blood_pressure),
+//     };
+
+//     const { userid: id, admin: is_admin } = req.user;
+
+//     // if (req.user.userid == id || is_admin) {
+//       await updatePersonalDetails(data, patient_id);
+//     // }
+
+//     throw UPDATE_SUCCESSFULLY;
+
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+//       status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+//       message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+//     });
+//   }
+// };
+
+
 const deletePersonalInfo = async (req, res) => {
   try {
     const { userid: id, admin: is_admin } = req.user;
     const { patient_id } = req.params;
 
-    if (req.user.userid !== id && !is_admin) {
-      throw INVALID_USER;
-    }
+    // if (req.user.userid !== id && !is_admin) {
+    //   throw INVALID_USER;
+    // }
 
-    if (req.user.userid == id || is_admin) {
+    // if (req.user.userid == id || is_admin) {
       const deleteTask = await deletePersonalDetails(patient_id);
 
       if (deleteTask.affectedRows === 0) {
         throw NOT_DELETED;
       }
-    }
+    // }
     throw DELETE_SUCCESSFULLY;
   } catch (error) {
     console.error(error.message);
@@ -312,17 +354,17 @@ const updateFamilyInfoDetails = async (req, res) => {
     };
     const { userid: id, admin: is_admin } = req.user;
 
-    if (req.user.userid !== id && !is_admin) {
-      throw INVALID_USER;
-    }
+    // if (req.user.userid !== id && !is_admin) {
+    //   throw INVALID_USER;
+    // }
 
-    if (req.user.userid == id || is_admin){
+    // if (req.user.userid == id || is_admin){
     const result = await updateFamilyInfo(familyData, patient_id);
     
     if (result.affectedRows === 0) {
       throw NOT_UPDATE;
     }
-  }
+  // }
     throw UPDATE_SUCCESSFULLY;
   } catch (error) {
     console.error(error.message);
@@ -338,17 +380,17 @@ const deleteFamilyInfoDetails = async (req, res) => {
     const { patient_id } = req.params;
     const { userid: id, admin: is_admin } = req.user;
 
-    if (req.user.userid !== id && !is_admin) {
-      throw INVALID_USER;
-    }
+    // if (req.user.userid !== id && !is_admin) {
+    //   throw INVALID_USER;
+    // }
 
-    if (req.user.userid == id || is_admin){
+    // if (req.user.userid == id || is_admin){
     const result = await deleteFamilyInfo(patient_id);
 
     if (result.affectedRows === 0) {
       throw NOT_DELETED;
     }
-  }
+  // }
     throw DELETE_SUCCESSFULLY;
   } catch (error) {
     console.error(error.message);
@@ -402,15 +444,15 @@ const updateDiseaseInfo = async (req, res) => {
     } = req;
     const { userid: id, admin: is_admin } = req.user;
 
-    if (req.user.userid !== id && !is_admin) {
-      throw INVALID_USER;
-    }
+    // if (req.user.userid !== id && !is_admin) {
+    //   throw INVALID_USER;
+    // }
 
     const formData = { disease_type, disease_description };
     
-    if (req.user.userid == id || is_admin){
+    // if (req.user.userid == id || is_admin){
      await updateDiseaseDetails(formData, patient_id);
-    }
+    // }
     throw UPDATE_SUCCESSFULLY;
   } catch (error) {
     console.error(error.message);
@@ -426,13 +468,13 @@ const deleteDiseaseInfo = async (req, res) => {
     const { patient_id } = req.params;
     const { userid: id, admin: is_admin } = req.user;
 
-    if (req.user.userid !== id && !is_admin) {
-      throw INVALID_USER;
-    }
+    // if (req.user.userid !== id && !is_admin) {
+    //   throw INVALID_USER;
+    // }
 
-    if (req.user.userid == id || is_admin){
+    // if (req.user.userid == id || is_admin){
      await deleteDiseaseDetails(patient_id);
-    }
+    // }
     throw DELETE_SUCCESSFULLY;
   } catch (error) {
     console.error(error.message);
@@ -553,20 +595,20 @@ const deleteDocument = async (req, res) => {
     const{patient_id,document_type}=req.body;
     const { userid: id, admin: is_admin } = req.user;
 
-    if (req.user.userid !== id && !is_admin) {
-      throw INVALID_USER;
-    }
+    // if (req.user.userid !== id && !is_admin) {
+    //   throw INVALID_USER;
+    // }
 
   
     const documentExists = await checkDocumentExists(document_type, patient_id);
     if (!documentExists) {
       throw DOCUMENT_NOT_FOUND;
     }
-    if (req.user.userid == id || is_admin){
+    // if (req.user.userid == id || is_admin){
     await removeDocument(patient_id,document_type);
 
     throw DELETE_SUCCESSFULLY;
-  }
+  // }
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
