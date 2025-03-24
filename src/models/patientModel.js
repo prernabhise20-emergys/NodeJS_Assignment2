@@ -9,7 +9,7 @@ const getInfo = async (is_admin, limit, offset) => {
     return new Promise((resolve, reject) => {
       let query = `
         SELECT 
-          p.patient_id,p.patient_name, u.mobile_number, 
+          p.patient_id,p.patient_name,p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
           f.father_name, f.father_age, f.mother_name, f.mother_age, 
@@ -37,6 +37,7 @@ const getInfo = async (is_admin, limit, offset) => {
             patientData[row.patient_id] = {
               patient_id: row.patient_id,
               patient_name: row.patient_name,
+              gender:row.gender,
               mobile_number: row.mobile_number,
               date_of_birth: row.date_of_birth,
               age: row.age,
@@ -83,7 +84,7 @@ const getPatientInfo = async (id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name, r.mobile_number, 
+        `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name,p.gender, r.mobile_number, 
                 p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
                 p.is_diabetic, p.cardiac_issue, p.blood_pressure, f.father_name, f.father_age, 
                 f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
@@ -114,6 +115,7 @@ const getPatientInfo = async (id) => {
                 patient_name: row.patient_name,
                 first_name: row.first_name,
                 last_name: row.last_name,
+                gender:row.gender,
                 mobile_number: row.mobile_number,
                 date_of_birth: row.date_of_birth,
                 age: row.age,
