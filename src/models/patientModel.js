@@ -66,7 +66,8 @@ const getPatientInfo = async (id) => {
           const patientData = {};
 
           result.forEach((row) => {
-            if (!patientData[row.patient_id]) {
+            if (!patientData[row.patient_id]) 
+              {
               patientData[row.patient_id] = {
                 patient_id: row.patient_id,
                 patient_name: row.patient_name,
@@ -117,7 +118,9 @@ const getPatientInfo = async (id) => {
 const getPersonalInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
-      db.query("SELECT * FROM personal_info WHERE is_deleted=false and patient_id = ?",
+      db.query(`SELECT patient_name,date_of_birth,gender,age,
+        weight,height,bmi,country_of_origin,is_diabetic,cardiac_issue,blood_pressure
+         FROM personal_info WHERE is_deleted=false and patient_id = ?`,
         [patient_id],
         (error, result) => {
           if (error) return reject(error);
@@ -177,7 +180,9 @@ const createPersonalDetails = async (data, userId, email) => {
     throw error;
   }
 };
-
+const convertToBoolean = (value) => {
+  return value === true || value === 1 || value === '1' || value === 'true';
+};
 const updatePersonalDetails = async (data, patient_id) => {
   try {
     const values = [
@@ -193,10 +198,12 @@ const updatePersonalDetails = async (data, patient_id) => {
       patient_id,
     ];
     console.log(values);
-    // if (is_admin)
+
     return new Promise((resolve, reject) => {
       db.query(
-        "UPDATE personal_info SET patient_name=?, date_of_birth = ?,gender=?, height = ?, weight = ?, is_diabetic = ?, cardiac_issue = ?, blood_pressure = ?, country_of_origin = ? WHERE patient_id = ?",
+        `UPDATE personal_info SET patient_name=?, date_of_birth = ?,gender=?, height = ?, 
+        weight = ?, is_diabetic = ?, cardiac_issue = ?, blood_pressure = ?, country_of_origin = ? 
+        WHERE patient_id = ?`,
         values,
         (error, result) => {
           if (error) {
@@ -302,7 +309,9 @@ const checkFillForm = async (userId) => {
 const getFamilyInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
-      db.query("SELECT * FROM family_info WHERE is_deleted=false and patient_id = ?",
+      db.query(`SELECT father_name, father_age,father_country_origin,mother_name,
+        mother_age,mother_country_origin,parent_diabetic,parent_cardiac_issue,parent_bp 
+        FROM family_info WHERE is_deleted=false and patient_id = ?`,
         [patient_id],
         (error, result) => {
           if (error) return reject(error);
@@ -331,7 +340,9 @@ const updateFamilyInfo = async (data, patient_id) => {
 
     return new Promise((resolve, reject) => {
       db.query(
-        " UPDATE family_info SET father_name = ?, father_age = ?, father_country_origin = ?, mother_name = ?,  mother_age = ?, mother_country_origin = ?, parent_diabetic = ?,  parent_cardiac_issue = ?, parent_bp = ? WHERE patient_id = ?",
+        `UPDATE family_info SET father_name = ?, father_age = ?, father_country_origin = ?,
+         mother_name = ?,  mother_age = ?, mother_country_origin = ?, parent_diabetic = ?,  
+         parent_cardiac_issue = ?, parent_bp = ? WHERE patient_id = ?`,
         values,
         (error, result) => {
           if (error) return reject(error);
@@ -364,7 +375,8 @@ const deleteFamilyInfo = async (patient_id) => {
 const getDiseaseInfo = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      db.query( "SELECT * FROM disease d WHERE is_deleted = false and patient_id = ?",
+      db.query( `SELECT disease_type,disease_description FROM disease d 
+        WHERE is_deleted = false and patient_id = ?`,
         patient_id,
         (error, result) => {
           if (error) return reject(error);
@@ -446,7 +458,7 @@ const deleteDiseaseDetails = async (patient_id) => {
 const getUploadInfo = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      db.query( "SELECT * FROM documents WHERE is_deleted = false and patient_id = ?",
+      db.query( "SELECT document_type,document_url FROM documents WHERE is_deleted = false and patient_id = ?",
         patient_id,
         (error, result) => {
           if (error) return reject(error);
@@ -587,8 +599,8 @@ const modifyDocument = (documentData) => {
 
 const removeDocument = (patient_id, document_type) => {
   return new Promise((resolve, reject) => {
-    const query = "UPDATE documents SET IS_DELETED = ? WHERE patient_id = ? AND document_type = ?";
-    const values = [true, patient_id, document_type];
+    const query = "UPDATE documents SET IS_DELETED = true WHERE patient_id = ? AND document_type = ?";
+    const values = [patient_id, document_type];
 
     db.query(query, values, (error, result) => {
       if (error) {
@@ -600,6 +612,7 @@ const removeDocument = (patient_id, document_type) => {
 };
 
 export {
+  convertToBoolean,
   getFamilyInfo,
   checkDocumentExists,
   getDiseaseInfo,
