@@ -141,15 +141,15 @@ const user_schemas = {
       .optional()
       .error(new Error("country_of_origin is required")),
 
-    is_diabetic: Joi.boolean()
+    is_diabetic: Joi.valid(1,0)
       .optional()
       .error(new Error("is_diabetic must be a boolean")),
 
-    cardiac_issue: Joi.boolean()
+    cardiac_issue: Joi.valid(1,0)
       .optional()
       .error(new Error("cardiac_issue must be a boolean")),
 
-    blood_pressure: Joi.boolean()
+    blood_pressure: Joi.valid(1,0)
       .optional()
       .error(new Error("blood_pressure must be a boolean")),
    }),
@@ -178,9 +178,9 @@ const user_schemas = {
     mother_name: Joi.string().min(3).max(100).error(new Error("mother_name is string format and must be at least 3 characters")),
     mother_age: Joi.number().min(18).error(new Error("father_age is min 18")),
     mother_country_origin: Joi.string().min(3).max(25).error(new Error("father_country_origin is minimum 3 character")),
-    parent_diabetic: Joi.boolean().error(new Error(" parent_diabetic is in boolean form")),
-    parent_cardiac_issue: Joi.boolean().error(new Error("parent_cardiac_issue is in boolean form")),
-    parent_bp: Joi.boolean().error(new Error("parent_bp is in boolean form")),
+    parent_diabetic: Joi.valid(1,0).error(new Error(" parent_diabetic is in boolean form")),
+    parent_cardiac_issue: Joi.valid(1,0).error(new Error("parent_cardiac_issue is in boolean form")),
+    parent_bp: Joi.valid(1,0).error(new Error("parent_bp is in boolean form")),
   }),
 
    createDiseaseInfo : Joi.object({
