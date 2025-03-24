@@ -166,7 +166,7 @@ const user_schemas = {
     mother_country_origin: Joi.string().min(3).max(25).optional().error(new Error("mother_country_origin is required")),
     parent_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
     parent_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
-    parent_bp: Joi.boolean().optional().error(new Error("parent_bp is required field")),
+    parent_bp: Joi.boolean().error(new Error("parent_bp is required field")),
   }).required()
 }),
 

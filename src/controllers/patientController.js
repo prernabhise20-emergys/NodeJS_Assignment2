@@ -35,7 +35,6 @@ import {
 const {
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
-  FORBIDDEN,
   UPDATE_SUCCESSFULLY,
   NOT_DELETED,
   DELETE_SUCCESSFULLY,
@@ -82,7 +81,7 @@ const getAllInfo = async (req, res) => {
 
 // *****************************************************************
 
-const showPatientDetails = async (req, res) => {
+const showPatientDetails = async (req, res,next) => {
   try {
     const { userid: id } = req.user;
 
@@ -186,6 +185,11 @@ const updatePersonalInfo = async (req, res) => {
       },
     } = req;
 
+
+ is_diabetic === true ||  is_diabetic === 1 ? true : false;
+ cardiac_issue === true || cardiac_issue === 1 ? true : false;
+ blood_pressure === true || blood_pressure === 1 ? true : false;
+
     const data = {
       patient_name,
       date_of_birth,
@@ -200,9 +204,9 @@ const updatePersonalInfo = async (req, res) => {
     
     const { userid: id , admin: is_admin} = req.user;
 
-    // if (req.user.userid == id || is_admin) {
+    if (req.user.userid == id || is_admin) {
       await updatePersonalDetails(data, patient_id);
-    // }
+    }
 
     throw UPDATE_SUCCESSFULLY;
 
@@ -214,52 +218,6 @@ const updatePersonalInfo = async (req, res) => {
     });
   }
 };
-
-// const updatePersonalInfo = async (req, res) => {
-//   try {
-//     const {
-//       body: {
-//         patient_name,
-//         date_of_birth,
-//         gender,
-//         weight,
-//         height,
-//         country_of_origin,
-//         is_diabetic,
-//         cardiac_issue,
-//         blood_pressure,
-//         patient_id
-//       },
-//     } = req;
-
-//     const data = {
-//       patient_name,
-//       date_of_birth,
-//       gender,
-//       weight,
-//       height,
-//       country_of_origin,
-//       is_diabetic: convertToBoolean(is_diabetic),
-//       cardiac_issue: convertToBoolean(cardiac_issue),
-//       blood_pressure: convertToBoolean(blood_pressure),
-//     };
-
-//     const { userid: id, admin: is_admin } = req.user;
-
-//     // if (req.user.userid == id || is_admin) {
-//       await updatePersonalDetails(data, patient_id);
-//     // }
-
-//     throw UPDATE_SUCCESSFULLY;
-
-//   } catch (error) {
-//     console.error(error.message);
-//     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-//       status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-//       message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-//     });
-//   }
-// };
 
 
 const deletePersonalInfo = async (req, res) => {
@@ -340,6 +298,10 @@ const updateFamilyInfoDetails = async (req, res) => {
         patient_id,
       },
     } = req;
+
+    parent_diabetic === true || parent_diabetic === 1 ? true : false;
+    parent_cardiac_issue === true || parent_cardiac_issue === 1 ? true : false;
+    parent_bp === true ||  parent_bp === 1 ? true : false;
 
     const familyData = {
       father_name,
@@ -598,7 +560,6 @@ const deleteDocument = async (req, res) => {
     // if (req.user.userid !== id && !is_admin) {
     //   throw INVALID_USER;
     // }
-
   
     const documentExists = await checkDocumentExists(document_type, patient_id);
     if (!documentExists) {
