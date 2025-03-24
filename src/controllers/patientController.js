@@ -8,7 +8,7 @@ import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 
 import {
-  convertToBoolean,
+  checkUserWithPatientID,
   getFamilyInfo,
   getUploadInfo,
   createPersonalDetails,
@@ -81,7 +81,7 @@ const getAllInfo = async (req, res) => {
 
 // *****************************************************************
 
-const showPatientDetails = async (req, res,next) => {
+const showPatientDetails = async (req, res, next) => {
   try {
     const { userid: id } = req.user;
 
@@ -104,7 +104,7 @@ const showPatientDetails = async (req, res,next) => {
 // *********************************************************************
 const getPersonalDetails = async (req, res) => {
   try {
-    const {patient_id}=req.params;
+    const { patient_id } = req.params;
     const familyInfo = await getPersonalInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
@@ -116,7 +116,7 @@ const getPersonalDetails = async (req, res) => {
     console.error(error.message);
     return res.status(ERROR_STATUS_CODE.SERVER_ERROR).send({
       status: ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message ||ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
     });
   }
 };
@@ -178,17 +178,16 @@ const updatePersonalInfo = async (req, res) => {
         weight,
         height,
         country_of_origin,
-        is_diabetic,
-        cardiac_issue,
-        blood_pressure,
-        patient_id
+        is_diabetic: diabetic,
+        cardiac_issue: cardiac,
+        blood_pressure: pressure,
+        patient_id,
       },
     } = req;
 
-
- is_diabetic === true ||  is_diabetic === 1 ? true : false;
- cardiac_issue === true || cardiac_issue === 1 ? true : false;
- blood_pressure === true || blood_pressure === 1 ? true : false;
+    const is_diabetic = diabetic === true || diabetic === 1;
+    const cardiac_issue = cardiac === true || cardiac === 1;
+    const blood_pressure = pressure === true || pressure === 1;
 
     const data = {
       patient_name,
@@ -201,15 +200,17 @@ const updatePersonalInfo = async (req, res) => {
       cardiac_issue,
       blood_pressure,
     };
-    
-    const { userid: id , admin: is_admin} = req.user;
 
-    if (req.user.userid == id || is_admin) {
+    const { userid: id, admin: is_admin } = req.user;
+
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
+
+    if (isValidPatient || is_admin) {
       await updatePersonalDetails(data, patient_id);
+      throw UPDATE_SUCCESSFULLY;
+    } else {
+      throw UNAUTHORIZED_ACCESS;
     }
-
-    throw UPDATE_SUCCESSFULLY;
-
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -219,24 +220,17 @@ const updatePersonalInfo = async (req, res) => {
   }
 };
 
-
 const deletePersonalInfo = async (req, res) => {
   try {
     const { userid: id, admin: is_admin } = req.user;
     const { patient_id } = req.params;
 
-    // if (req.user.userid !== id && !is_admin) {
-    //   throw INVALID_USER;
-    // }
-
-    // if (req.user.userid == id || is_admin) {
-      const deleteTask = await deletePersonalDetails(patient_id);
-
-      if (deleteTask.affectedRows === 0) {
-        throw NOT_DELETED;
-      }
-    // }
-    throw DELETE_SUCCESSFULLY;
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
+    if (isValidPatient || is_admin) {
+      await deletePersonalDetails(patient_id);
+      throw DELETE_SUCCESSFULLY;
+    }
+    throw NOT_DELETED;
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -249,7 +243,7 @@ const deletePersonalInfo = async (req, res) => {
 // *************************************************************************
 const getFamilyDetails = async (req, res) => {
   try {
-    const {patient_id}=req.params;
+    const { patient_id } = req.params;
     const familyInfo = await getFamilyInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
@@ -261,7 +255,7 @@ const getFamilyDetails = async (req, res) => {
     console.error(error.message);
     return res.status(ERROR_STATUS_CODE.SERVER_ERROR).send({
       status: ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message ||ERROR_MESSAGE.SERVER_ERROR_MESSAGE
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
     });
   }
 };
@@ -301,7 +295,7 @@ const updateFamilyInfoDetails = async (req, res) => {
 
     parent_diabetic === true || parent_diabetic === 1 ? true : false;
     parent_cardiac_issue === true || parent_cardiac_issue === 1 ? true : false;
-    parent_bp === true ||  parent_bp === 1 ? true : false;
+    parent_bp === true || parent_bp === 1 ? true : false;
 
     const familyData = {
       father_name,
@@ -316,18 +310,12 @@ const updateFamilyInfoDetails = async (req, res) => {
     };
     const { userid: id, admin: is_admin } = req.user;
 
-    // if (req.user.userid !== id && !is_admin) {
-    //   throw INVALID_USER;
-    // }
-
-    // if (req.user.userid == id || is_admin){
-    const result = await updateFamilyInfo(familyData, patient_id);
-    
-    if (result.affectedRows === 0) {
-      throw NOT_UPDATE;
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
+    if (isValidPatient || is_admin) {
+      await updateFamilyInfo(familyData, patient_id);
+      throw UPDATE_SUCCESSFULLY;
     }
-  // }
-    throw UPDATE_SUCCESSFULLY;
+    throw NOT_UPDATE;
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -342,18 +330,12 @@ const deleteFamilyInfoDetails = async (req, res) => {
     const { patient_id } = req.params;
     const { userid: id, admin: is_admin } = req.user;
 
-    // if (req.user.userid !== id && !is_admin) {
-    //   throw INVALID_USER;
-    // }
-
-    // if (req.user.userid == id || is_admin){
-    const result = await deleteFamilyInfo(patient_id);
-
-    if (result.affectedRows === 0) {
-      throw NOT_DELETED;
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
+    if (isValidPatient || is_admin) {
+      await deleteFamilyInfo(patient_id);
+      throw DELETE_SUCCESSFULLY;
     }
-  // }
-    throw DELETE_SUCCESSFULLY;
+    throw NOT_DELETED;
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -367,8 +349,8 @@ const deleteFamilyInfoDetails = async (req, res) => {
 
 const getDiseaseDetails = async (req, res) => {
   try {
-    const { patient_id } = req.params; 
-    const personalInfo = await getDiseaseInfo( patient_id);
+    const { patient_id } = req.params;
+    const personalInfo = await getDiseaseInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -388,7 +370,7 @@ const addDiseaseInfo = async (req, res) => {
   try {
     const { diseaseDetails } = req.body;
 
-     await addDiseaseData(diseaseDetails);
+    await addDiseaseData(diseaseDetails);
     throw ADD_DISEASE_INFO;
   } catch (error) {
     console.error(error.message);
@@ -405,17 +387,14 @@ const updateDiseaseInfo = async (req, res) => {
       body: { disease_type, disease_description, patient_id },
     } = req;
     const { userid: id, admin: is_admin } = req.user;
-
-    // if (req.user.userid !== id && !is_admin) {
-    //   throw INVALID_USER;
-    // }
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
 
     const formData = { disease_type, disease_description };
-    
-    // if (req.user.userid == id || is_admin){
-     await updateDiseaseDetails(formData, patient_id);
-    // }
-    throw UPDATE_SUCCESSFULLY;
+    if (isValidPatient || is_admin) {
+      await updateDiseaseDetails(formData, patient_id);
+      throw UPDATE_SUCCESSFULLY;
+    }
+    throw NOT_UPDATE;
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -430,14 +409,12 @@ const deleteDiseaseInfo = async (req, res) => {
     const { patient_id } = req.params;
     const { userid: id, admin: is_admin } = req.user;
 
-    // if (req.user.userid !== id && !is_admin) {
-    //   throw INVALID_USER;
-    // }
-
-    // if (req.user.userid == id || is_admin){
-     await deleteDiseaseDetails(patient_id);
-    // }
-    throw DELETE_SUCCESSFULLY;
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
+    if (isValidPatient || is_admin) {
+      await deleteDiseaseDetails(patient_id);
+      throw DELETE_SUCCESSFULLY;
+    }
+    throw NOT_DELETED;
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -450,8 +427,8 @@ const deleteDiseaseInfo = async (req, res) => {
 // **************************************************************************
 const getUploadDocument = async (req, res) => {
   try {
-    const { patient_id } = req.params; 
-    const personalInfo = await getUploadInfo( patient_id);
+    const { patient_id } = req.params;
+    const personalInfo = await getUploadInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -469,22 +446,20 @@ const getUploadDocument = async (req, res) => {
 
 const uploadDocument = async (req, res) => {
   try {
+    console.log(" Received File:", req.file);
 
-  console.log(" Received File:", req.file);
+    if (!req.file) {
+      throw {
+        status: ERROR_STATUS_CODE.NOT_FOUND,
+        message: ERROR_MESSAGE.NO_FILE,
+      };
+    }
 
-  if (!req.file) {
-    throw {
-      status: ERROR_STATUS_CODE.NOT_FOUND,
-      message: ERROR_MESSAGE.NO_FILE,
-    };
-  }
+    const { document_type, patient_id } = req.body;
 
-  const { document_type,patient_id } = req.body;
-  
-
-  if (!document_type || !patient_id) {
-    throw MISSING_REQUIRED;
-  }
+    if (!document_type || !patient_id) {
+      throw MISSING_REQUIRED;
+    }
 
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
@@ -492,7 +467,7 @@ const uploadDocument = async (req, res) => {
     const documentData = {
       document_type,
       document_url: documentUrl,
-      patient_id
+      patient_id,
     };
 
     await saveDocument(documentData);
@@ -537,11 +512,15 @@ const updateDocument = async (req, res) => {
       document_url: documentUrl,
       patient_id,
     };
-    console.log(document_type, documentUrl, patient_id);
+    const { userid: id, admin: is_admin } = req.user;
 
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
+    if (isValidPatient || is_admin) {
     await modifyDocument(data);
 
-   throw UPDATE_SUCCESSFULLY;
+    throw UPDATE_SUCCESSFULLY;
+    }
+    throw NOT_UPDATE;
 
   } catch (error) {
     console.error(error.message);
@@ -554,22 +533,21 @@ const updateDocument = async (req, res) => {
 
 const deleteDocument = async (req, res) => {
   try {
-    const{patient_id,document_type}=req.body;
+    const { patient_id, document_type } = req.body;
     const { userid: id, admin: is_admin } = req.user;
 
-    // if (req.user.userid !== id && !is_admin) {
-    //   throw INVALID_USER;
-    // }
-  
+
     const documentExists = await checkDocumentExists(document_type, patient_id);
     if (!documentExists) {
       throw DOCUMENT_NOT_FOUND;
     }
-    // if (req.user.userid == id || is_admin){
-    await removeDocument(patient_id,document_type);
-
+    const isValidPatient = await checkUserWithPatientID(id, patient_id);
+    if (isValidPatient || is_admin) {
+    await removeDocument(patient_id, document_type);
     throw DELETE_SUCCESSFULLY;
-  // }
+    }
+    throw NOT_DELETED;
+
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -597,5 +575,5 @@ export default {
   updateDiseaseInfo,
   deleteDiseaseInfo,
   updateDocument,
-  deleteDocument
+  deleteDocument,
 };

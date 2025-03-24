@@ -223,12 +223,6 @@ const createPersonalDetails = async (data, userId, email) => {
   }
 };
 
-const convertToBoolean = (value) => {
-
-  return value === true || value === 1 ? true : false;
-
-};
-
 
 const updatePersonalDetails = async (data, patient_id) => {
   try {
@@ -261,6 +255,27 @@ const updatePersonalDetails = async (data, patient_id) => {
         }
       );
     });
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+const checkUserWithPatientID = async (userId, patientId) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT patient_id FROM personal_info WHERE user_id = ? AND patient_id = ?',
+        [userId, patientId],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        }
+      );
+    });
+    return data.length>0;
   } catch (error) {
     throw error;
   }
@@ -658,7 +673,7 @@ const removeDocument = (patient_id, document_type) => {
 };
 
 export {
-  convertToBoolean,
+  checkUserWithPatientID ,
   getFamilyInfo,
   checkDocumentExists,
   getDiseaseInfo,
