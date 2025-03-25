@@ -1,17 +1,18 @@
 import db from "../db/connection.js";
 
 const getInfo = async (is_admin, limit, offset) => {
+  console.log(limit);
+  console.log(offset);
+  
+  
   try {
     if (!is_admin) {
       throw new Error("Unauthorized access");
     }
 
-    console.log(limit);
-    console.log(offset);
-
     return new Promise((resolve, reject) => {
       let query = `
-      SELECT 
+         SELECT 
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
@@ -38,83 +39,55 @@ const getInfo = async (is_admin, limit, offset) => {
           AND do.is_deleted = FALSE 
         ORDER BY 
           p.patient_id 
-        LIMIT ? OFFSET ?;
+        LIMIT ? OFFSET ?
       `;
 
       db.query(query, [limit, offset], (error, result) => {
         if (error) {
           return reject(error);
+          
         }
-
         const patientData = {};
 
-        result.forEach(
-          ({
-            patient_id,
-            patient_name,
-            gender,
-            mobile_number,
-            date_of_birth,
-            age,
-            weight,
-            height,
-            bmi,
-            country_of_origin,
-            is_diabetic,
-            cardiac_issue,
-            blood_pressure,
-            father_name,
-            father_age,
-            mother_name,
-            mother_age,
-            father_country_origin,
-            mother_country_origin,
-            parent_diabetic,
-            parent_cardiac_issue,
-            parent_bp,
-            disease_type,
-            disease_description,
-            document_type,
-            document_url,
-          }) => {
-            if (!patientData[patient_id]) {
-              patientData[patient_id] = {
-                patient_id,
-                patient_name,
-                gender,
-                mobile_number,
-                date_of_birth,
-                age,
-                weight,
-                height,
-                bmi,
-                country_of_origin,
-                is_diabetic,
-                cardiac_issue,
-                blood_pressure,
-                father_name,
-                father_age,
-                mother_name,
-                mother_age,
-                father_country_origin,
-                mother_country_origin,
-                parent_diabetic,
-                parent_cardiac_issue,
-                parent_bp,
-                disease_type,
-                disease_description,
-                documents: [],
-              };
-            }
-
-            patientData[patient_id].documents.push({
-              document_type,
-              document_url,
-            });
+        result.forEach((row) => {
+          if (!patientData[row.patient_id]) {
+            patientData[row.patient_id] = {
+              patient_id: row.patient_id,
+              patient_name: row.patient_name,
+              gender:row.gender,
+              mobile_number: row.mobile_number,
+              date_of_birth: row.date_of_birth,
+              age: row.age,
+              weight: row.weight,
+              height: row.height,
+              bmi: row.bmi,
+              country_of_origin: row.country_of_origin,
+              is_diabetic: row.is_diabetic,
+              cardiac_issue: row.cardiac_issue,
+              blood_pressure: row.blood_pressure,
+              father_name: row.father_name,
+              father_age: row.father_age,
+              mother_name: row.mother_name,
+              mother_age: row.mother_age,
+              father_country_origin: row.father_country_origin,
+              mother_country_origin: row.mother_country_origin,
+              parent_diabetic: row.parent_diabetic,
+              parent_cardiac_issue: row.parent_cardiac_issue,
+              parent_bp: row.parent_bp,
+              disease_type: row.disease_type,
+              disease_description: row.disease_description,
+              documents: [],
+            };
           }
-        );
+
+          patientData[row.patient_id].documents.push({
+            document_type: row.document_type,
+            document_url: row.document_url,
+          });
+        });
 
         const patientInfo = Object.values(patientData);
+
         return resolve(patientInfo);
       });
     });
@@ -122,7 +95,6 @@ const getInfo = async (is_admin, limit, offset) => {
     throw error;
   }
 };
-
 
 const getPatientInfo = async (id) => {
   try {

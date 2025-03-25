@@ -55,9 +55,8 @@ const getAllInfo = async (req, res) => {
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
-
     let { page, limit } = req.query;
-
+    limit=limit*4
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
 
