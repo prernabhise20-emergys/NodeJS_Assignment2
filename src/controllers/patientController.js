@@ -56,9 +56,9 @@ const getAllInfo = async (req, res) => {
       throw UNAUTHORIZED_ACCESS;
     }
     let { page, limit } = req.query;
-    limit=limit*4
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
+    limit=limit*4
 
     const offset = (page - 1) * limit;
 
@@ -70,7 +70,7 @@ const getAllInfo = async (req, res) => {
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit,
+        limit: limit/4,
       },
     });
   } catch (error) {
