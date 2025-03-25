@@ -55,9 +55,10 @@ const getAllInfo = async (req, res) => {
       throw UNAUTHORIZED_ACCESS;
     }
 
-    let { page = 1, limit = 10 } = req.body;
-    page = parseInt(page, 10);
-    limit = parseInt(limit, 10);
+    let { page, limit } = req.query;
+
+    page = parseInt(page || 1);
+    limit = parseInt(limit || 10);
 
     const offset = (page - 1) * limit;
 
@@ -271,6 +272,7 @@ const addFamilyInfo = async (req, res) => {
     // if (duplication) {
     //   throw DUPLICATE_RECORD;
     // }
+
     const result = await insertFamilyInfo(familyDetails);
     throw ADD_FAMILY_SUCCESSFULLY;
   } catch (error) {
