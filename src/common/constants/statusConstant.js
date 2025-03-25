@@ -12,6 +12,7 @@ const SUCCESS_STATUS_CODE = {
  
 };
 const ERROR_MESSAGE = {
+  MORE_THAN_LIMIT:"Only 4 documents allow to upload",
   ID_ALREADY_EXISTS:"Patient_id already exists",
   CANNOT_DELETE:"Cannot delete the last admin user",
   USER_NOT_FOUND:"User not found",

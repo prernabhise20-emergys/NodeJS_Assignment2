@@ -35,50 +35,71 @@ const getInfo = async (is_admin, limit, offset) => {
 
         const patientData = {};
 
-        result.forEach(({ 
-          patient_id, patient_name, gender, mobile_number, 
-          date_of_birth, age, weight, height, bmi, 
-          country_of_origin, is_diabetic, cardiac_issue, blood_pressure, 
-          father_name, father_age, mother_name, mother_age, 
-          father_country_origin, mother_country_origin, 
-          parent_diabetic, parent_cardiac_issue, parent_bp, 
-          disease_type, disease_description, document_type, document_url 
-        }) => {
-          if (!patientData[patient_id]) {
-            patientData[patient_id] = {
-              patient_id,
-              patient_name,
-              gender,
-              mobile_number,
-              date_of_birth,
-              age,
-              weight,
-              height,
-              bmi,
-              country_of_origin,
-              is_diabetic,
-              cardiac_issue,
-              blood_pressure,
-              father_name,
-              father_age,
-              mother_name,
-              mother_age,
-              father_country_origin,
-              mother_country_origin,
-              parent_diabetic,
-              parent_cardiac_issue,
-              parent_bp,
-              disease_type,
-              disease_description,
-              documents: [],
-            };
-          }
-
-          patientData[patient_id].documents.push({
+        result.forEach(
+          ({
+            patient_id,
+            patient_name,
+            gender,
+            mobile_number,
+            date_of_birth,
+            age,
+            weight,
+            height,
+            bmi,
+            country_of_origin,
+            is_diabetic,
+            cardiac_issue,
+            blood_pressure,
+            father_name,
+            father_age,
+            mother_name,
+            mother_age,
+            father_country_origin,
+            mother_country_origin,
+            parent_diabetic,
+            parent_cardiac_issue,
+            parent_bp,
+            disease_type,
+            disease_description,
             document_type,
             document_url,
-          });
-        });
+          }) => {
+            if (!patientData[patient_id]) {
+              patientData[patient_id] = {
+                patient_id,
+                patient_name,
+                gender,
+                mobile_number,
+                date_of_birth,
+                age,
+                weight,
+                height,
+                bmi,
+                country_of_origin,
+                is_diabetic,
+                cardiac_issue,
+                blood_pressure,
+                father_name,
+                father_age,
+                mother_name,
+                mother_age,
+                father_country_origin,
+                mother_country_origin,
+                parent_diabetic,
+                parent_cardiac_issue,
+                parent_bp,
+                disease_type,
+                disease_description,
+                documents: [],
+              };
+            }
+
+            patientData[patient_id].documents.push({
+              document_type,
+              document_url,
+            });
+          }
+        );
 
         const patientInfo = Object.values(patientData);
         return resolve(patientInfo);
@@ -124,7 +145,7 @@ const getPatientInfo = async (id) => {
                 patient_name: row.patient_name,
                 first_name: row.first_name,
                 last_name: row.last_name,
-                gender:row.gender,
+                gender: row.gender,
                 mobile_number: row.mobile_number,
                 date_of_birth: row.date_of_birth,
                 age: row.age,
@@ -234,7 +255,6 @@ const createPersonalDetails = async (data, userId, email) => {
   }
 };
 
-
 const updatePersonalDetails = async (data, patient_id) => {
   try {
     const values = [
@@ -271,12 +291,11 @@ const updatePersonalDetails = async (data, patient_id) => {
   }
 };
 
-
 const checkUserWithPatientID = async (userId, patientId) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        'SELECT patient_id FROM personal_info WHERE user_id = ? AND patient_id = ?',
+        "SELECT patient_id FROM personal_info WHERE user_id = ? AND patient_id = ?",
         [userId, patientId],
         (error, result) => {
           if (error) {
@@ -286,7 +305,7 @@ const checkUserWithPatientID = async (userId, patientId) => {
         }
       );
     });
-    return data.length>0;
+    return data.length > 0;
   } catch (error) {
     throw error;
   }
@@ -302,6 +321,38 @@ const deletePersonalDetails = async (patient_id) => {
             return reject(error);
           }
           if (result.affectedRows === 0) {
+            return reject(error);
+          }
+          return resolve(result);
+        }
+      );
+    });
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deletePatientDetails = async (patient_id) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      console.log(patient_id);
+
+      db.query(
+        `          
+UPDATE personal_info p
+JOIN family_info f 
+ON p.patient_id = f.patient_id
+JOIN disease d 
+ON p.patient_id = d.patient_id
+JOIN documents doc 
+ON p.patient_id = doc.patient_id
+SET p.is_deleted = TRUE, f.is_deleted = TRUE, d.is_deleted = TRUE, doc.is_deleted = TRUE
+WHERE p.patient_id =?  and f.patient_id=? and d.patient_id=? and doc.patient_id=?;`,
+        [patient_id, patient_id, patient_id, patient_id],
+        (error, result) => {
+          if (error) {
             return reject(error);
           }
           return resolve(result);
@@ -569,12 +620,12 @@ const saveDocument = (documentData) => {
 
 // *************************************************************************************
 
-const checkPersonalInfo = async (userId) => {
+const checkNumberOfDocument = async (patient_id) => {
   try {
     const personalInfo = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT * FROM personal_info WHERE user_id = ?",
-        [userId],
+        "SELECT * FROM documents WHERE patient_id = ?",
+        [patient_id],
         (error, result) => {
           if (error) {
             return reject(error);
@@ -583,7 +634,7 @@ const checkPersonalInfo = async (userId) => {
         }
       );
     });
-    return personalInfo.length > 0;
+    return personalInfo.length > 3;
   } catch (error) {
     throw error;
   }
@@ -683,12 +734,12 @@ const removeDocument = (patient_id, document_type) => {
   });
 };
 
-const checkDuplication=async(patient_id)=>{
+const checkDuplication = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        'SELECT patient_id FROM family_info WHERE patient_id = ?',
-       patient_id,
+        "SELECT patient_id FROM family_info WHERE patient_id = ?",
+        patient_id,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -697,15 +748,15 @@ const checkDuplication=async(patient_id)=>{
         }
       );
     });
-    return data.length>0;
+    return data.length > 0;
   } catch (error) {
     throw error;
   }
-  
-}
+};
 export {
+  deletePatientDetails,
   checkDuplication,
-  checkUserWithPatientID ,
+  checkUserWithPatientID,
   getFamilyInfo,
   checkDocumentExists,
   getDiseaseInfo,
@@ -713,7 +764,7 @@ export {
   removeDocument,
   saveDocument,
   createPersonalDetails,
-  checkPersonalInfo,
+  checkNumberOfDocument,
   checkFamilyInfo,
   getPersonalInfo,
   checkDiseaseInfo,

@@ -8,7 +8,8 @@ import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 
 import {
-  checkDuplication,
+  checkNumberOfDocument,
+  deletePatientDetails,
   checkUserWithPatientID,
   getFamilyInfo,
   getUploadInfo,
@@ -29,11 +30,11 @@ import {
   modifyDocument,
   removeDocument,
   checkDocumentExists,
-  checkPersonalInfo,
   checkFamilyInfo,
   checkDiseaseInfo,
 } from "../models/patientModel.js";
 const {
+  MORE_THAN_LIMIT,
   DUPLICATE_RECORD,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
@@ -242,7 +243,24 @@ const deletePersonalInfo = async (req, res) => {
     });
   }
 };
+const adminDeletePatientData= async (req, res) => {
+  try {
+    const { admin: is_admin } = req.user;
+    const { patient_id } = req.query;
+console.log(patient_id);
 
+    if (is_admin) {
+      await deletePatientDetails(patient_id);
+      throw DELETE_SUCCESSFULLY;
+    }
+    throw NOT_DELETED;
+  } catch (error) {
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
 // *************************************************************************
 const getFamilyDetails = async (req, res) => {
   try {
@@ -470,6 +488,11 @@ const uploadDocument = async (req, res) => {
       throw MISSING_REQUIRED;
     }
 
+   const moreThanLimit= await checkNumberOfDocument(patient_id)
+if(moreThanLimit)
+{
+  throw MORE_THAN_LIMIT;
+}
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
 
@@ -564,6 +587,7 @@ const deleteDocument = async (req, res) => {
 };
 
 export default {
+  adminDeletePatientData,
   getUploadDocument,
   getPersonalDetails,
   getFamilyDetails,
