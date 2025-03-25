@@ -12,6 +12,7 @@ const SUCCESS_STATUS_CODE = {
  
 };
 const ERROR_MESSAGE = {
+  ID_ALREADY_EXISTS:"Patient_id already exists",
   CANNOT_DELETE:"Cannot delete the last admin user",
   USER_NOT_FOUND:"User not found",
   SERVER_ERROR_MESSAGE: "Internal Server Error",

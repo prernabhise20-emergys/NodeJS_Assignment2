@@ -6,10 +6,13 @@ const getInfo = async (is_admin, limit, offset) => {
       throw new Error("Unauthorized access");
     }
 
+    console.log(limit);
+    console.log(offset);
+
     return new Promise((resolve, reject) => {
       let query = `
         SELECT 
-          p.patient_id,p.patient_name,p.gender, u.mobile_number, 
+          p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
           f.father_name, f.father_age, f.mother_name, f.mother_age, 
@@ -28,51 +31,57 @@ const getInfo = async (is_admin, limit, offset) => {
       db.query(query, [limit, offset], (error, result) => {
         if (error) {
           return reject(error);
-          
         }
+
         const patientData = {};
 
-        result.forEach((row) => {
-          if (!patientData[row.patient_id]) {
-            patientData[row.patient_id] = {
-              patient_id: row.patient_id,
-              patient_name: row.patient_name,
-              gender:row.gender,
-              mobile_number: row.mobile_number,
-              date_of_birth: row.date_of_birth,
-              age: row.age,
-              weight: row.weight,
-              height: row.height,
-              bmi: row.bmi,
-              country_of_origin: row.country_of_origin,
-              is_diabetic: row.is_diabetic,
-              cardiac_issue: row.cardiac_issue,
-              blood_pressure: row.blood_pressure,
-              father_name: row.father_name,
-              father_age: row.father_age,
-              mother_name: row.mother_name,
-              mother_age: row.mother_age,
-              father_country_origin: row.father_country_origin,
-              mother_country_origin: row.mother_country_origin,
-              parent_diabetic: row.parent_diabetic,
-              parent_cardiac_issue: row.parent_cardiac_issue,
-              parent_bp: row.parent_bp,
-              disease_type: row.disease_type,
-              disease_description: row.disease_description,
+        result.forEach(({ 
+          patient_id, patient_name, gender, mobile_number, 
+          date_of_birth, age, weight, height, bmi, 
+          country_of_origin, is_diabetic, cardiac_issue, blood_pressure, 
+          father_name, father_age, mother_name, mother_age, 
+          father_country_origin, mother_country_origin, 
+          parent_diabetic, parent_cardiac_issue, parent_bp, 
+          disease_type, disease_description, document_type, document_url 
+        }) => {
+          if (!patientData[patient_id]) {
+            patientData[patient_id] = {
+              patient_id,
+              patient_name,
+              gender,
+              mobile_number,
+              date_of_birth,
+              age,
+              weight,
+              height,
+              bmi,
+              country_of_origin,
+              is_diabetic,
+              cardiac_issue,
+              blood_pressure,
+              father_name,
+              father_age,
+              mother_name,
+              mother_age,
+              father_country_origin,
+              mother_country_origin,
+              parent_diabetic,
+              parent_cardiac_issue,
+              parent_bp,
+              disease_type,
+              disease_description,
               documents: [],
             };
           }
 
-          patientData[row.patient_id].documents.push({
-            document_type: row.document_type,
-            document_url: row.document_url,
+          patientData[patient_id].documents.push({
+            document_type,
+            document_url,
           });
         });
 
         const patientInfo = Object.values(patientData);
-
         return resolve(patientInfo);
-        // return resolve(result);
       });
     });
   } catch (error) {
@@ -674,7 +683,28 @@ const removeDocument = (patient_id, document_type) => {
   });
 };
 
+const checkDuplication=async(patient_id)=>{
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        'SELECT patient_id FROM family_info WHERE patient_id = ?',
+       patient_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        }
+      );
+    });
+    return data.length>0;
+  } catch (error) {
+    throw error;
+  }
+  
+}
 export {
+  checkDuplication,
   checkUserWithPatientID ,
   getFamilyInfo,
   checkDocumentExists,

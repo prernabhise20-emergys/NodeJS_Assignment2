@@ -8,6 +8,7 @@ import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 
 import {
+  checkDuplication,
   checkUserWithPatientID,
   getFamilyInfo,
   getUploadInfo,
@@ -33,6 +34,7 @@ import {
   checkDiseaseInfo,
 } from "../models/patientModel.js";
 const {
+  DUPLICATE_RECORD,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
   UPDATE_SUCCESSFULLY,
@@ -53,13 +55,13 @@ const getAllInfo = async (req, res) => {
       throw UNAUTHORIZED_ACCESS;
     }
 
-    let { page = 1, limit = 10, patient_id } = req.body;
+    let { page = 1, limit = 10 } = req.body;
     page = parseInt(page, 10);
     limit = parseInt(limit, 10);
 
     const offset = (page - 1) * limit;
 
-    const personalInfo = await getInfo(is_admin, limit, offset, patient_id);
+    const personalInfo = await getInfo(is_admin, limit, offset);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -265,6 +267,10 @@ const addFamilyInfo = async (req, res) => {
     const { patient_id } = familyDetails;
     console.log("Patient ID:", patient_id);
 
+    // const duplication = await checkDuplication(patient_id);
+    // if (duplication) {
+    //   throw DUPLICATE_RECORD;
+    // }
     const result = await insertFamilyInfo(familyDetails);
     throw ADD_FAMILY_SUCCESSFULLY;
   } catch (error) {
@@ -370,6 +376,7 @@ const addDiseaseInfo = async (req, res) => {
   try {
     const { diseaseDetails } = req.body;
 
+ 
     await addDiseaseData(diseaseDetails);
     throw ADD_DISEASE_INFO;
   } catch (error) {
@@ -516,12 +523,11 @@ const updateDocument = async (req, res) => {
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
-    await modifyDocument(data);
+      await modifyDocument(data);
 
-    throw UPDATE_SUCCESSFULLY;
+      throw UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
-
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -536,18 +542,16 @@ const deleteDocument = async (req, res) => {
     const { patient_id, document_type } = req.body;
     const { userid: id, admin: is_admin } = req.user;
 
-
     const documentExists = await checkDocumentExists(document_type, patient_id);
     if (!documentExists) {
       throw DOCUMENT_NOT_FOUND;
     }
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
-    await removeDocument(patient_id, document_type);
-    throw DELETE_SUCCESSFULLY;
+      await removeDocument(patient_id, document_type);
+      throw DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
-
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
