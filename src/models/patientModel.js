@@ -11,24 +11,34 @@ const getInfo = async (is_admin, limit, offset) => {
 
     return new Promise((resolve, reject) => {
       let query = `
-        SELECT 
-          p.patient_id, p.patient_name, p.gender,p.is_deleted, u.mobile_number, 
-          p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
-          p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
-          f.father_name, f.father_age, f.mother_name, f.mother_age, 
-          f.father_country_origin, f.mother_country_origin, 
-          f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp,f.is_deleted, 
-          d.disease_type, d.disease_description, d.is_deleted,
-          do.document_type, do.document_url  ,do.is_deleted
-        FROM personal_info p JOIN user_register u 
-        ON p.user_id = u.id AND p.is_deleted=false
-        JOIN family_info f 
-        ON f.patient_id = p.patient_id AND f.is_deleted = FALSE
-        JOIN disease d 
-        ON d.patient_id = p.patient_id AND d.is_deleted = FALSE
-         JOIN documents do 
-         ON do.patient_id = p.patient_id AND do.is_deleted = FALSE
-        WHERE p.is_deleted = FALSE ORDER BY p.patient_id LIMIT ? OFFSET ?
+       SELECT 
+    p.patient_id, p.patient_name, p.gender, u.mobile_number, 
+    p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
+    p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
+    f.father_name, f.father_age, f.mother_name, f.mother_age, 
+    f.father_country_origin, f.mother_country_origin, 
+    f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, 
+    d.disease_type, d.disease_description, 
+    do.document_type, do.document_url  
+FROM 
+    personal_info p 
+JOIN 
+    user_register u ON p.user_id = u.id 
+JOIN 
+    family_info f ON f.patient_id = p.patient_id 
+JOIN 
+    disease d ON d.patient_id = p.patient_id 
+JOIN 
+    documents do ON do.patient_id = p.patient_id 
+WHERE 
+    p.is_deleted = FALSE 
+    AND u.is_deleted = FALSE 
+    AND f.is_deleted = FALSE 
+    AND d.is_deleted = FALSE 
+    AND do.is_deleted = FALSE 
+ORDER BY 
+    p.patient_id 
+LIMIT ? OFFSET ?;
       `;
 
       db.query(query, [limit, offset], (error, result) => {
