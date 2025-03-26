@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import sendVerificationEmail from "../common/utility/sendVerificationEmail.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import {
+  checkAlreadyExist,
+  getDeleteUserInfo,
   createUserData,
   checkIfUserExists,
   loginUser,
@@ -169,20 +171,29 @@ const updateUser = async (req, res) => {
     });
   }
 };
-
 const getUser = async (req, res) => {
   try {
-    const { userid: id } = req.user;
+    const { userid: id, email: emailID } = req.user;
+    const checkExists = await checkAlreadyExist(emailID);
+    console.log(checkExists);
 
-    const tasks = await getUserData(id);
-    if (tasks.affectedRows === 0) {
-      throw USER_NOT_FOUND;
+    if (checkExists) {
+      const deletedUserInfo = await getDeleteUserInfo(emailID);
+      if (deletedUserInfo) {
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+          status: SUCCESS_STATUS_CODE.SUCCESS,
+          message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+          data: deletedUserInfo,
+        });
+      }
     }
+
+    const user = await getUserData(id);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-      data: tasks,
+      data: user,
     });
   } catch (error) {
     console.error(error.message);
@@ -192,6 +203,7 @@ const getUser = async (req, res) => {
     });
   }
 };
+
 
 const deleteUser = async (req, res) => {
   try {
@@ -205,7 +217,8 @@ const deleteUser = async (req, res) => {
       }
     }
 
-    await deleteUserData(id);
+   console.log(
+    await deleteUserData(id));
 
     res.json({
       status: SUCCESS_STATUS_CODE.SUCCESS,
