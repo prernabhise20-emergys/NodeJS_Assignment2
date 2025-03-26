@@ -8,6 +8,7 @@ import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 
 import {
+  getDeletePatientInfo,
   checkNumberOfDocument,
   deletePatientDetails,
   checkUserWithPatientID,
@@ -31,7 +32,8 @@ import {
   removeDocument,
   checkDocumentExists,
   getTotalRecords,
-  ageGroupWiseData
+  ageGroupWiseData,
+  checkAlreadyExist
 } from "../models/patientModel.js";
 const {
   MORE_THAN_LIMIT,
@@ -87,10 +89,14 @@ const getAllInfo = async (req, res) => {
 
 // *****************************************************************
 
-const showPatientDetails = async (req, res, next) => {
+const showPatientDetails = async (req, res) => {
   try {
-    const { userid: id } = req.user;
+    const { userid: id ,email:emailID} = req.user;
 
+  const checkExists=  await checkAlreadyExist(emailID);
+if(checkExists){
+  getDeletePatientInfo(emailID)
+}
     const patientInfo = await getPatientInfo(id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({

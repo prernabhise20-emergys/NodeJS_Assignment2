@@ -169,6 +169,60 @@ const getPatientInfo = async (id) => {
     throw error;
   }
 };
+const getDeletePatientInfo = async (email) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name,p.gender, r.mobile_number, 
+                p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
+                p.is_diabetic, p.cardiac_issue, p.blood_pressure, f.father_name, f.father_age, 
+                f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
+                f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, d.disease_type, 
+                d.disease_description, do.document_type, do.document_url 
+        FROM personal_info p 
+        JOIN user_register r ON p.user_id = r.id 
+        JOIN family_info f ON f.patient_id = p.patient_id 
+        JOIN disease d ON d.patient_id = p.patient_id 
+        JOIN documents do ON do.patient_id = p.patient_id 
+        WHERE p.is_deleted = false 
+          AND f.is_deleted = false 
+          AND d.is_deleted = false 
+          AND do.is_deleted = false 
+          AND r.email = ?`,
+        email,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+
+          const patientData = [];
+          result.forEach((row) => {
+            let existing = patientData.find(
+              (item) => item.patient_id === row.patient_id
+            );
+
+            if (!existing) {
+              const { document_type, document_url, ...data } = row;
+              existing = {
+                ...data,
+                documents: [],
+              };
+              patientData.push(existing);
+            }
+            existing.documents.push({
+              document_type: row.document_type,
+              document_url: row.document_url,
+            });
+          });
+
+          return resolve(patientData);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 
 const getPersonalInfo = async (patient_id) => {
   try {
@@ -208,20 +262,23 @@ const createPersonalDetails = async (data, userId, email) => {
     let userBMI = weight / (height * height);
 
     data = {
-      patient_name: patient_name,
-      gender: gender,
-      user_id: userId,
       created_by: email,
       updated_by: email,
-      age: userAge,
-      bmi: userBMI,
-      date_of_birth: date_of_birth,
-      weight: weight,
-      height: height,
-      country_of_origin: country_of_origin,
-      is_diabetic: is_diabetic,
-      cardiac_issue: cardiac_issue,
-      blood_pressure: blood_pressure,
+      // patient_name: patient_name,
+      // gender: gender,
+      // user_id: userId,
+      // created_by: email,
+      // updated_by: email,
+      // age: userAge,
+      // bmi: userBMI,
+      // date_of_birth: date_of_birth,
+      // weight: weight,
+      // height: height,
+      // country_of_origin: country_of_origin,
+      // is_diabetic: is_diabetic,
+      // cardiac_issue: cardiac_issue,
+      // blood_pressure: blood_pressure,
+      ...data
     };
 
     return new Promise((resolve, reject) => {
@@ -350,34 +407,11 @@ WHERE p.patient_id =?  and f.patient_id=? and d.patient_id=? and doc.patient_id=
 
 const insertFamilyInfo = async (data) => {
   try {
-    const {
-      father_name,
-      father_age,
-      father_country_origin,
-      mother_name,
-      mother_age,
-      mother_country_origin,
-      parent_diabetic,
-      parent_cardiac_issue,
-      parent_bp,
-      patient_id,
-    } = data;
-
+const data1={...data}
     return new Promise((resolve, reject) => {
       db.query(
         "INSERT INTO family_info SET ?",
-        {
-          father_name,
-          father_age,
-          father_country_origin,
-          mother_name,
-          mother_age,
-          mother_country_origin,
-          parent_diabetic,
-          parent_cardiac_issue,
-          parent_bp,
-          patient_id,
-        },
+       data1,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -480,12 +514,12 @@ const getDiseaseInfo = async (patient_id) => {
 
 const addDiseaseData = async (data) => {
   try {
-    const { disease_type, disease_description, patient_id } = data;
+    const data1={...data};
 
     return new Promise((resolve, reject) => {
       db.query(
         "INSERT INTO disease SET ?",
-        { disease_type, disease_description, patient_id },
+        data1,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -561,23 +595,25 @@ const getUploadInfo = async (patient_id) => {
 };
 
 const saveDocument = (documentData) => {
+  const documentData1 = {
+    document_type: documentData.document_type,
+    document_url: documentData.document_url,
+    patient_id: documentData.patient_id
+  };
   return new Promise((resolve, reject) => {
+    
     db.query(
-      "INSERT INTO documents (document_type, document_url, patient_id) VALUES (?, ?, ?)",
-      [
-        documentData.document_type,
-        documentData.document_url,
-        documentData.patient_id,
-      ],
-      (error, result) => {
+      "INSERT INTO documents SET ?",
+      documentData1,
+      (error, results) => {
         if (error) {
-          return reject(error);
+          reject(error);
+        } else {
+          resolve(results);
         }
-        resolve(result);
       }
-    );
-  });
-};
+    )}
+)};
 
 // *************************************************************************************
 
@@ -586,7 +622,7 @@ const checkNumberOfDocument = async (patient_id) => {
     const personalInfo = await new Promise((resolve, reject) => {
       db.query(
         "SELECT * FROM documents WHERE patient_id = ?",
-        [patient_id],
+        patient_id,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -607,8 +643,24 @@ const checkNumberOfDocument = async (patient_id) => {
 const checkDocumentExists = (document_type, patient_id) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT 1 FROM documents WHERE is_deleted=false and document_type = ? AND patient_id = ? LIMIT 1`,
+      `SELECT * FROM documents WHERE is_deleted=false and document_type = ? AND patient_id = ? LIMIT 1`,
       [document_type, patient_id],
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result.length > 0);
+      }
+    );
+  });
+};
+// *************************************************************
+
+const checkAlreadyExist = (email) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT * FROM user_register WHERE email = ?`,
+      email,
       (error, result) => {
         if (error) {
           return reject(error);
@@ -653,6 +705,7 @@ const removeDocument = (patient_id, document_type) => {
     });
   });
 };
+
 const ageGroupWiseData = (user_id) => {
   return new Promise((resolve, reject) => {
     db.query(`
@@ -676,6 +729,8 @@ const ageGroupWiseData = (user_id) => {
   });
 };
 export {
+  getDeletePatientInfo,
+  checkAlreadyExist,
   ageGroupWiseData,
   getTotalRecords,
   deletePatientDetails,
