@@ -30,6 +30,7 @@ import {
   modifyDocument,
   removeDocument,
   checkDocumentExists,
+  getTotalRecords,
   checkFamilyInfo,
   checkDiseaseInfo,
 } from "../models/patientModel.js";
@@ -55,14 +56,17 @@ const getAllInfo = async (req, res) => {
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
+
     let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
-    limit=limit*4
+    limit = limit * 4; 
 
     const offset = (page - 1) * limit;
 
     const personalInfo = await getInfo(is_admin, limit, offset);
+
+   await getTotalRecords(is_admin);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -70,7 +74,7 @@ const getAllInfo = async (req, res) => {
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit/4,
+        limit: limit/4 , 
       },
     });
   } catch (error) {
