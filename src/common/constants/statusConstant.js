@@ -36,6 +36,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE={
+  USER_DELETED:"This user is deleted, if you want login then signup the user",
   ADD_ADMIN:"Set as a admin successfully",
   DOCUMENT_DELETED:"Document deleted successfully",
   REMOVE_ADMIN:"Remove as a admin successfully",

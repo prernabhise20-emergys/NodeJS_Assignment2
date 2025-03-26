@@ -15,6 +15,7 @@ import {
   addAsAdmin,
   checkAdminCount,
   removeAdminAuthority,
+  check
 } from "../models/userModel.js";
 import {
   ERROR_STATUS_CODE,
@@ -25,8 +26,7 @@ import {
 
 dotenv.config();
 const {
-  LOGIN_USER,
-  INTERNAL_SERVER_ERROR,
+  USER_DELETED,
   USER_EXISTS,
   REGISTER_SUCCESS,
   INVALID_USER,
@@ -69,6 +69,10 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, user_password } = req.body;
+const check1 = await check(email)
+if(check1){
+  throw USER_DELETED;
+}
 
     const user = await loginUser(email);
 
