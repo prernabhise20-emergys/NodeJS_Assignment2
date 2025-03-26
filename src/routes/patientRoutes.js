@@ -12,6 +12,7 @@ import { removeDocument } from "../models/patientModel.js";
 
 const router = express.Router();
 const {
+  GET_AGE_GROUP,
   ADMIN_DELETE_PATIENT_DATA,
   GET_FAMILY_INFO,
   GET_PERSONAL_INFO,
@@ -83,6 +84,11 @@ router.get(
   GET_PATIENT_INFO,
   authenticateUser,
   patientController.showPatientDetails
+);
+router.get(
+  GET_AGE_GROUP,
+  authenticateUser,
+  patientController.ageGroupData
 );
 router.put(
   UPDATE_FAMILY_INFO,

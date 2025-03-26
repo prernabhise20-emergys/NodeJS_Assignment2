@@ -391,27 +391,6 @@ const insertFamilyInfo = async (data) => {
   }
 };
 
-const checkFillForm = async (userId) => {
-  try {
-    const result = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM personal_info WHERE user_id=?",
-        userId,
-        (error, results) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(results);
-        }
-      );
-    });
-
-    return result.length <= 0;
-  } catch (error) {
-    throw error;
-  }
-};
-
 const getFamilyInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
@@ -622,49 +601,8 @@ const checkNumberOfDocument = async (patient_id) => {
   }
 };
 
-// *************************************
-
-const checkFamilyInfo = async (userId) => {
-  try {
-    const familyInfo = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM family_info WHERE user_id = ?",
-        [userId],
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(result);
-        }
-      );
-    });
-    return familyInfo.length > 0;
-  } catch (error) {
-    throw error;
-  }
-};
 
 // *******************************************************
-
-const checkDiseaseInfo = async (userId) => {
-  try {
-    const diseaseInfo = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM disease WHERE user_id = ?",
-        [userId],
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(result);
-        }
-      );
-    });
-    return diseaseInfo.length > 0;
-  } catch (error) {
-    throw error;
-  }
-};
 
 const checkDocumentExists = (document_type, patient_id) => {
   return new Promise((resolve, reject) => {
@@ -715,30 +653,32 @@ const removeDocument = (patient_id, document_type) => {
     });
   });
 };
-
-const checkDuplication = async (patient_id) => {
-  try {
-    const data = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT patient_id FROM family_info WHERE patient_id = ?",
-        patient_id,
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          return resolve(result);
-        }
-      );
+const ageGroupWiseData = (user_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(`
+      SELECT 
+        COUNT(age) as count,
+        CASE 
+          WHEN age BETWEEN 0 AND 12 THEN 'child'
+          WHEN age BETWEEN 13 AND 18 THEN 'teen'
+          WHEN age BETWEEN 19 AND 60 THEN 'adult'
+          WHEN age > 60 THEN 'older'
+        END as ageGroup
+      FROM personal_info
+      WHERE user_id = ? and is_deleted=false
+      GROUP BY ageGroup
+    `, [user_id], (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(result);
     });
-    return data.length > 0;
-  } catch (error) {
-    throw error;
-  }
+  });
 };
 export {
+  ageGroupWiseData,
   getTotalRecords,
   deletePatientDetails,
-  checkDuplication,
   checkUserWithPatientID,
   getFamilyInfo,
   checkDocumentExists,
@@ -748,14 +688,11 @@ export {
   saveDocument,
   createPersonalDetails,
   checkNumberOfDocument,
-  checkFamilyInfo,
   getPersonalInfo,
-  checkDiseaseInfo,
   updatePersonalDetails,
   getInfo,
   getPatientInfo,
   deletePersonalDetails,
-  checkFillForm,
   insertFamilyInfo,
   updateFamilyInfo,
   deleteFamilyInfo,

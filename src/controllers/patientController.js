@@ -31,8 +31,7 @@ import {
   removeDocument,
   checkDocumentExists,
   getTotalRecords,
-  checkFamilyInfo,
-  checkDiseaseInfo,
+  ageGroupWiseData
 } from "../models/patientModel.js";
 const {
   MORE_THAN_LIMIT,
@@ -288,11 +287,6 @@ const addFamilyInfo = async (req, res) => {
     const { familyDetails } = req.body;
     const { patient_id } = familyDetails;
     console.log("Patient ID:", patient_id);
-
-    // const duplication = await checkDuplication(patient_id);
-    // if (duplication) {
-    //   throw DUPLICATE_RECORD;
-    // }
 
     const result = await insertFamilyInfo(familyDetails);
     throw ADD_FAMILY_SUCCESSFULLY;
@@ -589,7 +583,36 @@ const deleteDocument = async (req, res) => {
   }
 };
 
+const ageGroupData = async (req, res) => {
+  try {
+    const { userid: id } = req.user;
+
+    const ageGroup = await ageGroupWiseData(id);
+    console.log(ageGroup);
+
+    const ageData = {
+      child: ageGroup.find(group => group.ageGroup === 'child')?.count || 0,
+      teen: ageGroup.find(group => group.ageGroup === 'teen')?.count || 0,
+      adult: ageGroup.find(group => group.ageGroup === 'adult')?.count || 0,
+      older: ageGroup.find(group => group.ageGroup === 'older')?.count || 0,
+    };
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: ageData,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
+
 export default {
+  ageGroupData,
   adminDeletePatientData,
   getUploadDocument,
   getPersonalDetails,
