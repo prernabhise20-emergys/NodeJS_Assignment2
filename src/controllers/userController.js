@@ -175,7 +175,6 @@ const getUser = async (req, res) => {
   try {
     const { userid: id, email: emailID } = req.user;
     const checkExists = await checkAlreadyExist(emailID);
-    console.log(checkExists);
 
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);
@@ -187,14 +186,14 @@ const getUser = async (req, res) => {
         });
       }
     }
-
+else{
     const user = await getUserData(id);
-
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
       data: user,
     });
+  }
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({

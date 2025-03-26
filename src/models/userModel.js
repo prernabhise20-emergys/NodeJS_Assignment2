@@ -22,7 +22,6 @@ const getUserData = async (userid) => {
   }
 };
 const getDeleteUserInfo = async (email) => {
-  console.log(email);
 
   try {
     const data = await new Promise((resolve, reject) => {
@@ -44,7 +43,7 @@ const getDeleteUserInfo = async (email) => {
 const checkAlreadyExist = (email) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT * FROM user_register WHERE is_deleted=false and email = ?`,
+      `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
       email,
       (error, result) => {
         if (error) {
