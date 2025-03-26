@@ -588,7 +588,6 @@ const ageGroupData = async (req, res) => {
     const { userid: id } = req.user;
 
     const ageGroup = await ageGroupWiseData(id);
-    console.log(ageGroup);
 
     const ageData = {
       child: ageGroup.find(group => group.ageGroup === 'child')?.count || 0,
