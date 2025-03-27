@@ -115,61 +115,6 @@ const getTotalRecords = async (is_admin) => {
   }
 };
 
-// const getPatientInfo = async (id) => {
-//   try {
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name,p.gender, r.mobile_number, 
-//                 p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
-//                 p.is_diabetic, p.cardiac_issue, p.blood_pressure, f.father_name, f.father_age, 
-//                 f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
-//                 f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, d.disease_type, 
-//                 d.disease_description, do.document_type, do.document_url 
-//         FROM personal_info p 
-//         JOIN user_register r ON p.user_id = r.id 
-//         JOIN family_info f ON f.patient_id = p.patient_id 
-//         JOIN disease d ON d.patient_id = p.patient_id 
-//         JOIN documents do ON do.patient_id = p.patient_id 
-//         WHERE p.is_deleted = false 
-//           AND f.is_deleted = false 
-//           AND d.is_deleted = false 
-//           AND do.is_deleted = false 
-//           AND r.id = ?`,
-//         id,
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-
-//           const patientData = [];
-//           result.forEach((row) => {
-//             let existing = patientData.find(
-//               (item) => item.patient_id === row.patient_id
-//             );
-
-//             if (!existing) {
-//               const { document_type, document_url, ...data } = row;
-//               existing = {
-//                 ...data,
-//                 documents: [],
-//               };
-//               patientData.push(existing);
-//             }
-//             existing.documents.push({
-//               document_type: row.document_type,
-//               document_url: row.document_url,
-//             });
-//           });
-
-//           return resolve(patientData);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
 const getPatientInfo = async (id) => {
   try {
     return new Promise((resolve, reject) => {
@@ -196,50 +141,27 @@ const getPatientInfo = async (id) => {
             return reject(error);
           }
 
-          const patientData = {};
-
+          const patientData = [];
           result.forEach((row) => {
-            if (!patientData[row.patient_id]) {
-              patientData[row.patient_id] = {
-                patient_id: row.patient_id,
-                patient_name: row.patient_name,
-                first_name: row.first_name,
-                last_name: row.last_name,
-                gender: row.gender,
-                mobile_number: row.mobile_number,
-                date_of_birth: row.date_of_birth,
-                age: row.age,
-                weight: row.weight,
-                height: row.height,
-                bmi: row.bmi,
-                country_of_origin: row.country_of_origin,
-                is_diabetic: row.is_diabetic,
-                cardiac_issue: row.cardiac_issue,
-                blood_pressure: row.blood_pressure,
-                father_name: row.father_name,
-                father_age: row.father_age,
-                mother_name: row.mother_name,
-                mother_age: row.mother_age,
-                father_country_origin: row.father_country_origin,
-                mother_country_origin: row.mother_country_origin,
-                parent_diabetic: row.parent_diabetic,
-                parent_cardiac_issue: row.parent_cardiac_issue,
-                parent_bp: row.parent_bp,
-                disease_type: row.disease_type,
-                disease_description: row.disease_description,
+            let existing = patientData.find(
+              (item) => item.patient_id === row.patient_id
+            );
+
+            if (!existing) {
+              const { document_type, document_url, ...data } = row;
+              existing = {
+                ...data,
                 documents: [],
               };
+              patientData.push(existing);
             }
-
-            patientData[row.patient_id].documents.push({
+            existing.documents.push({
               document_type: row.document_type,
               document_url: row.document_url,
             });
           });
 
-          const patientInfo = Object.values(patientData);
-
-          return resolve(patientInfo);
+          return resolve(patientData);
         }
       );
     });
@@ -247,6 +169,84 @@ const getPatientInfo = async (id) => {
     throw error;
   }
 };
+
+// const getPatientInfo = async (id) => {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name,p.gender, r.mobile_number, 
+//                 p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
+//                 p.is_diabetic, p.cardiac_issue, p.blood_pressure, f.father_name, f.father_age, 
+//                 f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
+//                 f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, d.disease_type, 
+//                 d.disease_description, do.document_type, do.document_url 
+//         FROM personal_info p 
+//         JOIN user_register r ON p.user_id = r.id 
+//         JOIN family_info f ON f.patient_id = p.patient_id 
+//         JOIN disease d ON d.patient_id = p.patient_id 
+//         JOIN documents do ON do.patient_id = p.patient_id 
+//         WHERE p.is_deleted = false 
+//           AND f.is_deleted = false 
+//           AND d.is_deleted = false 
+//           AND do.is_deleted = false 
+//           AND r.id = ?`,
+//         id,
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+
+//           const patientData = {};
+
+//           result.forEach((row) => {
+//             if (!patientData[row.patient_id]) {
+//               patientData[row.patient_id] = {
+//                 patient_id: row.patient_id,
+//                 patient_name: row.patient_name,
+//                 first_name: row.first_name,
+//                 last_name: row.last_name,
+//                 gender: row.gender,
+//                 mobile_number: row.mobile_number,
+//                 date_of_birth: row.date_of_birth,
+//                 age: row.age,
+//                 weight: row.weight,
+//                 height: row.height,
+//                 bmi: row.bmi,
+//                 country_of_origin: row.country_of_origin,
+//                 is_diabetic: row.is_diabetic,
+//                 cardiac_issue: row.cardiac_issue,
+//                 blood_pressure: row.blood_pressure,
+//                 father_name: row.father_name,
+//                 father_age: row.father_age,
+//                 mother_name: row.mother_name,
+//                 mother_age: row.mother_age,
+//                 father_country_origin: row.father_country_origin,
+//                 mother_country_origin: row.mother_country_origin,
+//                 parent_diabetic: row.parent_diabetic,
+//                 parent_cardiac_issue: row.parent_cardiac_issue,
+//                 parent_bp: row.parent_bp,
+//                 disease_type: row.disease_type,
+//                 disease_description: row.disease_description,
+//                 documents: [],
+//               };
+//             }
+
+//             patientData[row.patient_id].documents.push({
+//               document_type: row.document_type,
+//               document_url: row.document_url,
+//             });
+//           });
+
+//           const patientInfo = Object.values(patientData);
+
+//           return resolve(patientInfo);
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 // **********************************
 
