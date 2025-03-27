@@ -1,8 +1,6 @@
 import db from "../db/connection.js";
 
 const getInfo = async (is_admin, limit, offset) => {
-  console.log(limit);
-  console.log(offset);
 
   try {
     if (!is_admin) {
