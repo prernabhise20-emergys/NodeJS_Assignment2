@@ -74,7 +74,7 @@ const getAllInfo = async (req, res) => {
       pagination: {
         currentPage: page,
         limit: limit / 4,
-        totalCount: totalCount
+        totalPatients: totalCount
       },
     });
   } catch (error) {
