@@ -598,9 +598,9 @@ const deleteDocument = async (req, res) => {
 
 const ageGroupData = async (req, res) => {
   try {
-    const { userid: id } = req.user;
+    const { admin:is_admin } = req.user;
 
-    const ageGroup = await ageGroupWiseData(id);
+    const ageGroup = await ageGroupWiseData(is_admin);
 
     const ageData = {
       child: ageGroup.find((group) => group.ageGroup === "child")?.count || 0,
@@ -623,7 +623,22 @@ const ageGroupData = async (req, res) => {
   }
 };
 
+const downloadDocument= (req, res) => {
+  const fileName = req.file;
+  const directoryPath ="documents/"+req.file;
+
+  res.download(directoryPath + fileName, fileName, (err) => {
+    if (err) {
+      res.status(500).send({
+        message: "Could not download the file. " + err,
+      });
+    }
+    res.download(fileName)
+  });
+};
+
 export default {
+  downloadDocument,
   ageGroupData,
   adminDeletePatientData,
   getUploadDocument,

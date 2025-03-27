@@ -687,8 +687,9 @@ const removeDocument = (patient_id, document_type) => {
   });
 };
 
-const ageGroupWiseData = (user_id) => {
+const ageGroupWiseData = (is_admin) => {
   return new Promise((resolve, reject) => {
+    if(is_admin){
     db.query(
       `
       SELECT 
@@ -700,10 +701,9 @@ const ageGroupWiseData = (user_id) => {
           WHEN age > 60 THEN 'older'
         END as ageGroup
       FROM personal_info
-      WHERE user_id = ? and is_deleted=false
+      WHERE is_deleted=false
       GROUP BY ageGroup
     `,
-      user_id,
       (error, result) => {
         if (error) {
           return reject(error);
@@ -711,7 +711,12 @@ const ageGroupWiseData = (user_id) => {
         resolve(result);
       }
     );
+  }
+  else{
+    throw UNAUTHORIZED_ACCESS;
+  }
   });
+
 };
 export {
   getDeletePatientInfo,

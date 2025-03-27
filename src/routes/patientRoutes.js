@@ -12,6 +12,7 @@ import { removeDocument } from "../models/patientModel.js";
 
 const router = express.Router();
 const {
+  DOWNLOAD_DOCUMENT,
   GET_AGE_GROUP,
   ADMIN_DELETE_PATIENT_DATA,
   GET_FAMILY_INFO,
@@ -153,5 +154,11 @@ router.get(
   GET_AGE_GROUP,
   authenticateUser,
   patientController.ageGroupData
+);
+
+router.get(
+  DOWNLOAD_DOCUMENT,
+  authenticateUser,
+  patientController.downloadDocument
 );
 export default router;
