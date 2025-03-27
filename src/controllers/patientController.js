@@ -61,10 +61,12 @@ const getAllInfo = async (req, res) => {
     limit = limit * 4;
 
     const offset = (page - 1) * limit;
+    const count=await getTotalRecords(is_admin);
 
-    const personalInfo = await getInfo(is_admin, limit, offset);
+    const personalInfo = await getInfo(is_admin, count, offset);
 
-    await getTotalRecords(is_admin);
+    // const count=await getTotalRecords(is_admin);
+console.log(count);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -85,7 +87,7 @@ const getAllInfo = async (req, res) => {
 };
 // *****************************************************************
 
-const showPatientDetails = async (req, res, next) => {
+const showPatientDetails = async (req, res) => {
   try {
     const { userid: id } = req.user;
 
