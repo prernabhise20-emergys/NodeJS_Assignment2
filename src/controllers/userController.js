@@ -26,16 +26,14 @@ import {
 
 dotenv.config();
 const {
-  LOGIN_USER,
-  INTERNAL_SERVER_ERROR,
   USER_EXISTS,
   REGISTER_SUCCESS,
   INVALID_USER,
   ADD_ADMINS,
   REMOVE_ADMIN,
   USER_UPDATE,
-  USER_NOT_FOUND,
-  CANNOT_DELETE_USER,
+  USER_DELETED,
+    CANNOT_DELETE_USER,
 } = AUTH_RESPONSES;
 
 const register = async (req, res) => {
