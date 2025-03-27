@@ -47,48 +47,28 @@ const getInfo = async (is_admin, limit, offset) => {
           return reject(error);
           
         }
-        const patientData = {};
+        const patientData = [];
 
         result.forEach((row) => {
-          if (!patientData[row.patient_id]) {
-            patientData[row.patient_id] = {
-              patient_id: row.patient_id,
-              patient_name: row.patient_name,
-              gender:row.gender,
-              mobile_number: row.mobile_number,
-              date_of_birth: row.date_of_birth,
-              age: row.age,
-              weight: row.weight,
-              height: row.height,
-              bmi: row.bmi,
-              country_of_origin: row.country_of_origin,
-              is_diabetic: row.is_diabetic,
-              cardiac_issue: row.cardiac_issue,
-              blood_pressure: row.blood_pressure,
-              father_name: row.father_name,
-              father_age: row.father_age,
-              mother_name: row.mother_name,
-              mother_age: row.mother_age,
-              father_country_origin: row.father_country_origin,
-              mother_country_origin: row.mother_country_origin,
-              parent_diabetic: row.parent_diabetic,
-              parent_cardiac_issue: row.parent_cardiac_issue,
-              parent_bp: row.parent_bp,
-              disease_type: row.disease_type,
-              disease_description: row.disease_description,
+          let existing = patientData.find(
+            (item) => item.patient_id === row.patient_id
+          );
+
+          if (!existing) {
+            const { document_type, document_url, ...data } = row;
+            existing = {
+              ...data,
               documents: [],
             };
+            patientData.push(existing);
           }
-
-          patientData[row.patient_id].documents.push({
+          existing.documents.push({
             document_type: row.document_type,
             document_url: row.document_url,
           });
         });
 
-        const patientInfo = Object.values(patientData);
-
-        return resolve(patientInfo);
+        return resolve(patientData);
       });
     });
   } catch (error) {
@@ -122,50 +102,27 @@ const getPatientInfo = async (id) => {
             return reject(error);
           }
 
-          const patientData = {};
-
+          const patientData = [];
           result.forEach((row) => {
-            if (!patientData[row.patient_id]) {
-              patientData[row.patient_id] = {
-                patient_id: row.patient_id,
-                patient_name: row.patient_name,
-                first_name: row.first_name,
-                last_name: row.last_name,
-                gender: row.gender,
-                mobile_number: row.mobile_number,
-                date_of_birth: row.date_of_birth,
-                age: row.age,
-                weight: row.weight,
-                height: row.height,
-                bmi: row.bmi,
-                country_of_origin: row.country_of_origin,
-                is_diabetic: row.is_diabetic,
-                cardiac_issue: row.cardiac_issue,
-                blood_pressure: row.blood_pressure,
-                father_name: row.father_name,
-                father_age: row.father_age,
-                mother_name: row.mother_name,
-                mother_age: row.mother_age,
-                father_country_origin: row.father_country_origin,
-                mother_country_origin: row.mother_country_origin,
-                parent_diabetic: row.parent_diabetic,
-                parent_cardiac_issue: row.parent_cardiac_issue,
-                parent_bp: row.parent_bp,
-                disease_type: row.disease_type,
-                disease_description: row.disease_description,
+            let existing = patientData.find(
+              (item) => item.patient_id === row.patient_id
+            );
+
+            if (!existing) {
+              const { document_type, document_url, ...data } = row;
+              existing = {
+                ...data,
                 documents: [],
               };
+              patientData.push(existing);
             }
-
-            patientData[row.patient_id].documents.push({
+            existing.documents.push({
               document_type: row.document_type,
               document_url: row.document_url,
             });
           });
 
-          const patientInfo = Object.values(patientData);
-
-          return resolve(patientInfo);
+          return resolve(patientData);
         }
       );
     });
@@ -173,7 +130,46 @@ const getPatientInfo = async (id) => {
     throw error;
   }
 };
+const getTotalRecords = async (is_admin) => {
+  try {
+    if (!is_admin) {
+      throw new Error("Unauthorized access");
+    }
 
+    return new Promise((resolve, reject) => {
+      db.query(
+        `
+        SELECT COUNT(p.patient_id) AS totalCount
+        FROM personal_info p 
+        JOIN user_register u
+         ON p.user_id = u.id 
+        JOIN family_info f 
+        ON f.patient_id = p.patient_id 
+        JOIN disease d 
+        ON d.patient_id = p.patient_id 
+        JOIN documents do 
+        ON do.patient_id = p.patient_id 
+        WHERE 
+          p.is_deleted = FALSE 
+          AND u.is_deleted = FALSE 
+          AND f.is_deleted = FALSE 
+          AND d.is_deleted = FALSE 
+          AND do.is_deleted = FALSE
+      `,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+
+          const totalRecords = result[0]?.totalCount || 0;
+          return resolve(totalRecords);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 const getPersonalInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
@@ -395,26 +391,7 @@ const insertFamilyInfo = async (data) => {
   }
 };
 
-const checkFillForm = async (userId) => {
-  try {
-    const result = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM personal_info WHERE user_id=?",
-        userId,
-        (error, results) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(results);
-        }
-      );
-    });
 
-    return result.length <= 0;
-  } catch (error) {
-    throw error;
-  }
-};
 
 const getFamilyInfo = async (patient_id) => {
   try {
@@ -628,48 +605,6 @@ const checkNumberOfDocument = async (patient_id) => {
 
 // *************************************
 
-const checkFamilyInfo = async (userId) => {
-  try {
-    const familyInfo = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM family_info WHERE user_id = ?",
-        [userId],
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(result);
-        }
-      );
-    });
-    return familyInfo.length > 0;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// *******************************************************
-
-const checkDiseaseInfo = async (userId) => {
-  try {
-    const diseaseInfo = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM disease WHERE user_id = ?",
-        [userId],
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(result);
-        }
-      );
-    });
-    return diseaseInfo.length > 0;
-  } catch (error) {
-    throw error;
-  }
-};
-
 const checkDocumentExists = (document_type, patient_id) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -719,29 +654,32 @@ const removeDocument = (patient_id, document_type) => {
     });
   });
 };
-
-const checkDuplication = async (patient_id) => {
-  try {
-    const data = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT patient_id FROM family_info WHERE patient_id = ?",
-        patient_id,
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          return resolve(result);
-        }
-      );
+const ageGroupWiseData = (user_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(`
+      SELECT 
+        COUNT(age) as count,
+        CASE 
+          WHEN age BETWEEN 0 AND 12 THEN 'child'
+          WHEN age BETWEEN 13 AND 18 THEN 'teen'
+          WHEN age BETWEEN 19 AND 60 THEN 'adult'
+          WHEN age > 60 THEN 'older'
+        END as ageGroup
+      FROM personal_info
+      WHERE user_id = ? and is_deleted=false
+      GROUP BY ageGroup
+    `, [user_id], (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(result);
     });
-    return data.length > 0;
-  } catch (error) {
-    throw error;
-  }
+  });
 };
 export {
+  ageGroupWiseData,
+  getTotalRecords,
   deletePatientDetails,
-  checkDuplication,
   checkUserWithPatientID,
   getFamilyInfo,
   checkDocumentExists,
@@ -751,14 +689,11 @@ export {
   saveDocument,
   createPersonalDetails,
   checkNumberOfDocument,
-  checkFamilyInfo,
   getPersonalInfo,
-  checkDiseaseInfo,
   updatePersonalDetails,
   getInfo,
   getPatientInfo,
   deletePersonalDetails,
-  checkFillForm,
   insertFamilyInfo,
   updateFamilyInfo,
   deleteFamilyInfo,

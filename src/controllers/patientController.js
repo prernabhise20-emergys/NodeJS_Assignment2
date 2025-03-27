@@ -8,6 +8,8 @@ import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 
 import {
+  ageGroupWiseData,
+  getTotalRecords,
   checkNumberOfDocument,
   deletePatientDetails,
   checkUserWithPatientID,
@@ -30,12 +32,9 @@ import {
   modifyDocument,
   removeDocument,
   checkDocumentExists,
-  checkFamilyInfo,
-  checkDiseaseInfo,
 } from "../models/patientModel.js";
 const {
   MORE_THAN_LIMIT,
-  DUPLICATE_RECORD,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
   UPDATE_SUCCESSFULLY,
@@ -55,14 +54,17 @@ const getAllInfo = async (req, res) => {
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
+
     let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
-    limit=limit*4
+    limit = limit * 4;
 
     const offset = (page - 1) * limit;
 
     const personalInfo = await getInfo(is_admin, limit, offset);
+
+    await getTotalRecords(is_admin);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -70,7 +72,7 @@ const getAllInfo = async (req, res) => {
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit/4,
+        limit: limit / 4,
       },
     });
   } catch (error) {
@@ -81,7 +83,6 @@ const getAllInfo = async (req, res) => {
     });
   }
 };
-
 // *****************************************************************
 
 const showPatientDetails = async (req, res, next) => {
@@ -285,11 +286,6 @@ const addFamilyInfo = async (req, res) => {
     const { patient_id } = familyDetails;
     console.log("Patient ID:", patient_id);
 
-    // const duplication = await checkDuplication(patient_id);
-    // if (duplication) {
-    //   throw DUPLICATE_RECORD;
-    // }
-
     const result = await insertFamilyInfo(familyDetails);
     throw ADD_FAMILY_SUCCESSFULLY;
   } catch (error) {
@@ -492,15 +488,30 @@ if(moreThanLimit)
 {
   throw MORE_THAN_LIMIT;
 }
-    const result = await uploadFile(req.file);
-    const { secure_url: documentUrl } = result;
+    // const result = await uploadFile(req.file);
+    // const { secure_url: documentUrl } = result;
 
-    const documentData = {
-      document_type,
-      document_url: documentUrl,
-      patient_id,
-    };
+    // const documentData = {
+    //   document_type,
+    //   document_url: documentUrl,
+    //   patient_id,
+    // };
 
+    const documentUrls = [];
+
+    for (const file of req.files) {
+      const result = await uploadFile(file);
+
+      const { secure_url: documentUrl } = result;
+
+      documentUrls.push(documentUrl);
+
+      const documentData = {
+        document_type,
+        document_url: documentUrl,
+        patient_id: patient_id,
+      };
+    }
     await saveDocument(documentData);
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send({
@@ -585,7 +596,35 @@ const deleteDocument = async (req, res) => {
   }
 };
 
+const ageGroupData = async (req, res) => {
+  try {
+    const { userid: id } = req.user;
+
+    const ageGroup = await ageGroupWiseData(id);
+
+    const ageData = {
+      child: ageGroup.find((group) => group.ageGroup === "child")?.count || 0,
+      teen: ageGroup.find((group) => group.ageGroup === "teen")?.count || 0,
+      adult: ageGroup.find((group) => group.ageGroup === "adult")?.count || 0,
+      older: ageGroup.find((group) => group.ageGroup === "older")?.count || 0,
+    };
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: ageData,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
+
 export default {
+  ageGroupData,
   adminDeletePatientData,
   getUploadDocument,
   getPersonalDetails,

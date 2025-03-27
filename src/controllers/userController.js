@@ -23,8 +23,6 @@ import {
 
 dotenv.config();
 const {
-  LOGIN_USER,
-  INTERNAL_SERVER_ERROR,
   USER_EXISTS,
   REGISTER_SUCCESS,
   INVALID_USER,
