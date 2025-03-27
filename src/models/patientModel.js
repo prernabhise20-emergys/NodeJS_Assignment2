@@ -3,8 +3,7 @@ import db from "../db/connection.js";
 const getInfo = async (is_admin, limit, offset) => {
   console.log(limit);
   console.log(offset);
-  
-  
+
   try {
     if (!is_admin) {
       throw new Error("Unauthorized access");
@@ -45,8 +44,8 @@ const getInfo = async (is_admin, limit, offset) => {
       db.query(query, [limit, offset], (error, result) => {
         if (error) {
           return reject(error);
-          
         }
+        const patientData = [];
         const patientData = [];
 
         result.forEach((row) => {
@@ -58,10 +57,20 @@ const getInfo = async (is_admin, limit, offset) => {
             const { document_type, document_url, ...data } = row;
             existing = {
               ...data,
+          let existing = patientData.find(
+            (item) => item.patient_id === row.patient_id
+          );
+
+          if (!existing) {
+            const { document_type, document_url, ...data } = row;
+            existing = {
+              ...data,
               documents: [],
             };
             patientData.push(existing);
+            patientData.push(existing);
           }
+          existing.documents.push({
           existing.documents.push({
             document_type: row.document_type,
             document_url: row.document_url,
@@ -69,7 +78,49 @@ const getInfo = async (is_admin, limit, offset) => {
         });
 
         return resolve(patientData);
+        return resolve(patientData);
       });
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getTotalRecords = async (is_admin) => {
+  try {
+    if (!is_admin) {
+      throw new Error("Unauthorized access");
+    }
+
+    return new Promise((resolve, reject) => {
+      db.query(
+        `
+        SELECT COUNT(p.patient_id) AS totalCount
+        FROM personal_info p 
+        JOIN user_register u
+         ON p.user_id = u.id 
+        JOIN family_info f 
+        ON f.patient_id = p.patient_id 
+        JOIN disease d 
+        ON d.patient_id = p.patient_id 
+        JOIN documents do 
+        ON do.patient_id = p.patient_id 
+        WHERE 
+          p.is_deleted = FALSE 
+          AND u.is_deleted = FALSE 
+          AND f.is_deleted = FALSE 
+          AND d.is_deleted = FALSE 
+          AND do.is_deleted = FALSE
+      `,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+
+          const totalRecords = result[0]?.totalCount || 0;
+          return resolve(totalRecords);
+        }
+      );
     });
   } catch (error) {
     throw error;
@@ -112,10 +163,20 @@ const getPatientInfo = async (id) => {
               const { document_type, document_url, ...data } = row;
               existing = {
                 ...data,
+            let existing = patientData.find(
+              (item) => item.patient_id === row.patient_id
+            );
+
+            if (!existing) {
+              const { document_type, document_url, ...data } = row;
+              existing = {
+                ...data,
                 documents: [],
               };
               patientData.push(existing);
+              patientData.push(existing);
             }
+            existing.documents.push({
             existing.documents.push({
               document_type: row.document_type,
               document_url: row.document_url,
@@ -208,20 +269,23 @@ const createPersonalDetails = async (data, userId, email) => {
     let userBMI = weight / (height * height);
 
     data = {
-      patient_name: patient_name,
-      gender: gender,
-      user_id: userId,
       created_by: email,
       updated_by: email,
-      age: userAge,
-      bmi: userBMI,
-      date_of_birth: date_of_birth,
-      weight: weight,
-      height: height,
-      country_of_origin: country_of_origin,
-      is_diabetic: is_diabetic,
-      cardiac_issue: cardiac_issue,
-      blood_pressure: blood_pressure,
+      // patient_name: patient_name,
+      // gender: gender,
+      // user_id: userId,
+      // created_by: email,
+      // updated_by: email,
+      // age: userAge,
+      // bmi: userBMI,
+      // date_of_birth: date_of_birth,
+      // weight: weight,
+      // height: height,
+      // country_of_origin: country_of_origin,
+      // is_diabetic: is_diabetic,
+      // cardiac_issue: cardiac_issue,
+      // blood_pressure: blood_pressure,
+      ...data
     };
 
     return new Promise((resolve, reject) => {
@@ -350,34 +414,11 @@ WHERE p.patient_id =?  and f.patient_id=? and d.patient_id=? and doc.patient_id=
 
 const insertFamilyInfo = async (data) => {
   try {
-    const {
-      father_name,
-      father_age,
-      father_country_origin,
-      mother_name,
-      mother_age,
-      mother_country_origin,
-      parent_diabetic,
-      parent_cardiac_issue,
-      parent_bp,
-      patient_id,
-    } = data;
-
+const data1={...data}
     return new Promise((resolve, reject) => {
       db.query(
         "INSERT INTO family_info SET ?",
-        {
-          father_name,
-          father_age,
-          father_country_origin,
-          mother_name,
-          mother_age,
-          mother_country_origin,
-          parent_diabetic,
-          parent_cardiac_issue,
-          parent_bp,
-          patient_id,
-        },
+       data1,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -482,12 +523,12 @@ const getDiseaseInfo = async (patient_id) => {
 
 const addDiseaseData = async (data) => {
   try {
-    const { disease_type, disease_description, patient_id } = data;
+    const data1={...data};
 
     return new Promise((resolve, reject) => {
       db.query(
         "INSERT INTO disease SET ?",
-        { disease_type, disease_description, patient_id },
+        data1,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -563,23 +604,25 @@ const getUploadInfo = async (patient_id) => {
 };
 
 const saveDocument = (documentData) => {
+  const documentData1 = {
+    document_type: documentData.document_type,
+    document_url: documentData.document_url,
+    patient_id: documentData.patient_id
+  };
   return new Promise((resolve, reject) => {
+    
     db.query(
-      "INSERT INTO documents (document_type, document_url, patient_id) VALUES (?, ?, ?)",
-      [
-        documentData.document_type,
-        documentData.document_url,
-        documentData.patient_id,
-      ],
-      (error, result) => {
+      "INSERT INTO documents SET ?",
+      documentData1,
+      (error, results) => {
         if (error) {
-          return reject(error);
+          reject(error);
+        } else {
+          resolve(results);
         }
-        resolve(result);
       }
-    );
-  });
-};
+    )}
+)};
 
 // *************************************************************************************
 
@@ -588,7 +631,7 @@ const checkNumberOfDocument = async (patient_id) => {
     const personalInfo = await new Promise((resolve, reject) => {
       db.query(
         "SELECT * FROM documents WHERE patient_id = ?",
-        [patient_id],
+        patient_id,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -608,8 +651,24 @@ const checkNumberOfDocument = async (patient_id) => {
 const checkDocumentExists = (document_type, patient_id) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT 1 FROM documents WHERE is_deleted=false and document_type = ? AND patient_id = ? LIMIT 1`,
+      `SELECT * FROM documents WHERE is_deleted=false and document_type = ? AND patient_id = ? LIMIT 1`,
       [document_type, patient_id],
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result.length > 0);
+      }
+    );
+  });
+};
+// *************************************************************
+
+const checkAlreadyExist = (email) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT * FROM user_register WHERE email = ?`,
+      email,
       (error, result) => {
         if (error) {
           return reject(error);
@@ -674,6 +733,7 @@ const ageGroupWiseData = (user_id) => {
       }
       resolve(result);
     });
+  });
   });
 };
 export {

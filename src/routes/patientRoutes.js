@@ -85,6 +85,11 @@ router.get(
   authenticateUser,
   patientController.showPatientDetails
 );
+router.get(
+  GET_AGE_GROUP,
+  authenticateUser,
+  patientController.ageGroupData
+);
 router.put(
   UPDATE_FAMILY_INFO,
   authenticateUser,

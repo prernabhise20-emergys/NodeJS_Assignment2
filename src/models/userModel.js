@@ -21,7 +21,53 @@ const getUserData = async (userid) => {
     throw error;
   }
 };
+const getDeleteUserInfo = async (email) => {
 
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT email, first_name, last_name, mobile_number FROM user_register WHERE is_deleted=true and email=?",
+        email,
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const checkAlreadyExist = (email) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
+      email,
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result.length > 0);
+      }
+    );
+  });
+};
+const check = (email) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
+      email,
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result.length > 0);
+      }
+    );
+  });
+};
 // ****************************************************
 
 const createUserData = async (
@@ -180,6 +226,8 @@ const checkAdminCount = async () => {
 };
 // ************************************************************
 const deleteUserData = async (userId) => {
+  console.log(userId);
+  
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
@@ -224,6 +272,9 @@ const checkIfUserExists = async (email) => {
 };
 
 export {
+  check,
+  getDeleteUserInfo,
+  checkAlreadyExist,
   createUserData,
   checkIfUserExists,
   loginUser,
@@ -232,5 +283,5 @@ export {
   deleteUserData,
   addAsAdmin,
   removeAdminAuthority,
-  checkAdminCount
+  checkAdminCount,
 };
