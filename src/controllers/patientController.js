@@ -603,8 +603,8 @@ const ageGroupData = async (req, res) => {
     const ageGroup = await ageGroupWiseData(is_admin);
 
     const ageData = {
-      Children: ageGroup.find((group) => group.ageGroup === "child")?.count || 0,
-      Teenagers: ageGroup.find((group) => group.ageGroup === "teen")?.count || 0,
+      Child: ageGroup.find((group) => group.ageGroup === "child")?.count || 0,
+      Teen: ageGroup.find((group) => group.ageGroup === "teen")?.count || 0,
       Adults: ageGroup.find((group) => group.ageGroup === "adult")?.count || 0,
       Older: ageGroup.find((group) => group.ageGroup === "older")?.count || 0,
     };
