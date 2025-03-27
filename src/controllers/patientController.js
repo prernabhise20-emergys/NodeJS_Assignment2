@@ -526,7 +526,6 @@ if(moreThanLimit)
     });
   }
 };
-
 const updateDocument = async (req, res) => {
   try {
     if (!req.file) {
@@ -558,16 +557,15 @@ const updateDocument = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await modifyDocument(data);
-
       throw UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
   } catch (error) {
     console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+        return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+          status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+          message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+        });
   }
 };
 

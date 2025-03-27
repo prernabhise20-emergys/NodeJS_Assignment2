@@ -174,21 +174,21 @@ const getPatientInfo = async (id) => {
 //   try {
 //     return new Promise((resolve, reject) => {
 //       db.query(
-//         `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name,p.gender, r.mobile_number, 
-//                 p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
-//                 p.is_diabetic, p.cardiac_issue, p.blood_pressure, f.father_name, f.father_age, 
-//                 f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
-//                 f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, d.disease_type, 
-//                 d.disease_description, do.document_type, do.document_url 
-//         FROM personal_info p 
-//         JOIN user_register r ON p.user_id = r.id 
-//         JOIN family_info f ON f.patient_id = p.patient_id 
-//         JOIN disease d ON d.patient_id = p.patient_id 
-//         JOIN documents do ON do.patient_id = p.patient_id 
-//         WHERE p.is_deleted = false 
-//           AND f.is_deleted = false 
-//           AND d.is_deleted = false 
-//           AND do.is_deleted = false 
+//         `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name,p.gender, r.mobile_number,
+//                 p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin,
+//                 p.is_diabetic, p.cardiac_issue, p.blood_pressure, f.father_name, f.father_age,
+//                 f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin,
+//                 f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, d.disease_type,
+//                 d.disease_description, do.document_type, do.document_url
+//         FROM personal_info p
+//         JOIN user_register r ON p.user_id = r.id
+//         JOIN family_info f ON f.patient_id = p.patient_id
+//         JOIN disease d ON d.patient_id = p.patient_id
+//         JOIN documents do ON do.patient_id = p.patient_id
+//         WHERE p.is_deleted = false
+//           AND f.is_deleted = false
+//           AND d.is_deleted = false
+//           AND do.is_deleted = false
 //           AND r.id = ?`,
 //         id,
 //         (error, result) => {
@@ -359,7 +359,6 @@ const createPersonalDetails = async (data, userId, email) => {
       is_diabetic: is_diabetic,
       cardiac_issue: cardiac_issue,
       blood_pressure: blood_pressure,
-      
     };
 
     return new Promise((resolve, reject) => {
@@ -488,18 +487,14 @@ WHERE p.patient_id =?  and f.patient_id=? and d.patient_id=? and doc.patient_id=
 
 const insertFamilyInfo = async (data) => {
   try {
-const data1={...data}
+    const data1 = { ...data };
     return new Promise((resolve, reject) => {
-      db.query(
-        "INSERT INTO family_info SET ?",
-       data1,
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          return resolve(result);
+      db.query("INSERT INTO family_info SET ?", data1, (error, result) => {
+        if (error) {
+          return reject(error);
         }
-      );
+        return resolve(result);
+      });
     });
   } catch (error) {
     throw error;
@@ -595,19 +590,15 @@ const getDiseaseInfo = async (patient_id) => {
 
 const addDiseaseData = async (data) => {
   try {
-    const data1={...data};
+    const data1 = { ...data };
 
     return new Promise((resolve, reject) => {
-      db.query(
-        "INSERT INTO disease SET ?",
-        data1,
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          return resolve(result);
+      db.query("INSERT INTO disease SET ?", data1, (error, result) => {
+        if (error) {
+          return reject(error);
         }
-      );
+        return resolve(result);
+      });
     });
   } catch (error) {
     throw error;
@@ -679,22 +670,18 @@ const saveDocument = (documentData) => {
   const documentData1 = {
     document_type: documentData.document_type,
     document_url: documentData.document_url,
-    patient_id: documentData.patient_id
+    patient_id: documentData.patient_id,
   };
   return new Promise((resolve, reject) => {
-    
-    db.query(
-      "INSERT INTO documents SET ?",
-      documentData1,
-      (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results);
-        }
+    db.query("INSERT INTO documents SET ?", documentData1, (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
       }
-    )}
-)};
+    });
+  });
+};
 
 // *************************************************************************************
 
@@ -717,7 +704,6 @@ const checkNumberOfDocument = async (patient_id) => {
     throw error;
   }
 };
-
 
 // *******************************************************
 
@@ -753,15 +739,19 @@ const checkAlreadyExist = (email) => {
   });
 };
 
+
 const modifyDocument = (documentData) => {
   return new Promise((resolve, reject) => {
     const values = [
-      documentData.document_type,
       documentData.document_url || null,
       documentData.patient_id,
+      documentData.document_type,
     ];
+
     db.query(
-      `UPDATE documents SET document_type = ?, document_url = ? WHERE patient_id = ?`,
+      `UPDATE documents 
+       SET document_url = ? 
+       WHERE patient_id = ? AND document_type = ?`,
       values,
       (error, result) => {
         if (error) {
@@ -790,7 +780,8 @@ const removeDocument = (patient_id, document_type) => {
 
 const ageGroupWiseData = (user_id) => {
   return new Promise((resolve, reject) => {
-    db.query(`
+    db.query(
+      `
       SELECT 
         COUNT(age) as count,
         CASE 
@@ -802,12 +793,15 @@ const ageGroupWiseData = (user_id) => {
       FROM personal_info
       WHERE user_id = ? and is_deleted=false
       GROUP BY ageGroup
-    `, [user_id], (error, result) => {
-      if (error) {
-        return reject(error);
+    `,
+      [user_id],
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
       }
-      resolve(result);
-    });
+    );
   });
 };
 export {
