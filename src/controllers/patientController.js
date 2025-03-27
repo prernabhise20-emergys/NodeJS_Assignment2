@@ -603,10 +603,10 @@ const ageGroupData = async (req, res) => {
     const ageGroup = await ageGroupWiseData(is_admin);
 
     const ageData = {
-      child: ageGroup.find((group) => group.ageGroup === "child")?.count || 0,
-      teen: ageGroup.find((group) => group.ageGroup === "teen")?.count || 0,
-      adult: ageGroup.find((group) => group.ageGroup === "adult")?.count || 0,
-      older: ageGroup.find((group) => group.ageGroup === "older")?.count || 0,
+      child: ageGroup.find((group) => group.ageGroup === "Children")?.count || 0,
+      teen: ageGroup.find((group) => group.ageGroup === "Teenagers")?.count || 0,
+      adult: ageGroup.find((group) => group.ageGroup === "Adults")?.count || 0,
+      older: ageGroup.find((group) => group.ageGroup === "Older")?.count || 0,
     };
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
