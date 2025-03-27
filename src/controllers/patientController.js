@@ -31,6 +31,7 @@ import {
   modifyDocument,
   removeDocument,
   checkDocumentExists,
+  getTotalCount
 } from "../models/patientModel.js";
 const {
   MORE_THAN_LIMIT,
@@ -46,6 +47,7 @@ const {
   MISSING_REQUIRED,
 } = AUTH_RESPONSES;
 
+
 const getAllInfo = async (req, res) => {
   try {
     const { admin: is_admin } = req.user;
@@ -56,12 +58,14 @@ const getAllInfo = async (req, res) => {
     let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
-    limit=limit*4
+    limit = limit * 4;
 
     const offset = (page - 1) * limit;
 
-
-    const personalInfo = await getInfo(is_admin, limit, offset);
+    const [personalInfo, totalCount] = await Promise.all([
+      getInfo(is_admin, limit, offset),
+      getTotalCount(is_admin)
+    ]);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -69,7 +73,8 @@ const getAllInfo = async (req, res) => {
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit/4,
+        limit: limit / 4,
+        totalCount: totalCount
       },
     });
   } catch (error) {
@@ -80,6 +85,79 @@ const getAllInfo = async (req, res) => {
     });
   }
 };
+// const getAllInfo = async (req, res) => {
+//   try {
+//     const { admin: is_admin } = req.user;
+
+//     if (!is_admin) {
+//       throw UNAUTHORIZED_ACCESS;
+//     }
+//     let { page, limit } = req.query;
+//     page = parseInt(page || 1);
+//     limit = parseInt(limit || 10);
+//     limit=limit*4
+
+//     const offset = (page - 1) * limit;
+
+
+//     const personalInfo = await getInfo(is_admin, limit, offset);
+
+//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+//       status: SUCCESS_STATUS_CODE.SUCCESS,
+//       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+//       data: personalInfo,
+//       pagination: {
+//         currentPage: page,
+//         limit: limit/4,
+//       },
+//     });
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+//       status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+//       message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+//     });
+//   }
+// };
+
+// const getAllInfo = async (req, res) => {
+//   try {
+//     const { admin: is_admin } = req.user;
+
+//     if (!is_admin) {
+//       throw UNAUTHORIZED_ACCESS;
+//     }
+//     let { page, limit } = req.query;
+//     page = parseInt(page || 1);
+//     limit = parseInt(limit || 10);
+//     limit=limit*4
+
+//     const offset = (page - 1) * limit;
+
+
+//     const personalInfo = await getInfo(is_admin, limit, offset);
+
+//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+//       status: SUCCESS_STATUS_CODE.SUCCESS,
+//       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+//       data: personalInfo,
+//       pagination: {
+//         currentPage: page,
+//         limit: limit/4,
+//       },
+//     });
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+//       status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+//       message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+//     });
+//   }
+// };
+
+ 
+
+
 
 // *****************************************************************
 

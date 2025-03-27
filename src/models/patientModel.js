@@ -1,15 +1,86 @@
 import db from "../db/connection.js";
 
-const getInfo = async (is_admin, limit, offset) => {
+// const getInfo = async (is_admin, limit, offset) => {
+//   try {
+//     if (!is_admin) {
+//       throw new Error("Unauthorized access");
+//     }
 
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         `SELECT 
+//           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
+//           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
+//           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
+//           f.father_name, f.father_age, f.mother_name, f.mother_age, 
+//           f.father_country_origin, f.mother_country_origin, 
+//           f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, 
+//           d.disease_type, d.disease_description, 
+//           do.document_type, do.document_url  
+//         FROM 
+//           personal_info p 
+//         JOIN 
+//           user_register u ON p.user_id = u.id 
+//         JOIN 
+//           family_info f ON f.patient_id = p.patient_id 
+//         JOIN 
+//           disease d ON d.patient_id = p.patient_id 
+//         JOIN 
+//           documents do ON do.patient_id = p.patient_id 
+//         WHERE 
+//           p.is_deleted = FALSE 
+//           AND u.is_deleted = FALSE 
+//           AND f.is_deleted = FALSE 
+//           AND d.is_deleted = FALSE 
+//           AND do.is_deleted = FALSE 
+//         ORDER BY 
+//           p.patient_id 
+//         LIMIT ? OFFSET ?
+//       `,
+//         [limit, offset],
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           const patientData = [];
+
+//           result.forEach((row) => {
+//             let existing = patientData.find(
+//               (item) => item.patient_id === row.patient_id
+//             );
+
+//             if (!existing) {
+//               const { document_type, document_url, ...data } = row;
+//               existing = {
+//                 ...data,
+//                 documents: [],
+//               };
+//               patientData.push(existing);
+//             }
+//             existing.documents.push({
+//               document_type: row.document_type,
+//               document_url: row.document_url,
+//             });
+//           });
+
+//           return resolve(patientData);
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+const getInfo = async (is_admin, limit, offset) => {
   try {
     if (!is_admin) {
       throw new Error("Unauthorized access");
     }
 
     return new Promise((resolve, reject) => {
-      let query = `
-         SELECT 
+      db.query(
+        `SELECT 
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
@@ -36,42 +107,70 @@ const getInfo = async (is_admin, limit, offset) => {
           AND do.is_deleted = FALSE 
         ORDER BY 
           p.patient_id 
-        LIMIT ? OFFSET ?
-      `;
-
-      db.query(query, [limit, offset], (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        const patientData = [];
-
-        result.forEach((row) => {
-          let existing = patientData.find(
-            (item) => item.patient_id === row.patient_id
-          );
-
-          if (!existing) {
-            const { document_type, document_url, ...data } = row;
-            existing = {
-              ...data,
-              documents: [],
-            };
-            patientData.push(existing);
+        LIMIT ? OFFSET ?`,
+        [limit, offset],
+        (error, result) => {
+          if (error) {
+            return reject(error);
           }
-          existing.documents.push({
-            document_type: row.document_type,
-            document_url: row.document_url,
-          });
-        });
+          const patientData = [];
 
-        return resolve(patientData);
-      });
+          result.forEach((row) => {
+            let existing = patientData.find(
+              (item) => item.patient_id === row.patient_id
+            );
+
+            if (!existing) {
+              const { document_type, document_url, ...data } = row;
+              existing = {
+                ...data,
+                documents: [],
+              };
+              patientData.push(existing);
+            }
+            existing.documents.push({
+              document_type: row.document_type,
+              document_url: row.document_url,
+            });
+          });
+
+          return resolve(patientData);
+        }
+      );
     });
   } catch (error) {
     throw error;
   }
 };
 
+const getTotalCount = async (is_admin) => {
+  try {
+    if (!is_admin) {
+      throw new Error("Unauthorized access");
+    }
+
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT COUNT(*) AS total FROM personal_info p
+         JOIN user_register u ON p.user_id = u.id
+         JOIN family_info f ON f.patient_id = p.patient_id
+         JOIN disease d ON d.patient_id = p.patient_id
+         WHERE p.is_deleted = FALSE 
+         AND u.is_deleted = FALSE 
+         AND f.is_deleted = FALSE 
+         AND d.is_deleted = FALSE `,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result[0].total);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
 const getPatientInfo = async (id) => {
   try {
     return new Promise((resolve, reject) => {
@@ -191,7 +290,7 @@ const getPersonalInfo = async (patient_id) => {
         `SELECT patient_name,date_of_birth,gender,age,
         weight,height,bmi,country_of_origin,is_diabetic,cardiac_issue,blood_pressure
          FROM personal_info WHERE is_deleted=false and patient_id = ?`,
-        [patient_id],
+        patient_id,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -241,7 +340,7 @@ const createPersonalDetails = async (data, userId, email) => {
     };
 
     return new Promise((resolve, reject) => {
-      db.query("INSERT INTO personal_info SET ?", [data], (error, result) => {
+      db.query("INSERT INTO personal_info SET ?", data, (error, result) => {
         if (error) {
           return reject(error);
         }
@@ -267,7 +366,6 @@ const updatePersonalDetails = async (data, patient_id) => {
       data.country_of_origin,
       patient_id,
     ];
-    console.log(values);
 
     return new Promise((resolve, reject) => {
       db.query(
@@ -308,19 +406,18 @@ const checkUserWithPatientID = async (userId, patientId) => {
     throw error;
   }
 };
+
 const deletePersonalDetails = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
         "UPDATE personal_info SET IS_DELETED = TRUE WHERE patient_id = ?",
-        [patient_id],
+        patient_id,
         (error, result) => {
           if (error) {
             return reject(error);
           }
-          if (result.affectedRows === 0) {
-            return reject(error);
-          }
+
           return resolve(result);
         }
       );
@@ -387,7 +484,7 @@ const getFamilyInfo = async (patient_id) => {
         `SELECT father_name, father_age,father_country_origin,mother_name,
         mother_age,mother_country_origin,parent_diabetic,parent_cardiac_issue,parent_bp 
         FROM family_info WHERE is_deleted=false and patient_id = ?`,
-        [patient_id],
+        patient_id,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -487,7 +584,6 @@ const addDiseaseData = async (data) => {
 const updateDiseaseDetails = async (formData, patient_id) => {
   try {
     const { disease_type, disease_description } = formData;
-    const user = { disease_type, disease_description };
     return new Promise((resolve, reject) => {
       db.query(
         "UPDATE disease SET ? WHERE patient_id = ?",
@@ -643,16 +739,18 @@ const modifyDocument = (documentData) => {
 
 const removeDocument = (patient_id, document_type) => {
   return new Promise((resolve, reject) => {
-    const query =
-      "UPDATE documents SET IS_DELETED = true WHERE patient_id = ? AND document_type = ?";
     const values = [patient_id, document_type];
 
-    db.query(query, values, (error, result) => {
-      if (error) {
-        return reject(error);
+    db.query(
+      `UPDATE documents SET IS_DELETED = true WHERE patient_id = ? AND document_type = ?`,
+      values,
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
       }
-      resolve(result);
-    });
+    );
   });
 };
 
@@ -672,7 +770,7 @@ const ageGroupWiseData = (user_id) => {
       WHERE user_id = ? and is_deleted=false
       GROUP BY ageGroup
     `,
-      [user_id],
+      user_id,
       (error, result) => {
         if (error) {
           return reject(error);
@@ -708,4 +806,5 @@ export {
   updateDiseaseDetails,
   getUploadInfo,
   deleteDiseaseDetails,
+  getTotalCount
 };
