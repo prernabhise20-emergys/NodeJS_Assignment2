@@ -34,6 +34,7 @@ import {
   getTotalCount
 } from "../models/patientModel.js";
 const {
+  INTERNAL_SERVER_ERROR,
   MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
@@ -219,6 +220,7 @@ const updatePersonalInfo = async (req, res) => {
       throw UNAUTHORIZED_ACCESS;
     }
   } catch (error) {
+    // throw INTERNAL_SERVER_ERROR;
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
       status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
