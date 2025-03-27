@@ -265,7 +265,7 @@ const checkIfUserExists = async (email) => {
       );
     });
 
-    return result.length > 0;
+    return result.length > 1;
   } catch (error) {
     throw error;
   }
