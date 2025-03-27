@@ -133,7 +133,7 @@ router.get(
 router.post(
   UPLOAD_DOCUMENTS,
   authenticateUser,
-  upload.array('files',5),
+  upload.single('file'),
   patientController.uploadDocument
 );
 router.put(

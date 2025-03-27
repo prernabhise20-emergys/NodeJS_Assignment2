@@ -1419,6 +1419,7 @@ const checkDocumentExists = (document_type, patient_id) => {
     );
   });
 };
+
 // *************************************************************
 
 const checkAlreadyExist = (email) => {

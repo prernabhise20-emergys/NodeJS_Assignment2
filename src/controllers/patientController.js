@@ -471,10 +471,7 @@ const uploadDocument = async (req, res) => {
     console.log(" Received File:", req.file);
 
     if (!req.file) {
-      throw {
-        status: ERROR_STATUS_CODE.NOT_FOUND,
-        message: ERROR_MESSAGE.NO_FILE,
-      };
+      throw NO_FILE_FOUND;
     }
 
     const { document_type, patient_id } = req.body;
@@ -488,30 +485,30 @@ if(moreThanLimit)
 {
   throw MORE_THAN_LIMIT;
 }
-    // const result = await uploadFile(req.file);
-    // const { secure_url: documentUrl } = result;
+    const result = await uploadFile(req.file);
+    const { secure_url: documentUrl } = result;
 
-    // const documentData = {
-    //   document_type,
-    //   document_url: documentUrl,
-    //   patient_id,
-    // };
+    const documentData = {
+      document_type,
+      document_url: documentUrl,
+      patient_id,
+    };
 
-    const documentUrls = [];
+    // const documentUrls = [];
 
-    for (const file of req.files) {
-      const result = await uploadFile(file);
+    // for (const file of req.files) {
+    //   const result = await uploadFile(file);
 
-      const { secure_url: documentUrl } = result;
+    //   const { secure_url: documentUrl } = result;
 
-      documentUrls.push(documentUrl);
+    //   documentUrls.push(documentUrl);
 
-      const documentData = {
-        document_type,
-        document_url: documentUrl,
-        patient_id: patient_id,
-      };
-    }
+    //   const documentData = {
+    //     document_type,
+    //     document_url: documentUrl,
+    //     patient_id: patient_id,
+    //   };
+    // }
     await saveDocument(documentData);
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send({

@@ -221,8 +221,7 @@ const deleteUser = async (req, res) => {
       }
     }
 
-   console.log(
-    await deleteUserData(id));
+    await deleteUserData(id);
 
     res.json({
       status: SUCCESS_STATUS_CODE.SUCCESS,
