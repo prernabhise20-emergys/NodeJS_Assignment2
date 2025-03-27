@@ -54,7 +54,7 @@ const checkAlreadyExist = (email) => {
     );
   });
 };
-const check = (email) => {
+const checkUserDeleteOrNot = (email) => {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
@@ -272,7 +272,7 @@ const checkIfUserExists = async (email) => {
 };
 
 export {
-  check,
+  checkUserDeleteOrNot,
   getDeleteUserInfo,
   checkAlreadyExist,
   createUserData,

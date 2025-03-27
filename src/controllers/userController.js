@@ -15,7 +15,7 @@ import {
   addAsAdmin,
   checkAdminCount,
   removeAdminAuthority,
-  check
+  checkUserDeleteOrNot,
 } from "../models/userModel.js";
 import {
   ERROR_STATUS_CODE,
@@ -33,7 +33,7 @@ const {
   REMOVE_ADMIN,
   USER_UPDATE,
   USER_DELETED,
-    CANNOT_DELETE_USER,
+  CANNOT_DELETE_USER,
 } = AUTH_RESPONSES;
 
 const register = async (req, res) => {
@@ -68,10 +68,10 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, user_password } = req.body;
-const check1 = await check(email)
-if(check1){
-  throw USER_DELETED;
-}
+    const check = await checkUserDeleteOrNot(email);
+    if (check) {
+      throw USER_DELETED;
+    }
 
     const user = await loginUser(email);
 
@@ -188,15 +188,14 @@ const getUser = async (req, res) => {
           data: deletedUserInfo,
         });
       }
+    } else {
+      const user = await getUserData(id);
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+        status: SUCCESS_STATUS_CODE.SUCCESS,
+        message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+        data: user,
+      });
     }
-else{
-    const user = await getUserData(id);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-      data: user,
-    });
-  }
   } catch (error) {
     console.error(error.message);
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
@@ -205,7 +204,6 @@ else{
     });
   }
 };
-
 
 const deleteUser = async (req, res) => {
   try {

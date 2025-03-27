@@ -1,81 +1,14 @@
 import db from "../db/connection.js";
+import { AUTH_RESPONSES } from "../common/constants/response.js";
+const {
+  UNAUTHORIZED_ACCESS,
+} = AUTH_RESPONSES;
 
-// const getInfo = async (is_admin, limit, offset) => {
-//   try {
-//     if (!is_admin) {
-//       throw new Error("Unauthorized access");
-//     }
-
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `SELECT 
-//           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
-//           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
-//           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
-//           f.father_name, f.father_age, f.mother_name, f.mother_age, 
-//           f.father_country_origin, f.mother_country_origin, 
-//           f.parent_diabetic, f.parent_cardiac_issue, f.parent_bp, 
-//           d.disease_type, d.disease_description, 
-//           do.document_type, do.document_url  
-//         FROM 
-//           personal_info p 
-//         JOIN 
-//           user_register u ON p.user_id = u.id 
-//         JOIN 
-//           family_info f ON f.patient_id = p.patient_id 
-//         JOIN 
-//           disease d ON d.patient_id = p.patient_id 
-//         JOIN 
-//           documents do ON do.patient_id = p.patient_id 
-//         WHERE 
-//           p.is_deleted = FALSE 
-//           AND u.is_deleted = FALSE 
-//           AND f.is_deleted = FALSE 
-//           AND d.is_deleted = FALSE 
-//           AND do.is_deleted = FALSE 
-//         ORDER BY 
-//           p.patient_id 
-//         LIMIT ? OFFSET ?
-//       `,
-//         [limit, offset],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           const patientData = [];
-
-//           result.forEach((row) => {
-//             let existing = patientData.find(
-//               (item) => item.patient_id === row.patient_id
-//             );
-
-//             if (!existing) {
-//               const { document_type, document_url, ...data } = row;
-//               existing = {
-//                 ...data,
-//                 documents: [],
-//               };
-//               patientData.push(existing);
-//             }
-//             existing.documents.push({
-//               document_type: row.document_type,
-//               document_url: row.document_url,
-//             });
-//           });
-
-//           return resolve(patientData);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 const getInfo = async (is_admin, limit, offset) => {
   try {
     if (!is_admin) {
-      throw new Error("Unauthorized access");
+      throw UNAUTHORIZED_ACCESS;
     }
 
     return new Promise((resolve, reject) => {
@@ -146,7 +79,7 @@ const getInfo = async (is_admin, limit, offset) => {
 const getTotalCount = async (is_admin) => {
   try {
     if (!is_admin) {
-      throw new Error("Unauthorized access");
+      throw UNAUTHORIZED_ACCESS;
     }
 
     return new Promise((resolve, reject) => {
