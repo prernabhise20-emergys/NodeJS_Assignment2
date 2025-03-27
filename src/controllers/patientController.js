@@ -9,7 +9,6 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 
 import {
   ageGroupWiseData,
-  getTotalRecords,
   checkNumberOfDocument,
   deletePatientDetails,
   checkUserWithPatientID,
@@ -54,19 +53,15 @@ const getAllInfo = async (req, res) => {
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
-
     let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
-    limit = limit * 4;
+    limit=limit*4
 
     const offset = (page - 1) * limit;
-    const count=await getTotalRecords(is_admin);
 
-    const personalInfo = await getInfo(is_admin, count, offset);
 
-    // const count=await getTotalRecords(is_admin);
-console.log(count);
+    const personalInfo = await getInfo(is_admin, limit, offset);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
@@ -74,7 +69,7 @@ console.log(count);
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit / 4,
+        limit: limit/4,
       },
     });
   } catch (error) {
@@ -85,6 +80,7 @@ console.log(count);
     });
   }
 };
+
 // *****************************************************************
 
 const showPatientDetails = async (req, res) => {
