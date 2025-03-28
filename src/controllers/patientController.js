@@ -36,6 +36,7 @@ import {
 } from "../models/patientModel.js";
 const {
   INTERNAL_SERVER_ERROR,
+  UPDATE_SUCCESSFULLY,
   MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
