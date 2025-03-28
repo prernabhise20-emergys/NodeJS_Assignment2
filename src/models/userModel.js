@@ -63,7 +63,7 @@ const checkUserDeleteOrNot = (email) => {
         if (error) {
           return reject(error);
         }
-        resolve(result.length > 0);
+        resolve(result.length > 1);
       }
     );
   });
