@@ -138,6 +138,14 @@ const removeAdmin = async (req, res) => {
     const { admin: is_admin } = req.user;
     const { email } = req.body;
 
+    
+    if (admin) {
+      const adminCount = await checkAdminCount();
+
+      if (adminCount <= 1) {
+        throw CANNOT_DELETE_USER;
+      }
+    }
     await removeAdminAuthority(is_admin, email);
     throw REMOVE_ADMIN;
   } catch (error) {

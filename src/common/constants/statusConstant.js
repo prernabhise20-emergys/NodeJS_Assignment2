@@ -18,7 +18,7 @@ const ERROR_MESSAGE = {
   USER_NOT_FOUND:"User not found",
   SERVER_ERROR_MESSAGE: "Internal Server Error",
   INVALID_TOKEN_MESSAGE: "Invalid token.",
-  INVALID_USER_MESSAGE: "Invalid User",
+  INVALID_USER_MESSAGE: "Invalid user",
   FORBIDDEN_ERROR_MESSAGE: "Failed to authenticate token",
   UNAUTHORIZED_ACCESS_MESSAGE: "Unauthorized access",
   NOT_UPDATE_MESSAGE: "Failed to update information",
@@ -53,6 +53,6 @@ const SUCCESS_MESSAGE={
   CREATED_DISEASE_INFO_MESSAGE: "Disease info added successfully",
   DOCUMENT_UPLOAD: "Document uploaded successfully",
   REGISTER_SUCCESS: "User registered successfully. Verification email sent.",
-
+PERSONAL_UPDATE:"Personal information updated successfully"
 }
 export { ERROR_STATUS_CODE,SUCCESS_STATUS_CODE, ERROR_MESSAGE,SUCCESS_MESSAGE };

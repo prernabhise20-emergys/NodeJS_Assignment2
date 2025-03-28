@@ -39,7 +39,7 @@ const {
   MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
-  UPDATE_SUCCESSFULLY,
+  PERSONAL_UPDATE_SUCCESSFULLY,
   NOT_DELETED,
   DELETE_SUCCESSFULLY,
   ADD_FAMILY_SUCCESSFULLY,
@@ -215,7 +215,7 @@ const updatePersonalInfo = async (req, res) => {
 
     if (isValidPatient || is_admin) {
       await updatePersonalDetails(data, patient_id);
-      throw UPDATE_SUCCESSFULLY;
+      throw  PERSONAL_UPDATE_SUCCESSFULLY;
     } else {
       throw UNAUTHORIZED_ACCESS;
     }
