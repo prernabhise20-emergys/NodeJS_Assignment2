@@ -210,7 +210,7 @@ const checkAdminCount = async () => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = TRUE",
+        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = true and is_deleted=false",
         (error, results) => {
           if (error) {
             return reject(error);
