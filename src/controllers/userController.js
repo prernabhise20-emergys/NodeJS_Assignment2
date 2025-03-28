@@ -64,6 +64,7 @@ const register = async (req, res) => {
     });
   }
 };
+
 const login = async (req, res) => {
   try {
     const { email, user_password } = req.body;
@@ -88,18 +89,12 @@ const login = async (req, res) => {
       {
         userid: user.id,
         email: user.email,
+        user_password: user.user_password,
         admin: user.is_admin,
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h" }
     );
-
-    // Ensure req.session is defined
-    if (!req.session) {
-      throw new Error('Session is not initialized');
-    }
-
-    req.session.token = token;
 
     if (user.is_admin) {
       res.json({
@@ -121,57 +116,6 @@ const login = async (req, res) => {
     });
   }
 };
-// const login = async (req, res) => {
-//   try {
-//     const { email, user_password } = req.body;
-//     const check = await checkUserDeleteOrNot(email);
-//     if (check) {
-//       throw USER_DELETED;
-//     }
-
-//     const user = await loginUser(email);
-
-//     if (!user) {
-//       throw INVALID_USER;
-//     }
-
-//     const match = await bcrypt.compare(user_password, user.user_password);
-
-//     if (!match) {
-//       throw INVALID_USER;
-//     }
-
-//     const token = jwt.sign(
-//       {
-//         userid: user.id,
-//         email: user.email,
-//         user_password: user.user_password,
-//         admin: user.is_admin,
-//       },
-//       process.env.SECRET_KEY,
-//       { expiresIn: "3h" }
-//     );
-
-//     if (user.is_admin) {
-//       res.json({
-//         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-//         admin_message: user.is_admin,
-//         token,
-//       });
-//     } else {
-//       res.json({
-//         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-//         token,
-//       });
-//     }
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).json({
-//       status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-//       message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-//     });
-//   }
-// };
 
 const addAdmin = async (req, res) => {
   try {

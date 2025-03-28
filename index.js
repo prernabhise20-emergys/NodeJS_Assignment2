@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import registerRoutes from './src/routesRegister/routesRegister.js';
 import cors from 'cors';
 import helmet from 'helmet';
-import session from 'express-session';
+
 dotenv.config();
 
 const app = express();
@@ -19,12 +19,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
+
 registerRoutes(app);
 
 // app.use((err, req, res, next) => {
