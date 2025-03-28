@@ -139,7 +139,7 @@ const removeAdmin = async (req, res) => {
     const { email } = req.body;
 
     
-    if (admin) {
+    if (is_admin) {
       const adminCount = await checkAdminCount();
 
       if (adminCount <= 1) {
