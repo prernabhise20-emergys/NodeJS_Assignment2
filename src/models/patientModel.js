@@ -31,7 +31,6 @@ const getInfo = async (is_admin, limit, offset) => {
           documents do ON do.patient_id = p.patient_id 
         WHERE 
           p.is_deleted = FALSE 
-          AND u.is_deleted = FALSE 
           AND f.is_deleted = FALSE 
           AND d.is_deleted = FALSE 
           AND do.is_deleted = FALSE 
@@ -82,11 +81,9 @@ const getTotalCount = async (is_admin) => {
     return new Promise((resolve, reject) => {
       db.query(
         `SELECT COUNT(*) AS total FROM personal_info p
-         JOIN user_register u ON p.user_id = u.id
          JOIN family_info f ON f.patient_id = p.patient_id
          JOIN disease d ON d.patient_id = p.patient_id
          WHERE p.is_deleted = FALSE 
-         AND u.is_deleted = FALSE 
          AND f.is_deleted = FALSE 
          AND d.is_deleted = FALSE `,
         (error, result) => {
