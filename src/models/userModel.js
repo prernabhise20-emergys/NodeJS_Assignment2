@@ -155,7 +155,7 @@ const removeAdminAuthority=async(isAdmin,email)=>{
     if (isAdmin) {
       return new Promise((resolve, reject) => {
         db.query(
-          "update user_register set is_admin=false where email=?",
+          "update user_register set is_admin=false where is_deleted=false and email=?",
           email,
           (error, results) => {
             if (error) {
