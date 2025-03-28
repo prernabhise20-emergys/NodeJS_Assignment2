@@ -35,8 +35,9 @@ import {
   getDocumentByPatientIdAndType,
 } from "../models/patientModel.js";
 const {
-  INTERNAL_SERVER_ERROR,
-  UPDATE_SUCCESSFULLY,
+  FAMILY_DELETE_SUCCESSFULLY,
+  PERSONAL_DELETE_SUCCESSFULLY,
+    UPDATE_SUCCESSFULLY,
   MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
@@ -48,6 +49,11 @@ const {
   ADD_DISEASE_INFO,
   NO_FILE_FOUND,
   MISSING_REQUIRED,
+  FAMILY_UPDATE_SUCCESSFULLY,
+  DISEASE_UPDATE_SUCCESSFULLY,
+  DISEASE_DELETE_SUCCESSFULLY,
+  DOCUMENT_UPDATE_SUCCESSFULLY,
+  DOCUMENT_DELETE_SUCCESSFULLY
 } = AUTH_RESPONSES;
 
 const getAllInfo = async (req, res) => {
@@ -238,7 +244,7 @@ const deletePersonalInfo = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deletePersonalDetails(patient_id);
-      throw DELETE_SUCCESSFULLY;
+      throw PERSONAL_DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -340,7 +346,7 @@ const updateFamilyInfoDetails = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await updateFamilyInfo(familyData, patient_id);
-      throw UPDATE_SUCCESSFULLY;
+      throw FAMILY_UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -360,7 +366,7 @@ const deleteFamilyInfoDetails = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteFamilyInfo(patient_id);
-      throw DELETE_SUCCESSFULLY;
+      throw FAMILY_DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -419,7 +425,7 @@ const updateDiseaseInfo = async (req, res) => {
     const formData = { disease_type, disease_description };
     if (isValidPatient || is_admin) {
       await updateDiseaseDetails(formData, patient_id);
-      throw UPDATE_SUCCESSFULLY;
+      throw DISEASE_UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -439,7 +445,7 @@ const deleteDiseaseInfo = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteDiseaseDetails(patient_id);
-      throw DELETE_SUCCESSFULLY;
+      throw DISEASE_DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -559,7 +565,7 @@ const updateDocument = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await modifyDocument(data);
-      throw UPDATE_SUCCESSFULLY;
+      throw DOCUMENT_UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -583,7 +589,7 @@ const deleteDocument = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await removeDocument(patient_id, document_type);
-      throw DELETE_SUCCESSFULLY;
+      throw DOCUMENT_DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
