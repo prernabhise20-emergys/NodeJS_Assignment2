@@ -700,9 +700,15 @@ const ageGroupWiseData = (is_admin) => {
           WHEN age BETWEEN 19 AND 60 THEN 'adult'
           WHEN age > 60 THEN 'older'
         END as ageGroup
-      FROM personal_info
-      WHERE is_deleted=false
-      GROUP BY ageGroup
+       FROM personal_info p 
+        JOIN user_register r ON p.user_id = r.id 
+        JOIN family_info f ON f.patient_id = p.patient_id 
+        JOIN disease d ON d.patient_id = p.patient_id 
+        JOIN documents do ON do.patient_id = p.patient_id 
+        WHERE p.is_deleted = false 
+          AND f.is_deleted = false 
+          AND d.is_deleted = false 
+          AND do.is_deleted = false 
     `,
       (error, result) => {
         if (error) {
@@ -718,7 +724,34 @@ const ageGroupWiseData = (is_admin) => {
   });
 
 };
+const getDocumentByPatientIdAndType = async (patient_id, document_type) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM documents WHERE patient_id = ? AND document_type = ? LIMIT 1', [patient_id, document_type], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results[0]);
+    });
+  });
+};
+
+
+// const getDocumentByPatientIdAndType = async (patient_id, document_type) => {
+//   return new Promise((resolve, reject) => {
+
+//     db.query('SELECT * FROM documents WHERE patient_id = ? AND document_type = ? LIMIT 1'
+//       , [patient_id, document_type], (err, results) => {
+//       if (err) {
+//         return reject(err);
+//       }
+//       resolve(results[0]); 
+//     });
+//   });
+// };
+
+
 export {
+  getDocumentByPatientIdAndType,
   getDeletePatientInfo,
   checkAlreadyExist,
   ageGroupWiseData,

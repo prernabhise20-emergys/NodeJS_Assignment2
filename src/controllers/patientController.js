@@ -31,7 +31,8 @@ import {
   modifyDocument,
   removeDocument,
   checkDocumentExists,
-  getTotalCount
+  getTotalCount,
+  getDocumentByPatientIdAndType,
 } from "../models/patientModel.js";
 const {
   INTERNAL_SERVER_ERROR,
@@ -47,7 +48,6 @@ const {
   NO_FILE_FOUND,
   MISSING_REQUIRED,
 } = AUTH_RESPONSES;
-
 
 const getAllInfo = async (req, res) => {
   try {
@@ -65,7 +65,7 @@ const getAllInfo = async (req, res) => {
 
     const [personalInfo, totalCount] = await Promise.all([
       getInfo(is_admin, limit, offset),
-      getTotalCount(is_admin)
+      getTotalCount(is_admin),
     ]);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
@@ -75,7 +75,7 @@ const getAllInfo = async (req, res) => {
       pagination: {
         currentPage: page,
         limit: limit / 4,
-        totalPatients: totalCount
+        totalPatients: totalCount,
       },
     });
   } catch (error) {
@@ -248,11 +248,11 @@ const deletePersonalInfo = async (req, res) => {
     });
   }
 };
-const adminDeletePatientData= async (req, res) => {
+const adminDeletePatientData = async (req, res) => {
   try {
     const { admin: is_admin } = req.user;
     const { patient_id } = req.query;
-console.log(patient_id);
+    console.log(patient_id);
 
     if (is_admin) {
       await deletePatientDetails(patient_id);
@@ -396,7 +396,6 @@ const addDiseaseInfo = async (req, res) => {
   try {
     const { diseaseDetails } = req.body;
 
- 
     await addDiseaseData(diseaseDetails);
     throw ADD_DISEASE_INFO;
   } catch (error) {
@@ -485,11 +484,10 @@ const uploadDocument = async (req, res) => {
       throw MISSING_REQUIRED;
     }
 
-   const moreThanLimit= await checkNumberOfDocument(patient_id)
-if(moreThanLimit)
-{
-  throw MORE_THAN_LIMIT;
-}
+    const moreThanLimit = await checkNumberOfDocument(patient_id);
+    if (moreThanLimit) {
+      throw MORE_THAN_LIMIT;
+    }
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
 
@@ -565,10 +563,10 @@ const updateDocument = async (req, res) => {
     throw NOT_UPDATE;
   } catch (error) {
     console.error(error.message);
-        return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-          status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-          message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-        });
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
   }
 };
 
@@ -598,7 +596,7 @@ const deleteDocument = async (req, res) => {
 
 const ageGroupData = async (req, res) => {
   try {
-    const { admin:is_admin } = req.user;
+    const { admin: is_admin } = req.user;
 
     const ageGroup = await ageGroupWiseData(is_admin);
 
@@ -623,18 +621,34 @@ const ageGroupData = async (req, res) => {
   }
 };
 
-const downloadDocument= (req, res) => {
-  const fileName = req.file;
-  const directoryPath ="documents/"+req.file;
+const downloadDocument = async (req, res) => {
+  try {
+    const { patient_id, document_type } = req.query;
 
-  res.download(directoryPath + fileName, fileName, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: "Could not download the file. " + err,
-      });
+    if (!patient_id || !document_type) {
+      throw MISSING_REQUIRED;
     }
-    res.download(fileName)
-  });
+
+    const document = await getDocumentByPatientIdAndType(
+      patient_id,
+      document_type
+    );
+
+    if (!document) {
+      throw DOCUMENT_NOT_FOUND;
+    }
+
+    const documentUrl = document.document_url;
+
+    return res.redirect(documentUrl);
+    
+  } catch (error) {
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
 };
 
 export default {
