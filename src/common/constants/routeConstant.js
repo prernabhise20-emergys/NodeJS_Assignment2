@@ -27,7 +27,11 @@ const ROUTE_CONSTANTS = {
   GET_DISEASE_INFO:"/getDiseaseInfo/:patient_id",
   GET_PERSONAL_INFO:"/getPersonalInfo/:patient_id",
   ADMIN_DELETE_PATIENT_DATA:"/adminDeletePatientData",
-  GET_AGE_GROUP:"/getAgeGroup"
+  GET_AGE_GROUP:"/getAgeGroup",
+  FORGET_PASSWORD:"/forgotPassword",
+  RESET_PASSWORD:"/resetPassword",
+  DOWNLOAD_DOCUMENT:"/downloadDocument",
+  ADMIN:"/api/admin"
 };
 
 export default ROUTE_CONSTANTS;

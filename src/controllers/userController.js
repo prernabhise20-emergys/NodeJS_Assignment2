@@ -16,9 +16,7 @@ import {
   getUserData,
   updateUserData,
   deleteUserData,
-  addAsAdmin,
-  checkAdminCount,
-  removeAdminAuthority,
+
   check
 } from "../models/userModel.js";
 import {
@@ -170,6 +168,33 @@ const updateUser = async (req, res) => {
     next(error);
   }
 };
+
+const deleteUser = async (req, res) => {
+  try {
+    const { userid: id, admin } = req.user;
+
+    if (admin) {
+      const adminCount = await checkAdminCount();
+
+      if (adminCount <= 1) {
+        throw CANNOT_DELETE_USER;
+      }
+    }
+
+    await deleteUserData(id);
+
+    res.json({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
 const getUser = async (req, res, next) => {
   try {
     const { userid: id, email: emailID } = req.user;
@@ -252,16 +277,5 @@ export default {
   getUser,
   updateUser,
   deleteUser,
+  addAdmin,removeAdmin
 };
-
-// Math.random(): This function generates a random floating-point number between 0 (inclusive) and 1 (exclusive).
-
-// Math.random() * 900000: This scales the random number to a range between 0 and 900,000.
-
-// 100000 + Math.random() * 900000: This shifts the range to between 100,000 and 999,999. Essentially, it ensures that the random number is always a 6-digit number.
-
-// Math.floor(100000 + Math.random() * 900000): The Math.floor() function rounds down the number to the nearest integer, ensuring you get a whole number between 100,000 and 999,999.
-
-// .toString(): This converts the number to a string.
-
-// So, the entire line of code generates a random 6-digit number and converts it to a string, which can be used as an OTP (One-Time Password).

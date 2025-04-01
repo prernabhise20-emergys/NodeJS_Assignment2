@@ -11,3 +11,11 @@ export class MessageHandler {
     this.message = message;
   }
 }
+export class ResponseHandler {
+  constructor( message,data ,error=null) {
+    this.message = message;
+    this.data = data;
+    this.error=error;
+
+  }
+}

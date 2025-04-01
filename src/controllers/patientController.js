@@ -37,7 +37,6 @@ import {
 const {
   FAMILY_DELETE_SUCCESSFULLY,
   PERSONAL_DELETE_SUCCESSFULLY,
-    UPDATE_SUCCESSFULLY,
   MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
@@ -53,42 +52,6 @@ const {
   DOCUMENT_DELETE_SUCCESSFULLY
 } = AUTH_RESPONSES;
 
-const getAllInfo = async (req, res) => {
-  try {
-    const { admin: is_admin } = req.user;
-
-    if (!is_admin) {
-      throw UNAUTHORIZED_ACCESS;
-    }
-
-    let { page, limit } = req.query;
-    page = parseInt(page || 1);
-    limit = parseInt(limit || 10);
-    limit = limit * 4; 
-
-    const offset = (page - 1) * limit;
-
-    const personalInfo = await getInfo(is_admin, limit, offset);
-
-   await getTotalRecords(is_admin);
-
-    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-      data: personalInfo,
-      pagination: {
-        currentPage: page,
-        limit: limit/4 , 
-      },
-    });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
 
 // *****************************************************************
 
@@ -533,28 +496,6 @@ const deleteDocument = async (req, res, next) => {
   }
 };
 
-const downloadDocument = async (req, res, next) => {
-  try {
-    const { userid: id } = req.user;
-
-    const ageGroup = await ageGroupWiseData(id);
-
-    const ageData = {
-      child: ageGroup.find(group => group.ageGroup === 'child')?.count || 0,
-      teen: ageGroup.find(group => group.ageGroup === 'teen')?.count || 0,
-      adult: ageGroup.find(group => group.ageGroup === 'adult')?.count || 0,
-      older: ageGroup.find(group => group.ageGroup === 'older')?.count || 0,
-    };
-
-    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-      data: ageData,
-    });
-  } catch (error) {
-    next(error)
-  }
-};
 
 const downloadDocument = async (req, res) => {
   try {
@@ -587,7 +528,7 @@ const downloadDocument = async (req, res) => {
 };
 
 export default {
-  ageGroupData,
+downloadDocument,
   adminDeletePatientData,
   getUploadDocument,
   getPersonalDetails,

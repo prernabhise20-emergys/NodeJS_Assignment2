@@ -740,7 +740,7 @@ const ageGroupWiseData = (user_id) => {
   });
 };
 export {
-  getDocumentByPatientIdAndType,
+  // getDocumentByPatientIdAndType,
   getDeletePatientInfo,
   checkAlreadyExist,
   ageGroupWiseData,
@@ -766,5 +766,5 @@ export {
   updateDiseaseDetails,
   getUploadInfo,
   deleteDiseaseDetails,
-  getTotalCount,
+  // getTotalCount,
 };

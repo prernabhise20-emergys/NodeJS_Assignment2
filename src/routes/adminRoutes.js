@@ -30,6 +30,6 @@ router.get(GET_AGE_GROUP, authenticateUser, adminController.ageGroupData);
 
 router.put(ADD_ADMIN, authenticateUser, adminController.addAdmin);
 router.put(REMOVE_ADMIN, authenticateUser, adminController.removeAdmin);
-router.get(GET_ADMIN, authenticateUser, adminController.getAdmin);
+// router.get(GET_ADMIN, authenticateUser, adminController.getAdmin);
 
 export default router;

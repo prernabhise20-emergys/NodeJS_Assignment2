@@ -125,55 +125,6 @@ const loginUser = (email) => {
   }
 };
 
-// ************************************************************
-
-const addAsAdmin = async (isAdmin,email) => {
-  try {
-    if (isAdmin) {
-      return new Promise((resolve, reject) => {
-        db.query(
-          "update user_register set is_admin=true where email=?",
-          email,
-          (error, results) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(results);
-            }
-          }
-        );
-      });
-
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-// **********************************************************
-
-const removeAdminAuthority=async(isAdmin,email)=>{
-  try {
-    if (isAdmin) {
-      return new Promise((resolve, reject) => {
-        db.query(
-          "update user_register set is_admin=false where email=?",
-          email,
-          (error, results) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(results);
-            }
-          }
-        );
-      });
-
-    }
-  } catch (error) {
-    throw error;
-  }
-}
 // **********************************************************
 
 const updateUserData = async (formData, id) => {
@@ -298,4 +249,5 @@ export {
   getUserData,
   updateUserData,
   deleteUserData,
+  
 };
