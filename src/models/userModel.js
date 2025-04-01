@@ -55,7 +55,7 @@ const checkAlreadyExist = (email) => {
     );
   });
 };
-const check = (email) => {
+const checkUserDeleteOrNot = (email) => {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
@@ -159,12 +159,12 @@ console.log(hashPassword);
 
     const result = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = TRUE",
-        (error, results) => {
+"update user_Register set user_password=? where email=?", 
+[hashPassword,email ], (error, results) => {
           if (error) {
             return reject(error);
           }
-          resolve(result);
+          resolve(results);
         }
       );
     });
@@ -239,8 +239,28 @@ const displayAdmin = async () => {
   }
 };
 
+const checkAdminCount = async () => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = TRUE",
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results[0].adminCount);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 export {
-  check,
+  checkAdminCount,
+  displayAdmin,
+  checkUserDeleteOrNot,
   getDeleteUserInfo,
   checkAlreadyExist,
   createUserData,
@@ -249,5 +269,5 @@ export {
   getUserData,
   updateUserData,
   deleteUserData,
-  
+  updatePassword
 };

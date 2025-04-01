@@ -10,6 +10,7 @@ import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
   getDeletePatientInfo,
+  // getDocumentByPatientIdAndType,
   checkNumberOfDocument,
   checkUserWithPatientID,
   getFamilyInfo,
@@ -26,6 +27,7 @@ import {
   deleteFamilyInfo,
   updateDiseaseDetails,
   deleteDiseaseDetails,
+  deletePatientDetails,
   saveDocument,
   modifyDocument,
   removeDocument,
@@ -84,7 +86,7 @@ const getPersonalDetails = async (req, res,next) => {
   }
 };
 
-const createPersonalInfo = async (req, res,next) => {
+const createPersonalInfo = async (req, res) => {
   try {
     const {
       body: {
@@ -115,15 +117,23 @@ const createPersonalInfo = async (req, res,next) => {
 
     const result = await createPersonalDetails(data, id, email);
 
-    res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE,{patient_id:result.insertId})
-    );
+    return res.status(SUCCESS_STATUS_CODE.CREATED).send({
+      status: SUCCESS_STATUS_CODE.CREATED,
+      message: SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE,
+      data: {
+        patient_id: result.insertId,
+      },
+    });
   } catch (error) {
-    next(error)
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
   }
 };
 
-const updatePersonalInfo = async (req, res,next) => {
+const updatePersonalInfo = async (req, res) => {
   try {
     const {
       body: {
@@ -175,7 +185,7 @@ const updatePersonalInfo = async (req, res,next) => {
   }
 };
 
-const deletePersonalInfo = async (req, res,next) => {
+const deletePersonalInfo = async (req, res) => {
   try {
     const { userid: id, admin: is_admin } = req.user;
     const { patient_id } = req.params;
@@ -188,24 +198,6 @@ const deletePersonalInfo = async (req, res,next) => {
     throw NOT_DELETED;
   } catch (error) {
     console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
-const adminDeletePatientData= async (req, res) => {
-  try {
-    const { admin: is_admin } = req.user;
-    const { patient_id } = req.query;
-console.log(patient_id);
-
-    if (is_admin) {
-      await deletePatientDetails(patient_id);
-      throw DELETE_SUCCESSFULLY;
-    }
-    throw NOT_DELETED;
-  } catch (error) {
     return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
       status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
       message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
@@ -251,16 +243,22 @@ const updateFamilyInfoDetails = async (req, res, next) => {
         mother_name,
         mother_age,
         mother_country_origin,
-        parent_diabetic,
-        parent_cardiac_issue,
-        parent_bp,
+        mother_diabetic,
+        mother_cardiac_issue,
+        mother_bp,
+        father_diabetic,
+        father_cardiac_issue,
+        father_bp,
         patient_id,
       },
     } = req;
 
-    parent_diabetic === true || parent_diabetic === 1 ? true : false;
-    parent_cardiac_issue === true || parent_cardiac_issue === 1 ? true : false;
-    parent_bp === true || parent_bp === 1 ? true : false;
+    mother_diabetic === true || mother_diabetic === 1 ? true : false;
+    mother_cardiac_issue === true || mother_cardiac_issue === 1 ? true : false;
+    mother_bp === true || mother_bp === 1 ? true : false;
+    father_diabetic === true || father_diabetic === 1 ? true : false;
+    father_cardiac_issue === true || father_cardiac_issue === 1 ? true : false;
+    father_bp === true || father_bp === 1 ? true : false;
 
     const familyData = {
       father_name,
@@ -269,9 +267,12 @@ const updateFamilyInfoDetails = async (req, res, next) => {
       mother_name,
       mother_age,
       mother_country_origin,
-      parent_diabetic,
-      parent_cardiac_issue,
-      parent_bp,
+      mother_diabetic,
+      mother_cardiac_issue,
+      mother_bp,
+      father_diabetic,
+      father_cardiac_issue,
+      father_bp,
     };
     const { userid: id, admin: is_admin } = req.user;
 
@@ -505,10 +506,10 @@ const downloadDocument = async (req, res) => {
       throw MISSING_REQUIRED;
     }
 
-    const document = await getDocumentByPatientIdAndType(
-      patient_id,
-      document_type
-    );
+    // const document = await getDocumentByPatientIdAndType(
+    //   patient_id,
+    //   document_type
+    // );
 
     if (!document) {
       throw DOCUMENT_NOT_FOUND;
@@ -529,7 +530,6 @@ const downloadDocument = async (req, res) => {
 
 export default {
 downloadDocument,
-  adminDeletePatientData,
   getUploadDocument,
   getPersonalDetails,
   getFamilyDetails,

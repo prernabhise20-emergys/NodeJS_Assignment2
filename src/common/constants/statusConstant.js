@@ -59,6 +59,9 @@ const SUCCESS_MESSAGE={
   DISEASE_DELETE_SUCCESSFULLY: "Disease information deleted successfully",
   DOCUMENT_UPDATE_SUCCESSFULLY: "Document updated successfully",
   DOCUMENT_DELETE_SUCCESSFULLY: "Document deleted successfully",
+  GET_ADMIN:"Admin are retrieve successfully",
+  ADMIN_ACCESS:"Only admin can access",
+  PASSWORD_UPDATE:"Password is updated successfully"
 };
 export {
   ERROR_STATUS_CODE,

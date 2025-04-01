@@ -53,15 +53,6 @@ const user_schemas = {
   }),
 
    updateUserSchema: Joi.object({
-    email: Joi.string()
-      .email()
-      .required()
-      .error(new Error("email is required and must be a valid email")),
-
-    user_password: Joi.string()
-      .min(4)
-      .required()
-      .error(new Error("user_password is required and must be at least 6 characters")),
 
     first_name: Joi.string()
       .min(3)
@@ -185,9 +176,12 @@ const user_schemas = {
     mother_name: Joi.string().min(3).max(100).optional().error(new Error("mother_name is required and must be at least 3 characters")),
     mother_age: Joi.number().min(18).optional().error(new Error("mother_age is required")),
     mother_country_origin: Joi.string().min(3).max(25).optional().error(new Error("mother_country_origin is required")),
-    parent_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
-    parent_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
-    parent_bp: Joi.boolean().error(new Error("parent_bp is required field")),
+  mother_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
+    mother_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
+    mother_bp: Joi.boolean().error(new Error("parent_bp is required field")),
+    father_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
+    father_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
+    father_bp: Joi.boolean().error(new Error("parent_bp is required field")),
   }).required()
 }),
 
@@ -202,9 +196,12 @@ const user_schemas = {
     mother_name: Joi.string().min(3).max(100).error(new Error("mother_name is string format and must be at least 3 characters")),
     mother_age: Joi.number().min(18).error(new Error("father_age is min 18")),
     mother_country_origin: Joi.string().min(3).max(25).error(new Error("father_country_origin is minimum 3 character")),
-    parent_diabetic: Joi.valid(1,0).error(new Error(" parent_diabetic is in boolean form")),
-    parent_cardiac_issue: Joi.valid(1,0).error(new Error("parent_cardiac_issue is in boolean form")),
-    parent_bp: Joi.valid(1,0).error(new Error("parent_bp is in boolean form")),
+    mother_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
+    mother_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
+    mother_bp: Joi.boolean().error(new Error("parent_bp is required field")),
+    father_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
+    father_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
+    father_bp: Joi.boolean().error(new Error("parent_bp is required field")),
   }),
   createDiseaseInfo: Joi.object({
     diseaseDetails: Joi.object({

@@ -154,7 +154,7 @@ const getAdmin = async (req, res, next) => {
 
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_MESSAGE, user));
+        .send(new ResponseHandler(SUCCESS_MESSAGE.GET_ADMIN, user));
     }
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)

@@ -31,7 +31,8 @@ const ROUTE_CONSTANTS = {
   FORGET_PASSWORD:"/forgotPassword",
   RESET_PASSWORD:"/resetPassword",
   DOWNLOAD_DOCUMENT:"/downloadDocument",
-  ADMIN:"/api/admin"
+  ADMIN:"/api/admin",
+  GET_ADMIN:"/getAdmin"
 };
 
 export default ROUTE_CONSTANTS;

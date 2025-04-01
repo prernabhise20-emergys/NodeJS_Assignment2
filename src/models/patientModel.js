@@ -465,17 +465,21 @@ const updateFamilyInfo = async (data, patient_id) => {
       data.mother_name,
       data.mother_age,
       data.mother_country_origin,
-      data.parent_diabetic,
-      data.parent_cardiac_issue,
-      data.parent_bp,
+      data.mother_diabetic,
+       data. mother_cardiac_issue,
+        data.mother_bp,
+        data.father_diabetic,
+        data.father_cardiac_issue,
+        data.father_bp,
       patient_id,
     ];
 
     return new Promise((resolve, reject) => {
       db.query(
         `UPDATE family_info SET father_name = ?, father_age = ?, father_country_origin = ?,
-         mother_name = ?,  mother_age = ?, mother_country_origin = ?, parent_diabetic = ?,  
-         parent_cardiac_issue = ?, parent_bp = ? WHERE patient_id = ?`,
+         mother_name = ?,  mother_age = ?, mother_country_origin = ?, mother_diabetic = ?,  
+          mother_cardiac_issue = ?,  mother_bp = ? , father_diabetic = ?,  
+          father_cardiac_issue = ?, father_bp = ? WHERE patient_id = ?`,
         values,
         (error, result) => {
           if (error) return reject(error);

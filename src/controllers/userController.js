@@ -16,8 +16,9 @@ import {
   getUserData,
   updateUserData,
   deleteUserData,
-
-  check
+  checkUserDeleteOrNot,
+  checkAdminCount,
+  updatePassword,
 } from "../models/userModel.js";
 import {
   ERROR_STATUS_CODE,
@@ -69,10 +70,10 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, user_password } = req.body;
-const check1 = await check(email)
-if(check1){
-  throw USER_DELETED;
-}
+    const check1 = await checkUserDeleteOrNot(email);
+    if (check1) {
+      throw USER_DELETED;
+    }
 
     const user = await loginUser(email);
 
@@ -212,15 +213,14 @@ const getUser = async (req, res, next) => {
             )
           );
       }
+    } else {
+      const user = await getUserData(id);
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+        status: SUCCESS_STATUS_CODE.SUCCESS,
+        message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+        data: user,
+      });
     }
-else{
-    const user = await getUserData(id);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-      data: user,
-    });
-  }
   } catch (error) {
     next(error);
   }
@@ -247,22 +247,11 @@ const forgotPassword = async (req, res, next) => {
 
 const resetPassword = async (req, res, next) => {
   try {
-    const { userid: id, admin } = req.user;
-
-    if (admin) {
-      const adminCount = await checkAdminCount();
-
-      if (adminCount <= 1) {
-        throw CANNOT_DELETE_USER;
-      }
-    }
-
-   console.log(
-    await deleteUserData(id));
-
+    const { email, newPassword } = req.body;
+    await updatePassword(email, newPassword);
     res.json({
       status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE,
+      message: SUCCESS_MESSAGE.PASSWORD_UPDATE,
     });
   } catch (error) {
     next(error);
@@ -277,5 +266,6 @@ export default {
   getUser,
   updateUser,
   deleteUser,
-  addAdmin,removeAdmin
+  addAdmin,
+  removeAdmin,
 };
