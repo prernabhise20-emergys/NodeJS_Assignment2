@@ -258,7 +258,7 @@ const updateFamilyInfoDetails = async (req, res, next) => {
       await updateFamilyInfo(familyData, patient_id);
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+        new ResponseHandler(SUCCESS_MESSAGE.FAMILY_UPDATE_SUCCESSFULLY)
       );    }
     throw NOT_UPDATE;
   } catch (error) {
@@ -275,7 +275,7 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await deleteFamilyInfo(patient_id);
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
+        new ResponseHandler(SUCCESS_MESSAGE.FAMILY_DELETE_SUCCESSFULLY)
       );
     }
     throw NOT_DELETED;
@@ -327,7 +327,7 @@ const updateDiseaseInfo = async (req, res, next) => {
       await updateDiseaseDetails(formData, patient_id);
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+        new ResponseHandler(SUCCESS_MESSAGE.DISEASE_UPDATE_SUCCESSFULLY)
       );
       
     }
@@ -458,7 +458,7 @@ const updateDocument = async (req, res,next) => {
       await modifyDocument(data);
 
       res.status(SUCCESS_STATUS_CODE.CREATED).send(
-        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+        new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPDATE_SUCCESSFULLY)
       );
     }
     throw NOT_UPDATE;
@@ -481,7 +481,7 @@ const deleteDocument = async (req, res, next) => {
       await removeDocument(patient_id, document_type);
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
+        new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_DELETE_SUCCESSFULLY)
       );    
     }
     throw NOT_DELETED;

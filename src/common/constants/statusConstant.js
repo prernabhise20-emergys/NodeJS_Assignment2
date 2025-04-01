@@ -35,6 +35,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE={
+  OTP_SENT:"OTP is sent to your email",
   USER_DELETED:"This user is deleted, if you want login then signup the user",
   ADD_ADMIN:"Set as a admin successfully",
   DOCUMENT_DELETED:"Document deleted successfully",
@@ -46,7 +47,7 @@ const SUCCESS_MESSAGE={
   ADDED_PERSONAL_INFO_MESSAGE: "Personal information added successfully",
   UPDATE_INFO_SUCCESS_MESSAGE: "Information updated successfully",
   DELETE_SUCCESS_MESSAGE: "Information deleted successfully",
-  ADDED_FAMILY_MESSAGE: "Added family info successfully",
+  ADDED_FAMILY_MESSAGE: "Family information added successfully",
   GET_FAMILY_INFO_MESSAGE: "Family information retrieved successfully",
   DISEASE_DETAILS: "Disease details retrieved successfully",
   CREATED_DISEASE_INFO_MESSAGE: "Disease information added successfully",

@@ -8,13 +8,13 @@ import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 const router = express.Router();
 
 const {
-    FORGET_PASSWORD,
+  FORGET_PASSWORD,
   REGISTER,
   LOGIN,
   GET_USER,
   UPDATE_USER,
   DELETE_USER,
-  RESET_PASSWORD
+  RESET_PASSWORD,
 } = ROUTE_CONSTANTS;
 
 router.post(
