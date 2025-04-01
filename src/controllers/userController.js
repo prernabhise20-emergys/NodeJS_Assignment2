@@ -2,7 +2,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import sendVerificationEmail from "../common/utility/sendVerificationEmail.js";
+// import otpService from '../common/utility/otpService.js'
+import { ResponseHandler } from "../common/utility/handlers.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
+import sendOtpToEmail from "../common/utility/otpMail.js";
+
 import {
   checkAlreadyExist,
   getDeleteUserInfo,
@@ -12,10 +16,8 @@ import {
   getUserData,
   updateUserData,
   deleteUserData,
-  addAsAdmin,
-  checkAdminCount,
-  removeAdminAuthority,
-  check
+  checkUserDeleteOrNot,
+  updatePassword,
 } from "../models/userModel.js";
 import {
   ERROR_STATUS_CODE,
@@ -25,19 +27,9 @@ import {
 } from "../common/constants/statusConstant.js";
 
 dotenv.config();
-const {
-  USER_DELETED,
-  USER_EXISTS,
-  REGISTER_SUCCESS,
-  INVALID_USER,
-  ADD_ADMINS,
-  REMOVE_ADMIN,
-  USER_UPDATE,
-  USER_NOT_FOUND,
-  CANNOT_DELETE_USER,
-} = AUTH_RESPONSES;
+const { USER_EXISTS, INVALID_USER, USER_DELETED } = AUTH_RESPONSES;
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const { email, user_password, first_name, last_name, mobile_number } =
       req.body;
@@ -56,23 +48,23 @@ const register = async (req, res) => {
     );
 
     await sendVerificationEmail(email);
-    throw REGISTER_SUCCESS;
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.REGISTER_SUCCESS));
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+    next(error);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, user_password } = req.body;
-const check1 = await check(email)
-if(check1){
-  throw USER_DELETED;
-}
+    console.log(email);
+
+    const check = await checkUserDeleteOrNot(email);
+    if (!check) {
+      throw USER_DELETED;
+    }
 
     const user = await loginUser(email);
 
@@ -104,78 +96,39 @@ if(check1){
         token,
       });
     } else {
-      res.json({
-        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-        token,
-      });
+      res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(
+          new ResponseHandler(SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE, token)
+        );
     }
   } catch (error) {
-    console.error(error.message);
-    res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).json({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+    next(error);
   }
 };
 
-const addAdmin = async (req, res) => {
-  try {
-    const { admin: is_admin } = req.user;
-    const { email } = req.body;
-
-    await addAsAdmin(is_admin, email);
-    throw ADD_ADMINS;
-  } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
-
-const removeAdmin = async (req, res) => {
-  try {
-    const { admin: is_admin } = req.user;
-    const { email } = req.body;
-
-    await removeAdminAuthority(is_admin, email);
-    throw REMOVE_ADMIN;
-  } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
-
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const {
-      body: { email, user_password, first_name, last_name, mobile_number },
+      body: { first_name, last_name, mobile_number },
     } = req;
     const { userid: id } = req.user;
 
     const formData = {
-      email,
-      user_password,
       first_name,
       last_name,
       mobile_number,
     };
 
     await updateUserData(formData, id);
-    throw USER_UPDATE;
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+    next(error);
   }
 };
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
   try {
     const { userid: id, email: emailID } = req.user;
     const checkExists = await checkAlreadyExist(emailID);
@@ -183,65 +136,104 @@ const getUser = async (req, res) => {
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);
       if (deletedUserInfo) {
-        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-          status: SUCCESS_STATUS_CODE.SUCCESS,
-          message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-          data: deletedUserInfo,
-        });
+        res
+          .status(SUCCESS_STATUS_CODE.SUCCESS)
+          .send(
+            new ResponseHandler(
+              SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+              deletedUserInfo
+            )
+          );
       }
+    } else {
+      const user = await getUserData(id);
+
+      res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(
+          new ResponseHandler(
+            SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+            user
+          )
+        );
     }
-else{
-    const user = await getUserData(id);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-      data: user,
-    });
-  }
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+    next(error);
   }
 };
 
-
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
   try {
-    const { userid: id, admin } = req.user;
+    const { userid: id } = req.user;
 
-    if (admin) {
-      const adminCount = await checkAdminCount();
+    await deleteUserData(id);
 
-      if (adminCount <= 1) {
-        throw CANNOT_DELETE_USER;
-      }
-    }
-
-   console.log(
-    await deleteUserData(id));
-
-    res.json({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE,
-    });
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+    next(error);
+  }
+};
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(otp);
+
+    await sendOtpToEmail(email, otp);
+
+    const hashOtp = await bcrypt.hash(otp, 10);
+
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const { email, newPassword } = req.body;
+    console.log(email, newPassword);
+
+    const updated = await updatePassword(newPassword, email);
+
+    if (updated) {
+      res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_MESSAGE.PASSWORD_UPDATED));
+    } else {
+      res
+        .status(500)
+        .send(new ResponseHandler(ERROR_MESSAGE.PASSWORD_UPDATE_FAILED));
+    }
+  } catch (error) {
+    next(error);
   }
 };
 
 export default {
+  forgotPassword,
+  resetPassword,
   register,
   login,
   getUser,
   updateUser,
   deleteUser,
-  addAdmin,
-  removeAdmin,
 };
+
+// Math.random(): This function generates a random floating-point number between 0 (inclusive) and 1 (exclusive).
+
+// Math.random() * 900000: This scales the random number to a range between 0 and 900,000.
+
+// 100000 + Math.random() * 900000: This shifts the range to between 100,000 and 999,999. Essentially, it ensures that the random number is always a 6-digit number.
+
+// Math.floor(100000 + Math.random() * 900000): The Math.floor() function rounds down the number to the nearest integer, ensuring you get a whole number between 100,000 and 999,999.
+
+// .toString(): This converts the number to a string.
+
+// So, the entire line of code generates a random 6-digit number and converts it to a string, which can be used as an OTP (One-Time Password).

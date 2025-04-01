@@ -21,6 +21,7 @@ const getUserData = async (userid) => {
     throw error;
   }
 };
+
 const getDeleteUserInfo = async (email) => {
 
   try {
@@ -54,7 +55,8 @@ const checkAlreadyExist = (email) => {
     );
   });
 };
-const check = (email) => {
+
+const checkUserDeleteOrNot = (email) => {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
@@ -63,11 +65,12 @@ const check = (email) => {
         if (error) {
           return reject(error);
         }
-        resolve(result.length > 0);
+        resolve(result);
       }
     );
   });
 };
+
 // ****************************************************
 
 const createUserData = async (
@@ -123,77 +126,19 @@ const loginUser = (email) => {
   }
 };
 
-// ************************************************************
-
-const addAsAdmin = async (isAdmin,email) => {
-  try {
-    if (isAdmin) {
-      return new Promise((resolve, reject) => {
-        db.query(
-          "update user_register set is_admin=true where email=?",
-          email,
-          (error, results) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(results);
-            }
-          }
-        );
-      });
-
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-// **********************************************************
-
-const removeAdminAuthority=async(isAdmin,email)=>{
-  try {
-    if (isAdmin) {
-      return new Promise((resolve, reject) => {
-        db.query(
-          "update user_register set is_admin=false where email=?",
-          email,
-          (error, results) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(results);
-            }
-          }
-        );
-      });
-
-    }
-  } catch (error) {
-    throw error;
-  }
-}
 // **********************************************************
 
 const updateUserData = async (formData, id) => {
   try {
-    const { email, user_password, first_name, last_name, mobile_number } =
+    const { first_name, last_name, mobile_number } =
       formData;
-    const hashPassword = await bcrypt.hash(user_password, 10);
-    const user = {
-      email,
-      user_password: hashPassword,
-      first_name,
-      last_name,
-      mobile_number,
-    };
     return new Promise((resolve, reject) => {
       db.query(
-        "UPDATE user_register SET ? WHERE id = ?",
-        [user, id],
+        "UPDATE user_register set first_name=?, last_name=?, mobile_number=? WHERE id = ?",
+        [ first_name, last_name,mobile_number, id],
         (error, result) => {
           if (error) {
-            console.error("Database query error", error);
-            return reject(new Error("Database operation failed"));
+            return reject(error);
           }
           resolve(result);
         }
@@ -204,29 +149,35 @@ const updateUserData = async (formData, id) => {
   }
 };
 
-// ******************************************************************
 
-const checkAdminCount = async () => {
+const updatePassword = async (user_password,email) => {
   try {
-    const data = await new Promise((resolve, reject) => {
+    console.log('model',user_password);
+
+    
+    const hashPassword = await bcrypt.hash(user_password, 10);
+console.log(hashPassword);
+
+    const result = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = TRUE",
-        (error, results) => {
+        "UPDATE user_register SET user_password=? WHERE email = ?",
+        [hashPassword,email],
+        (error, result) => {
           if (error) {
             return reject(error);
           }
-          resolve(results[0].adminCount);
+          resolve(result);
         }
       );
     });
-    return data;
+    return result;
   } catch (error) {
     throw error;
   }
 };
+
 // ************************************************************
 const deleteUserData = async (userId) => {
-  console.log(userId);
   
   try {
     const data = await new Promise((resolve, reject) => {
@@ -271,8 +222,29 @@ const checkIfUserExists = async (email) => {
   }
 };
 
+const displayAdmin = async () => {
+  try {
+    const excludedEmail = 'prerna.bhise@gmail.com';
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT email FROM user_register WHERE is_admin = true AND is_deleted = false",
+        (error, result) => {
+          if (error) return reject(error);
+          const filteredAdmins = result.filter(admin => admin.email !== excludedEmail);
+          return resolve(filteredAdmins);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export {
-  check,
+  displayAdmin,
+  updatePassword,
+  checkUserDeleteOrNot,
   getDeleteUserInfo,
   checkAlreadyExist,
   createUserData,
@@ -281,7 +253,4 @@ export {
   getUserData,
   updateUserData,
   deleteUserData,
-  addAsAdmin,
-  removeAdminAuthority,
-  checkAdminCount,
 };

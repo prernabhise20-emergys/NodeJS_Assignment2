@@ -8,15 +8,12 @@ import {
   upload,
 } from "../config/uploadDocument.js";
 import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
-import { removeDocument } from "../models/patientModel.js";
 
 const router = express.Router();
 const {
-  GET_AGE_GROUP,
-  ADMIN_DELETE_PATIENT_DATA,
+  DOWNLOAD_DOCUMENT,
   GET_FAMILY_INFO,
   GET_PERSONAL_INFO,
-  GET_ALL_PATIENT_DETAILS,
   ADD_PERSONAL_DATA,
   UPDATE_PERSONAL_DATA,
   DELETE_PERSONAL_DATA,
@@ -34,11 +31,6 @@ const {
   GET_DISEASE_INFO,
 } = ROUTE_CONSTANTS;
 
-router.get(
-  GET_ALL_PATIENT_DETAILS,
-  authenticateUser,
-  patientController.getAllInfo
-);
 router.get(
   GET_PERSONAL_INFO,
   authenticateUser,
@@ -63,11 +55,6 @@ router.delete(
   patientController.deletePersonalInfo
 );
 
-router.delete(
-  ADMIN_DELETE_PATIENT_DATA,
-  authenticateUser,
-  patientController.adminDeletePatientData
-);
 
 router.get(
   GET_FAMILY_INFO,
@@ -85,11 +72,7 @@ router.get(
   authenticateUser,
   patientController.showPatientDetails
 );
-router.get(
-  GET_AGE_GROUP,
-  authenticateUser,
-  patientController.ageGroupData
-);
+
 router.put(
   UPDATE_FAMILY_INFO,
   authenticateUser,
@@ -150,4 +133,9 @@ router.delete(
   patientController.deleteDocument
 );
 
+router.get(
+  DOWNLOAD_DOCUMENT,
+  authenticateUser,
+  patientController.downloadDocument
+);
 export default router;
