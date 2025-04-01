@@ -148,19 +148,18 @@ const updateUserData = async (formData, id) => {
   }
 };
 
-
-const updatePassword = async (user_password,email) => {
+const updatePassword = async (email, newPassword) => {
   try {
-    console.log('model',user_password);
+    console.log('model', newPassword);
 
-    
-    const hashPassword = await bcrypt.hash(user_password, 10);
-console.log(hashPassword);
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+    console.log(hashPassword);
 
     const result = await new Promise((resolve, reject) => {
       db.query(
-"update user_Register set user_password=? where email=?", 
-[hashPassword,email ], (error, results) => {
+        "UPDATE user_Register SET user_password = ? WHERE email = ?",
+        [hashPassword, email],
+        (error, results) => {
           if (error) {
             return reject(error);
           }

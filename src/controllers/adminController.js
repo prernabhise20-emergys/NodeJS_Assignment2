@@ -39,9 +39,6 @@ const getAllInfo = async (req, res, next) => {
       getTotalCount(is_admin),
     ]);
 
-    //  res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-    //         new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_DELETE_SUCCESSFULLY,{page,limit/documentSize,totalCount},)
-    //       );
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
@@ -99,11 +96,6 @@ const ageGroupData = async (req, res, next) => {
           ageData
         )
       );
-    // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-    //   status: SUCCESS_STATUS_CODE.SUCCESS,
-    //   message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-    //   data: ageData,
-    // });
   } catch (error) {
     next(error);
   }

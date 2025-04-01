@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import sendVerificationEmail from "../common/utility/sendVerificationEmail.js";
-// import otpService from '../common/utility/otpService.js'
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
@@ -21,9 +20,7 @@ import {
   updatePassword,
 } from "../models/userModel.js";
 import {
-  ERROR_STATUS_CODE,
   SUCCESS_STATUS_CODE,
-  ERROR_MESSAGE,
   SUCCESS_MESSAGE,
 } from "../common/constants/statusConstant.js";
 
@@ -31,12 +28,7 @@ dotenv.config();
 const {
   USER_DELETED,
   USER_EXISTS,
-  REGISTER_SUCCESS,
   INVALID_USER,
-  ADD_ADMINS,
-  REMOVE_ADMIN,
-  USER_UPDATE,
-  USER_NOT_FOUND,
   CANNOT_DELETE_USER,
 } = AUTH_RESPONSES;
 
@@ -116,39 +108,7 @@ const login = async (req, res, next) => {
   }
 };
 
-const addAdmin = async (req, res) => {
-  try {
-    const { admin: is_admin } = req.user;
-    const { email } = req.body;
-
-    await addAsAdmin(is_admin, email);
-    throw ADD_ADMINS;
-  } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
-
-const removeAdmin = async (req, res) => {
-  try {
-    const { admin: is_admin } = req.user;
-    const { email } = req.body;
-
-    await removeAdminAuthority(is_admin, email);
-    throw REMOVE_ADMIN;
-  } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
-  }
-};
-
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const {
       body: { first_name, last_name, mobile_number },
@@ -170,7 +130,7 @@ const updateUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res,next) => {
   try {
     const { userid: id, admin } = req.user;
 
@@ -183,17 +143,12 @@ const deleteUser = async (req, res) => {
     }
 
     await deleteUserData(id);
-
-    res.json({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE,
-    });
+    res
+    .status(SUCCESS_STATUS_CODE.SUCCESS)
+    .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+  
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+  next(error)
   }
 };
 const getUser = async (req, res, next) => {
@@ -215,11 +170,9 @@ const getUser = async (req, res, next) => {
       }
     } else {
       const user = await getUserData(id);
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-        status: SUCCESS_STATUS_CODE.SUCCESS,
-        message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-        data: user,
-      });
+      res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,user));
     }
   } catch (error) {
     next(error);
@@ -249,14 +202,14 @@ const resetPassword = async (req, res, next) => {
   try {
     const { email, newPassword } = req.body;
     await updatePassword(email, newPassword);
-    res.json({
-      status: SUCCESS_STATUS_CODE.SUCCESS,
-      message: SUCCESS_MESSAGE.PASSWORD_UPDATE,
-    });
+    res
+    .status(SUCCESS_STATUS_CODE.SUCCESS)
+    .send(new ResponseHandler(SUCCESS_MESSAGE.PASSWORD_UPDATE));
   } catch (error) {
     next(error);
   }
 };
+
 
 export default {
   forgotPassword,
@@ -266,6 +219,4 @@ export default {
   getUser,
   updateUser,
   deleteUser,
-  addAdmin,
-  removeAdmin,
 };

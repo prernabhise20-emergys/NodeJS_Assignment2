@@ -1,7 +1,5 @@
 import {
-  ERROR_MESSAGE,
   SUCCESS_MESSAGE,
-  ERROR_STATUS_CODE,
   SUCCESS_STATUS_CODE,
 } from "../common/constants/statusConstant.js";
 import { uploadFile } from "../common/utility/upload.js";
@@ -9,8 +7,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
-  getDeletePatientInfo,
-  // getDocumentByPatientIdAndType,
+  getDocumentByPatientIdAndType,
   checkNumberOfDocument,
   checkUserWithPatientID,
   getFamilyInfo,
@@ -27,31 +24,20 @@ import {
   deleteFamilyInfo,
   updateDiseaseDetails,
   deleteDiseaseDetails,
-  deletePatientDetails,
   saveDocument,
   modifyDocument,
   removeDocument,
   checkDocumentExists,
-  getTotalRecords,
-  ageGroupWiseData,
-  checkAlreadyExist
+
 } from "../models/patientModel.js";
 const {
-  FAMILY_DELETE_SUCCESSFULLY,
-  PERSONAL_DELETE_SUCCESSFULLY,
   MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
-  UPDATE_SUCCESSFULLY,
   NOT_DELETED,
   NOT_UPDATE,
   NO_FILE_FOUND,
   MISSING_REQUIRED,
-  FAMILY_UPDATE_SUCCESSFULLY,
-  DISEASE_UPDATE_SUCCESSFULLY,
-  DISEASE_DELETE_SUCCESSFULLY,
-  DOCUMENT_UPDATE_SUCCESSFULLY,
-  DOCUMENT_DELETE_SUCCESSFULLY
 } = AUTH_RESPONSES;
 
 
@@ -86,7 +72,7 @@ const getPersonalDetails = async (req, res,next) => {
   }
 };
 
-const createPersonalInfo = async (req, res) => {
+const createPersonalInfo = async (req, res,next) => {
   try {
     const {
       body: {
@@ -117,23 +103,16 @@ const createPersonalInfo = async (req, res) => {
 
     const result = await createPersonalDetails(data, id, email);
 
-    return res.status(SUCCESS_STATUS_CODE.CREATED).send({
-      status: SUCCESS_STATUS_CODE.CREATED,
-      message: SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE,
-      data: {
-        patient_id: result.insertId,
-      },
-    });
+    res.status(SUCCESS_STATUS_CODE.CREATED).send(
+      new ResponseHandler(SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE,{patient_id: result.insertId})
+    );
+   
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+  next(error)
   }
 };
 
-const updatePersonalInfo = async (req, res) => {
+const updatePersonalInfo = async (req, res,next) => {
   try {
     const {
       body: {
@@ -172,20 +151,19 @@ const updatePersonalInfo = async (req, res) => {
 
     if (isValidPatient || is_admin) {
       await updatePersonalDetails(data, patient_id);
-      throw UPDATE_SUCCESSFULLY;
+
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+      );
     } else {
       throw UNAUTHORIZED_ACCESS;
     }
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+    next(error)
   }
 };
 
-const deletePersonalInfo = async (req, res) => {
+const deletePersonalInfo = async (req, res, next) => {
   try {
     const { userid: id, admin: is_admin } = req.user;
     const { patient_id } = req.params;
@@ -193,15 +171,14 @@ const deletePersonalInfo = async (req, res) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deletePersonalDetails(patient_id);
-      throw DELETE_SUCCESSFULLY;
-    }
+    
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
+      );
+        }
     throw NOT_DELETED;
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+    next(error)
   }
 };
 // *************************************************************************
@@ -279,8 +256,10 @@ const updateFamilyInfoDetails = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await updateFamilyInfo(familyData, patient_id);
-      throw UPDATE_SUCCESSFULLY;
-    }
+
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+      );    }
     throw NOT_UPDATE;
   } catch (error) {
     next(error)
@@ -295,7 +274,9 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteFamilyInfo(patient_id);
-      throw DELETE_SUCCESSFULLY;
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
+      );
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -344,7 +325,11 @@ const updateDiseaseInfo = async (req, res, next) => {
     const formData = { disease_type, disease_description };
     if (isValidPatient || is_admin) {
       await updateDiseaseDetails(formData, patient_id);
-      throw UPDATE_SUCCESSFULLY;
+
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+      );
+      
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -360,7 +345,10 @@ const deleteDiseaseInfo = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteDiseaseDetails(patient_id);
-      throw DELETE_SUCCESSFULLY;
+
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DELETE_SUCCESSFULLY)
+      );
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -437,7 +425,7 @@ if(moreThanLimit)
   }
 };
 
-const updateDocument = async (req, res) => {
+const updateDocument = async (req, res,next) => {
   try {
     if (!req.file) {
       throw NO_FILE_FOUND;
@@ -469,7 +457,9 @@ const updateDocument = async (req, res) => {
     if (isValidPatient || is_admin) {
       await modifyDocument(data);
 
-      throw UPDATE_SUCCESSFULLY;
+      res.status(SUCCESS_STATUS_CODE.CREATED).send(
+        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+      );
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -489,7 +479,10 @@ const deleteDocument = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await removeDocument(patient_id, document_type);
-      throw DELETE_SUCCESSFULLY;
+
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
+      );    
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -498,7 +491,7 @@ const deleteDocument = async (req, res, next) => {
 };
 
 
-const downloadDocument = async (req, res) => {
+const downloadDocument = async (req, res,next) => {
   try {
     const { patient_id, document_type } = req.query;
 
@@ -506,10 +499,10 @@ const downloadDocument = async (req, res) => {
       throw MISSING_REQUIRED;
     }
 
-    // const document = await getDocumentByPatientIdAndType(
-    //   patient_id,
-    //   document_type
-    // );
+    const document = await getDocumentByPatientIdAndType(
+      patient_id,
+      document_type
+    );
 
     if (!document) {
       throw DOCUMENT_NOT_FOUND;
@@ -520,11 +513,7 @@ const downloadDocument = async (req, res) => {
     return res.redirect(documentUrl);
     
   } catch (error) {
-    console.error(error.message);
-    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
-      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
-      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
-    });
+ next(error)
   }
 };
 

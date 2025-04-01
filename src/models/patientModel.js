@@ -721,33 +721,28 @@ const removeDocument = (patient_id, document_type) => {
   });
 };
 
-const ageGroupWiseData = (user_id) => {
-  return new Promise((resolve, reject) => {
-    db.query(`
-      SELECT 
-        COUNT(age) as count,
-        CASE 
-          WHEN age BETWEEN 0 AND 12 THEN 'child'
-          WHEN age BETWEEN 13 AND 18 THEN 'teen'
-          WHEN age BETWEEN 19 AND 60 THEN 'adult'
-          WHEN age > 60 THEN 'older'
-        END as ageGroup
-      FROM personal_info
-      WHERE user_id = ? and is_deleted=false
-      GROUP BY ageGroup
-    `, [user_id], (error, result) => {
-      if (error) {
-        return reject(error);
-      }
-      resolve(result);
+const getDocumentByPatientIdAndType=async(patient_id,document_type)=>{
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT document_type,document_url FROM documents WHERE is_deleted = false and patient_id = ? and document_type=?",
+        [patient_id,document_type],
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
     });
-  });
-};
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
 export {
-  // getDocumentByPatientIdAndType,
+  getDocumentByPatientIdAndType,
   getDeletePatientInfo,
   checkAlreadyExist,
-  ageGroupWiseData,
   getTotalRecords,
   deletePatientDetails,
   checkUserWithPatientID,
