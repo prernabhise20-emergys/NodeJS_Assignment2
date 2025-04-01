@@ -25,40 +25,28 @@ const ERROR_MESSAGE = {
   NO_FILE: "No file uploaded",
   MISSING_REQUIRED: "Missing required fields",
   ALREADY_REGISTER: "User already exists",
-  DISEASE_STEP: "Please fill disease information first.",
-  FAMILY_STEP: "Please fill family information next.",
-  PERSONAL_INFO_EXISTS:
-    "Personal information is already exist, if you want to change then update the information",
-  FAMILY_INFO_EXISTS:
-    "Family information is already exists, if you want to change then update the information",
-  DISEASE_INFO_EXISTS:
-    "Disease information is already exists, if you want to change then update the information",
-  FORBIDDEN_MESSAGE: "Unauthorized access",
-  DOCUMENT_NOT_FOUND: "Document not found",
-  ADMIN_ACCESS:"Only admin access this functionality",
-  EMAIL_NOT_SENT:"OTP email is not sent",
-  PASSWORD_UPDATE_FAILED:"Failed to update password"
-
+  DISEASE_STEP:"Please fill disease info first.",
+  FAMILY_STEP:"Please fill family info next.",
+  PERSONAL_INFO_EXISTS:"Personal information is already exist, if you want to change then update the information",
+  FAMILY_INFO_EXISTS:"Family information is already exists, if you want to change then update the information",
+  DISEASE_INFO_EXISTS:"Disease information is already exists, if you want to change then update the information",
+  FORBIDDEN_MESSAGE:"Unauthorized access",
+  DOCUMENT_NOT_FOUND:"Document not found"
 };
 
-const SUCCESS_MESSAGE = {
-  PASSWORD_UPDATED:"Password is updated",
-  OTP_SENT:"OTP is sent to your email",
-  ADMIN_LIST:"Admins are display successfully",
-  PASSWORD_UPDATE_MESSAGE:"Password updated successfully",
-  PERSONAL_DELETE_SUCCESSFULLY: "Personal information deleted successfully",
-  USER_DELETED: "This user is deleted, if you want login then signup the user",
-  ADD_ADMIN: "Set as a admin successfully",
-  DOCUMENT_DELETED: "Document deleted successfully",
-  REMOVE_ADMIN: "Removed as a admin successfully",
-  ADMIN_LOGIN: "Admin login",
+const SUCCESS_MESSAGE={
+  USER_DELETED:"This user is deleted, if you want login then signup the user",
+  ADD_ADMIN:"Set as a admin successfully",
+  DOCUMENT_DELETED:"Document deleted successfully",
+  REMOVE_ADMIN:"Remove as a admin successfully",
+  ADMIN_LOGIN:"Admin login",
   LOGIN_SUCCESS_MESSAGE: "Login successfully",
   USER_UPDATE_SUCCESS_MSG: "User credentials updated successfully",
   RETRIEVE_INFO_SUCCESS_MESSAGE: "Patient details are retrieved successfully",
   ADDED_PERSONAL_INFO_MESSAGE: "Personal information added successfully",
   UPDATE_INFO_SUCCESS_MESSAGE: "Information updated successfully",
   DELETE_SUCCESS_MESSAGE: "Information deleted successfully",
-  ADDED_FAMILY_MESSAGE: "Family information added successfully",
+  ADDED_FAMILY_MESSAGE: "Added family info successfully",
   GET_FAMILY_INFO_MESSAGE: "Family information retrieved successfully",
   DISEASE_DETAILS: "Disease details retrieved successfully",
   CREATED_DISEASE_INFO_MESSAGE: "Disease information added successfully",

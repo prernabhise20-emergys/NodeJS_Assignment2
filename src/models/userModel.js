@@ -55,8 +55,7 @@ const checkAlreadyExist = (email) => {
     );
   });
 };
-
-const checkUserDeleteOrNot = (email) => {
+const check = (email) => {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
@@ -65,7 +64,7 @@ const checkUserDeleteOrNot = (email) => {
         if (error) {
           return reject(error);
         }
-        resolve(result);
+        resolve(result.length > 0);
       }
     );
   });
@@ -126,6 +125,55 @@ const loginUser = (email) => {
   }
 };
 
+// ************************************************************
+
+const addAsAdmin = async (isAdmin,email) => {
+  try {
+    if (isAdmin) {
+      return new Promise((resolve, reject) => {
+        db.query(
+          "update user_register set is_admin=true where email=?",
+          email,
+          (error, results) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(results);
+            }
+          }
+        );
+      });
+
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+// **********************************************************
+
+const removeAdminAuthority=async(isAdmin,email)=>{
+  try {
+    if (isAdmin) {
+      return new Promise((resolve, reject) => {
+        db.query(
+          "update user_register set is_admin=false where email=?",
+          email,
+          (error, results) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(results);
+            }
+          }
+        );
+      });
+
+    }
+  } catch (error) {
+    throw error;
+  }
+}
 // **********************************************************
 
 const updateUserData = async (formData, id) => {
@@ -160,9 +208,8 @@ console.log(hashPassword);
 
     const result = await new Promise((resolve, reject) => {
       db.query(
-        "UPDATE user_register SET user_password=? WHERE email = ?",
-        [hashPassword,email],
-        (error, result) => {
+        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = TRUE",
+        (error, results) => {
           if (error) {
             return reject(error);
           }
@@ -242,9 +289,7 @@ const displayAdmin = async () => {
 };
 
 export {
-  displayAdmin,
-  updatePassword,
-  checkUserDeleteOrNot,
+  check,
   getDeleteUserInfo,
   checkAlreadyExist,
   createUserData,

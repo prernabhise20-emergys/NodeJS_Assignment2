@@ -27,6 +27,10 @@ app.use(errorHandler)
 //   res.status(err.statusCode || 500).send({message:"error occurred"});
 // });
 
+// app.use((err, req, res, next) => {
+//   res.status(err.statusCode || 500).send({message:"error occurred"});
+// });
+
 const { env: { PORT } } = process;
 const port = PORT || 3000;
 

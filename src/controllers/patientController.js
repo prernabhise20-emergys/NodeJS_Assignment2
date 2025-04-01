@@ -9,6 +9,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
+  getDeletePatientInfo,
   checkNumberOfDocument,
   checkUserWithPatientID,
   getFamilyInfo,
@@ -29,19 +30,69 @@ import {
   modifyDocument,
   removeDocument,
   checkDocumentExists,
-  getDocumentByPatientIdAndType,
+  getTotalRecords,
+  ageGroupWiseData,
+  checkAlreadyExist
 } from "../models/patientModel.js";
 const {
+  FAMILY_DELETE_SUCCESSFULLY,
+  PERSONAL_DELETE_SUCCESSFULLY,
+    UPDATE_SUCCESSFULLY,
   MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
+  UPDATE_SUCCESSFULLY,
   NOT_DELETED,
   NOT_UPDATE,
   NO_FILE_FOUND,
   MISSING_REQUIRED,
+  FAMILY_UPDATE_SUCCESSFULLY,
+  DISEASE_UPDATE_SUCCESSFULLY,
+  DISEASE_DELETE_SUCCESSFULLY,
+  DOCUMENT_UPDATE_SUCCESSFULLY,
+  DOCUMENT_DELETE_SUCCESSFULLY
 } = AUTH_RESPONSES;
 
-const showPatientDetails = async (req, res,next) => {
+const getAllInfo = async (req, res) => {
+  try {
+    const { admin: is_admin } = req.user;
+
+    if (!is_admin) {
+      throw UNAUTHORIZED_ACCESS;
+    }
+
+    let { page, limit } = req.query;
+    page = parseInt(page || 1);
+    limit = parseInt(limit || 10);
+    limit = limit * 4; 
+
+    const offset = (page - 1) * limit;
+
+    const personalInfo = await getInfo(is_admin, limit, offset);
+
+   await getTotalRecords(is_admin);
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: personalInfo,
+      pagination: {
+        currentPage: page,
+        limit: limit/4 , 
+      },
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
+
+// *****************************************************************
+
+const showPatientDetails = async (req, res) => {
   try {
     const { userid: id } = req.user;
 
@@ -148,15 +199,16 @@ const updatePersonalInfo = async (req, res,next) => {
 
     if (isValidPatient || is_admin) {
       await updatePersonalDetails(data, patient_id);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.PERSONAL_UPDATE)
-      );
+      throw UPDATE_SUCCESSFULLY;
     } else {
       throw UNAUTHORIZED_ACCESS;
     }
   } catch (error) {
-    next(error)
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
   }
 };
 
@@ -168,17 +220,35 @@ const deletePersonalInfo = async (req, res,next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deletePersonalDetails(patient_id);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.PERSONAL_DELETE_SUCCESSFULLY)
-      );
+      throw DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
-    next(error)
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
   }
 };
+const adminDeletePatientData= async (req, res) => {
+  try {
+    const { admin: is_admin } = req.user;
+    const { patient_id } = req.query;
+console.log(patient_id);
 
+    if (is_admin) {
+      await deletePatientDetails(patient_id);
+      throw DELETE_SUCCESSFULLY;
+    }
+    throw NOT_DELETED;
+  } catch (error) {
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
+  }
+};
 // *************************************************************************
 const getFamilyDetails = async (req, res,next) => {
   try {
@@ -245,10 +315,7 @@ const updateFamilyInfoDetails = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await updateFamilyInfo(familyData, patient_id);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.FAMILY_UPDATE_SUCCESSFULLY)
-      );
+      throw UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -264,10 +331,7 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteFamilyInfo(patient_id);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.FAMILY_DELETE_SUCCESSFULLY)
-      );
+      throw DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -316,10 +380,7 @@ const updateDiseaseInfo = async (req, res, next) => {
     const formData = { disease_type, disease_description };
     if (isValidPatient || is_admin) {
       await updateDiseaseDetails(formData, patient_id);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DISEASE_UPDATE_SUCCESSFULLY)
-      );
+      throw UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -335,10 +396,7 @@ const deleteDiseaseInfo = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteDiseaseDetails(patient_id);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DELETE_SUCCESSFULLY)
-      );
+      throw DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -374,11 +432,11 @@ const uploadDocument = async (req, res, next) => {
       throw MISSING_REQUIRED;
     }
 
-    const moreThanLimit = await checkNumberOfDocument(patient_id);
-    if (moreThanLimit) {
-      throw MORE_THAN_LIMIT;
-    }
-
+   const moreThanLimit= await checkNumberOfDocument(patient_id)
+if(moreThanLimit)
+{
+  throw MORE_THAN_LIMIT;
+}
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
 
@@ -390,6 +448,21 @@ const uploadDocument = async (req, res, next) => {
       patient_id,
     };
 
+    // const documentUrls = [];
+
+    // for (const file of req.files) {
+    //   const result = await uploadFile(file);
+
+    //   const { secure_url: documentUrl } = result;
+
+    //   documentUrls.push(documentUrl);
+
+    //   const documentData = {
+    //     document_type,
+    //     document_url: documentUrl,
+    //     patient_id: patient_id,
+    //   };
+    // }
     await saveDocument(documentData);
 
     res.status(SUCCESS_STATUS_CODE.CREATED).send(
@@ -400,7 +473,7 @@ const uploadDocument = async (req, res, next) => {
   }
 };
 
-const updateDocument = async (req, res, next) => {
+const updateDocument = async (req, res) => {
   try {
     if (!req.file) {
       throw NO_FILE_FOUND;
@@ -432,10 +505,7 @@ const updateDocument = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await modifyDocument(data);
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPDATE_SUCCESSFULLY)
-      );
-   
+      throw UPDATE_SUCCESSFULLY;
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -455,11 +525,7 @@ const deleteDocument = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await removeDocument(patient_id, document_type);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_DELETE_SUCCESSFULLY)
-      );
-     
+      throw DELETE_SUCCESSFULLY;
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -468,6 +534,29 @@ const deleteDocument = async (req, res, next) => {
 };
 
 const downloadDocument = async (req, res, next) => {
+  try {
+    const { userid: id } = req.user;
+
+    const ageGroup = await ageGroupWiseData(id);
+
+    const ageData = {
+      child: ageGroup.find(group => group.ageGroup === 'child')?.count || 0,
+      teen: ageGroup.find(group => group.ageGroup === 'teen')?.count || 0,
+      adult: ageGroup.find(group => group.ageGroup === 'adult')?.count || 0,
+      older: ageGroup.find(group => group.ageGroup === 'older')?.count || 0,
+    };
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      data: ageData,
+    });
+  } catch (error) {
+    next(error)
+  }
+};
+
+const downloadDocument = async (req, res) => {
   try {
     const { patient_id, document_type } = req.query;
 
@@ -487,13 +576,19 @@ const downloadDocument = async (req, res, next) => {
     const documentUrl = document.document_url;
 
     return res.redirect(documentUrl);
+    
   } catch (error) {
-    next(error)
+    console.error(error.message);
+    return res.status(error.status || ERROR_STATUS_CODE.SERVER_ERROR).send({
+      status: error.status || ERROR_STATUS_CODE.SERVER_ERROR,
+      message: error.message || ERROR_MESSAGE.SERVER_ERROR_MESSAGE,
+    });
   }
 };
 
 export default {
-  downloadDocument,
+  ageGroupData,
+  adminDeletePatientData,
   getUploadDocument,
   getPersonalDetails,
   getFamilyDetails,

@@ -11,7 +11,8 @@ import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 
 const router = express.Router();
 const {
-  DOWNLOAD_DOCUMENT,
+  GET_AGE_GROUP,
+  ADMIN_DELETE_PATIENT_DATA,
   GET_FAMILY_INFO,
   GET_PERSONAL_INFO,
   ADD_PERSONAL_DATA,
@@ -131,6 +132,11 @@ router.delete(
   authenticateUser,
   upload.none(),
   patientController.deleteDocument
+);
+router.get(
+  GET_AGE_GROUP,
+  authenticateUser,
+  patientController.ageGroupData
 );
 
 router.get(
