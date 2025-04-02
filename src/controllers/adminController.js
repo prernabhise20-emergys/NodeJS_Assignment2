@@ -128,6 +128,7 @@ const removeAdmin = async (req, res, next) => {
         throw CANNOT_DELETE_USER;
       }
     }
+    
     await removeAdminAuthority(is_admin, email);
 
     res

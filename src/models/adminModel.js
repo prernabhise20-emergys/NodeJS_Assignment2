@@ -189,6 +189,7 @@ const addAsAdmin = async (isAdmin, email) => {
 
 const removeAdminAuthority = async (isAdmin, email) => {
   try {
+
     if (isAdmin) {
       return new Promise((resolve, reject) => {
         db.query(
