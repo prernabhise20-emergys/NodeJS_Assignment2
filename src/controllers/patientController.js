@@ -7,6 +7,10 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
+  checkDoctorAvailability,
+  createDoctorAppointment,
+  isDoctorAvailable,
+  getDoctorInfo,
   getDocumentByPatientIdAndType,
   checkNumberOfDocument,
   checkUserWithPatientID,
@@ -517,7 +521,62 @@ const downloadDocument = async (req, res,next) => {
   }
 };
 
+const getDoctors = async (req, res, next) => {
+  try {
+
+    const personalInfo = await getDoctorInfo();
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,personalInfo)
+    );
+  } catch (error) {
+   next(error)
+  }
+};
+
+
+const createAppointment = async (req, res, next) => {
+  const { patient_id, doctor_id, date, time } = req.body;
+
+  try {
+    const isAvailable = await isDoctorAvailable(doctor_id, date, time);
+
+    if (!isAvailable) {
+      return res.status(400).json({
+        success: false,
+        message: "The selected time slot is already booked. Please choose another time.",
+      });
+    }
+
+    const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
+
+    res.status(201).json({
+      success: true,
+      message: "Appointment successfully created.",
+      appointment_id: result.insertId 
+    });
+  } catch (error) {
+    next(error); 
+  }
+};
+
+const getDoctorAvailability = async (req, res, next) => {
+  const { doctor_id, date } = req.query;
+
+  try {
+    const availableSlots = await checkDoctorAvailability(doctor_id, date);
+
+    res.status(200).json({
+      success: true,
+      availableSlots,
+    });
+  } catch (error) {
+    next(error); 
+  }
+};
 export default {
+  getDoctorAvailability,
+  createAppointment,
+  getDoctors,
 downloadDocument,
   getUploadDocument,
   getPersonalDetails,

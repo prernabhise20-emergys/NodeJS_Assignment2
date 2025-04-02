@@ -7,6 +7,8 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
+  deleteDoctorData,
+  updateDoctorData,
   doctorFlag,
   createDoctorData,
   ageGroupWiseData,
@@ -130,7 +132,7 @@ const removeAdmin = async (req, res, next) => {
         throw CANNOT_DELETE_USER;
       }
     }
-    
+
     await removeAdminAuthority(is_admin, email);
 
     res
@@ -162,40 +164,105 @@ const getAdmin = async (req, res, next) => {
 
 
 
-const addDoctor = async (req, res,next) => {
+const addDoctor = async (req, res, next) => {
   try {
     const {
       body: {
-       name,
-       specialization,
-       contact_number,
+        name,
+        specialization,
+        contact_number,
+        email
       },
     } = req;
 
-    const { userid: id,admin:is_admin,email:doctor_email} = req.user;
+    const { userid:user_id, admin: is_admin } = req.user;
+    
     const data = {
       name,
-       specialization,
-       contact_number,
-       email:doctor_email
+      specialization,
+      contact_number,
+      email,
+      user_id
     };
     console.log(data);
-    
-if(is_admin){
-    const result = await createDoctorData(data, id);
-    if(result){
- await doctorFlag();
+
+    if (is_admin) {
+      const result = await createDoctorData(data);
+      if (result) {
+        await doctorFlag();
+      }
+      res.status(SUCCESS_STATUS_CODE.CREATED).send(
+        new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
+      );
     }
-    res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE)
-    );
-  }
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
-  next(error)
+    next(error)
   }
 };
 
+
+const updateDoctor = async (req, res, next) => {
+  try {
+    const {
+      body: {
+        name,
+        specialization,
+        contact_number,
+        email,
+        doctor_id
+      },
+    } = req;
+
+    const { userid: id, admin: is_admin } = req.user;
+
+    const data = {
+      name,
+      specialization,
+      contact_number,
+      email
+    };
+
+    console.log(data);
+
+    if (is_admin) {
+      const result = await updateDoctorData(data,doctor_id);
+      if (result) {
+        await doctorFlag();
+      }
+
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)
+      );
+    }
+
+    return res.status(SUCCESS_STATUS_CODE.FORBIDDEN).send(
+      new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS)
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const deleteDoctor = async (req, res, next) => {
+  try {
+    const { doctor_id } = req.query;
+console.log(doctor_id);
+
+    await deleteDoctorData(doctor_id);
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+  } catch (error) {
+    next(error);
+  }
+};
 export default {
+  deleteDoctor,
+  updateDoctor,
   addDoctor,
   addAdmin,
   removeAdmin,

@@ -34,7 +34,12 @@ const ROUTE_CONSTANTS = {
   ADMIN:"/api/admin",
   GET_ADMIN:"/getAdmin",
   DOCTOR:"/api/doctor",
-  ADD_DOCTOR:"/addDoctor"
+  ADD_DOCTOR:"/addDoctor",
+  UPDATE_DOCTOR:"/updateDoctor",
+  DELETE_DOCTOR:"/deleteDoctor",
+  GET_DOCTORS:"/getDoctors",
+  CREATE_APPOINTMENT:"/bookAppointment",
+  GET_TIMESLOT:"/getTimeSlot"
 };
 
 export default ROUTE_CONSTANTS;

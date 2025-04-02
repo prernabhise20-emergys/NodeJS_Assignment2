@@ -249,13 +249,14 @@ const displayAdmin = async () => {
   }
 };
 
-const createDoctorData = async (data, userId) => {
+const createDoctorData = async (data) => {
   try {
     let doctorData = {
-      ...data,
-      userId,
+      ...data
     };
 
+    console.log('doctordata',doctorData);
+    
     return new Promise((resolve, reject) => {
       db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
         if (error) {
@@ -285,8 +286,51 @@ const doctorFlag = async () => {
     throw error;
   }
 };
+const updateDoctorData = async (data,doctor_id) => {
+  try {
+    const updateData = {
+      ...data,
+    };
 
+    console.log('Update data:', updateData);
+
+    return new Promise((resolve, reject) => {
+      db.query("UPDATE doctors SET ? WHERE doctor_id = ?", [updateData, doctor_id], (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(result);
+      });
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteDoctorData = async (doctor_id) => {
+  
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE doctors SET is_deleted = TRUE WHERE doctor_id = ?",
+        doctor_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        }
+      );
+    });
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 export {
+  deleteDoctorData,
+  updateDoctorData,
   doctorFlag,
   createDoctorData,
   getInfo,

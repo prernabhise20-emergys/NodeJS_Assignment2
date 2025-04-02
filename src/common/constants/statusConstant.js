@@ -11,7 +11,7 @@ const SUCCESS_STATUS_CODE = {
   SUCCESS: 200,
 };
 const ERROR_MESSAGE = {
-  EMAIL_NOT_EXISTS:"Invalid email",
+  EMAIL_NOT_EXISTS:"Email is not found",
   MORE_THAN_LIMIT: "Only 4 documents allow to upload",
   ID_ALREADY_EXISTS: "Patient_id already exists",
   CANNOT_DELETE: "Cannot delete the last admin user",
@@ -32,10 +32,13 @@ const ERROR_MESSAGE = {
   FAMILY_INFO_EXISTS:"Family information is already exists, if you want to change then update the information",
   DISEASE_INFO_EXISTS:"Disease information is already exists, if you want to change then update the information",
   FORBIDDEN_MESSAGE:"Unauthorized access",
-  DOCUMENT_NOT_FOUND:"Document not found"
+  DOCUMENT_NOT_FOUND:"Document not found",
+  ADMIN_ACCESS:"Only admin add to as doctor",
+  DOCTOR_NOT_FOUND:"Doctor information is not found"
 };
 
 const SUCCESS_MESSAGE={
+  UPDATED_DOCTOR_INFO_MESSAGE:"Doctor details updated successfully",
   ADDED_DOCTOR_INFO_MESSAGE:"Doctor information added successfully",
   OTP_SENT:"OTP is sent to your email",
   USER_DELETED:"This user is deleted, if you want login then signup the user",

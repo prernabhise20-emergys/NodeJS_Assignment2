@@ -275,7 +275,30 @@ const checkEmailExists = async (email) => {
     throw error;
   }
 };
+
+
+
+const getName = async (email) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT first_name FROM user_register WHERE is_deleted= false and email = ?",email,
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results);
+        }
+      );
+    });
+    
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 export {
+  getName,
   checkAdminCount,
   displayAdmin,
   checkUserDeleteOrNot,
