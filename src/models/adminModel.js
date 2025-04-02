@@ -189,7 +189,6 @@ const addAsAdmin = async (isAdmin, email) => {
 
 const removeAdminAuthority = async (isAdmin, email) => {
   try {
-
     if (isAdmin) {
       return new Promise((resolve, reject) => {
         db.query(
@@ -250,7 +249,46 @@ const displayAdmin = async () => {
   }
 };
 
+const createDoctorData = async (data, userId) => {
+  try {
+    let doctorData = {
+      ...data,
+      userId,
+    };
+
+    return new Promise((resolve, reject) => {
+      db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(result);
+      });
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const doctorFlag = async () => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query("UPDATE user_register SET is_doctor= TRUE", (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(result);
+      });
+    });
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export {
+  doctorFlag,
+  createDoctorData,
   getInfo,
   displayAdmin,
   addAsAdmin,

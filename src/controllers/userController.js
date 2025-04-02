@@ -7,6 +7,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 
 import {
+  checkEmailExists,
   checkAlreadyExist,
   getDeleteUserInfo,
   createUserData,
@@ -22,15 +23,13 @@ import {
 import {
   SUCCESS_STATUS_CODE,
   SUCCESS_MESSAGE,
+  ERROR_STATUS_CODE,
+  ERROR_MESSAGE
 } from "../common/constants/statusConstant.js";
 
 dotenv.config();
-const {
-  USER_DELETED,
-  USER_EXISTS,
-  INVALID_USER,
-  CANNOT_DELETE_USER,
-} = AUTH_RESPONSES;
+const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER } =
+  AUTH_RESPONSES;
 
 const register = async (req, res, next) => {
   try {
@@ -130,7 +129,7 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-const deleteUser = async (req, res,next) => {
+const deleteUser = async (req, res, next) => {
   try {
     const { userid: id, admin } = req.user;
 
@@ -144,11 +143,10 @@ const deleteUser = async (req, res,next) => {
 
     await deleteUserData(id);
     res
-    .status(SUCCESS_STATUS_CODE.SUCCESS)
-    .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
-  
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
-  next(error)
+    next(error);
   }
 };
 const getUser = async (req, res, next) => {
@@ -171,8 +169,13 @@ const getUser = async (req, res, next) => {
     } else {
       const user = await getUserData(id);
       res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,user));
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(
+          new ResponseHandler(
+            SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+            user
+          )
+        );
     }
   } catch (error) {
     next(error);
@@ -184,15 +187,21 @@ const forgotPassword = async (req, res, next) => {
     const { email } = req.body;
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(otp);
+    const validEmail = await checkEmailExists(email);
+    console.log(validEmail);
+    
+    if (validEmail) {
+      await sendOtpToEmail(email, otp);
 
-    await sendOtpToEmail(email, otp);
+      const hashOtp = await bcrypt.hash(otp, 10);
 
-    const hashOtp = await bcrypt.hash(otp, 10);
-
+      res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
+    }
     res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
+        .status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(ERROR_MESSAGE.EMAIL_NOT_EXISTS));
   } catch (error) {
     next(error);
   }
@@ -203,13 +212,12 @@ const resetPassword = async (req, res, next) => {
     const { email, newPassword } = req.body;
     await updatePassword(email, newPassword);
     res
-    .status(SUCCESS_STATUS_CODE.SUCCESS)
-    .send(new ResponseHandler(SUCCESS_MESSAGE.PASSWORD_UPDATE));
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_MESSAGE.PASSWORD_UPDATE));
   } catch (error) {
     next(error);
   }
 };
-
 
 export default {
   forgotPassword,

@@ -11,6 +11,7 @@ const SUCCESS_STATUS_CODE = {
   SUCCESS: 200,
 };
 const ERROR_MESSAGE = {
+  EMAIL_NOT_EXISTS:"Invalid email",
   MORE_THAN_LIMIT: "Only 4 documents allow to upload",
   ID_ALREADY_EXISTS: "Patient_id already exists",
   CANNOT_DELETE: "Cannot delete the last admin user",
@@ -35,6 +36,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE={
+  ADDED_DOCTOR_INFO_MESSAGE:"Doctor information added successfully",
   OTP_SENT:"OTP is sent to your email",
   USER_DELETED:"This user is deleted, if you want login then signup the user",
   ADD_ADMIN:"Set as a admin successfully",

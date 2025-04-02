@@ -7,6 +7,8 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
+  doctorFlag,
+  createDoctorData,
   ageGroupWiseData,
   deletePatientDetails,
   getInfo,
@@ -157,7 +159,44 @@ const getAdmin = async (req, res, next) => {
   }
 };
 
+
+
+
+const addDoctor = async (req, res,next) => {
+  try {
+    const {
+      body: {
+       name,
+       specialization,
+       contact_number,
+      },
+    } = req;
+
+    const { userid: id,admin:is_admin,email:doctor_email} = req.user;
+    const data = {
+      name,
+       specialization,
+       contact_number,
+       email:doctor_email
+    };
+    console.log(data);
+    
+if(is_admin){
+    const result = await createDoctorData(data, id);
+    if(result){
+ await doctorFlag();
+    }
+    res.status(SUCCESS_STATUS_CODE.CREATED).send(
+      new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE)
+    );
+  }
+  } catch (error) {
+  next(error)
+  }
+};
+
 export default {
+  addDoctor,
   addAdmin,
   removeAdmin,
   getAdmin,

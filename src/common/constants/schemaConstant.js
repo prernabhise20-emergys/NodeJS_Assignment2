@@ -220,6 +220,25 @@ const user_schemas = {
       .optional()
       .error(new Error("disease_type is in string format")),
   }),
+
+ doctorSchema : Joi.object({
+    doctor_id: Joi.number().integer().positive().optional(),
+    name: Joi.string().max(255).required(),
+    specialization: Joi.string().max(100).optional(),
+    contact_number: Joi.string().max(15).optional(),
+    email: Joi.string().email().max(100).optional(),
+    user_id: Joi.number().integer().positive().optional()
+}),
+ appointmentSchema : Joi.object({
+    appointment_id: Joi.number().integer().positive().optional(),
+    appointment_date: Joi.date().required(),
+    appointment_time: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/).required(),
+    status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled').default('Scheduled'),
+    patient_id: Joi.number().integer().positive().required(),
+    doctor_id: Joi.number().integer().positive().required()
+})
+
+
 };
 
 export { user_schemas };

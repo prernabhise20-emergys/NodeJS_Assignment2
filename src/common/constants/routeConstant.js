@@ -32,7 +32,9 @@ const ROUTE_CONSTANTS = {
   RESET_PASSWORD:"/resetPassword",
   DOWNLOAD_DOCUMENT:"/downloadDocument",
   ADMIN:"/api/admin",
-  GET_ADMIN:"/getAdmin"
+  GET_ADMIN:"/getAdmin",
+  DOCTOR:"/api/doctor",
+  ADD_DOCTOR:"/addDoctor"
 };
 
 export default ROUTE_CONSTANTS;

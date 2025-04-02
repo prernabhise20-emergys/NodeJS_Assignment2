@@ -256,6 +256,25 @@ const checkAdminCount = async () => {
     throw error;
   }
 };
+
+const checkEmailExists = async (email) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT id FROM user_register WHERE is_deleted= false and email = ?",email,
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results.length > 0);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 export {
   checkAdminCount,
   displayAdmin,
@@ -268,5 +287,6 @@ export {
   getUserData,
   updateUserData,
   deleteUserData,
-  updatePassword
+  updatePassword,
+  checkEmailExists,
 };
