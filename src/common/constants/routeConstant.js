@@ -40,7 +40,8 @@ const ROUTE_CONSTANTS = {
   GET_DOCTORS:"/getDoctors",
   CREATE_APPOINTMENT:"/bookAppointment",
   GET_TIMESLOT:"/getTimeSlot",
-  DISPLAY_APPOINTMENTS:"/displayAppointments"
+  DISPLAY_APPOINTMENTS:"/displayAppointments",
+  CHANGE_STATUS:"/changeStatus"
 };
 
 export default ROUTE_CONSTANTS;

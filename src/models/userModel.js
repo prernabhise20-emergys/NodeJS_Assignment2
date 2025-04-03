@@ -393,8 +393,12 @@ const checkDoctorAvailability = async (doctor_id, date) => {
   return new Promise((resolve, reject) => {
     db.query(`
     SELECT TIME_FORMAT(appointment_time, '%H:%i') AS appointment_time 
-    FROM appointments 
-    WHERE status = 'Scheduled' AND doctor_id = ? AND DATE(appointment_date) = ?
+FROM appointments 
+WHERE (status = 'Scheduled' OR status = 'Cancelled') 
+  AND doctor_id = ? 
+  AND DATE(appointment_date) = ?
+ORDER BY appointment_time;
+
     `, [doctor_id, date], (error, results) => {
       if (error) {
         return reject(error);

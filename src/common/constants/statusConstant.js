@@ -35,10 +35,14 @@ const ERROR_MESSAGE = {
   FORBIDDEN_MESSAGE:"Unauthorized access",
   DOCUMENT_NOT_FOUND:"Document not found",
   ADMIN_ACCESS:"Only admin add to as doctor",
-  DOCTOR_NOT_FOUND:"Doctor information is not found"
+  DOCTOR_NOT_FOUND:"Doctor information is not found",
+  NOT_CHANGE_STATUS:"Failed to change status",
+  INVALID_INPUT:"Invalid Input"
 };
 
 const SUCCESS_MESSAGE={
+  CHANGE_STATUS:"Appointments status change successfully",
+  SCHEDULED_APPOINTMENTS:"Scheduled appointments is retrived successfully",
   AVAILABLE_SLOT:"Available slot is retrieved successfully",
   APPOINTMENT_BOOKED:"Appointment successfully booked",
   UPDATED_DOCTOR_INFO_MESSAGE:"Doctor details updated successfully",

@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+
 const user_schemas = {
   createUserSchema: Joi.object({
     email: Joi.string()
@@ -236,6 +237,11 @@ const user_schemas = {
     status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled').default('Scheduled'),
     patient_id: Joi.number().integer().positive().required(),
     doctor_id: Joi.number().integer().positive().required()
+}),
+changeStatus:Joi.object({
+  status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled').default('Scheduled').error(
+    new Error("Status are allowed only'Scheduled', 'Completed', 'Cancelled'")
+  ),
 })
 
 
