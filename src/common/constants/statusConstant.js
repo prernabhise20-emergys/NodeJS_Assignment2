@@ -41,6 +41,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE={
+  BOOKED_APPOINTMENTS:"Scheduled appointments data display successfully",
   CHANGE_STATUS:"Appointments status change successfully",
   SCHEDULED_APPOINTMENTS:"Scheduled appointments is retrived successfully",
   AVAILABLE_SLOT:"Available slot is retrieved successfully",

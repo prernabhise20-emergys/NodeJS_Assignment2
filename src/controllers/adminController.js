@@ -2,11 +2,14 @@ import {
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
   SUCCESS_STATUS_CODE,
+  ERROR_STATUS_CODE
 } from "../common/constants/statusConstant.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
+  scheduleAppointment,
+  changeStatus,
   deleteDoctorData,
   doctorFlag,
   createDoctorData,
@@ -18,6 +21,7 @@ import {
   checkAdminCount,
   removeAdminAuthority,
   displayAdmin,
+  displayRequest
 } from "../models/adminModel.js";
 const { UNAUTHORIZED_ACCESS, NOT_DELETED } = AUTH_RESPONSES;
 
@@ -214,7 +218,86 @@ const deleteDoctor = async (req, res, next) => {
     next(error);
   }
 };
+
+const changeAppointmentsStatus = async (req, res, next) => {
+  try {
+      const { status, appointment_id } = req.query;
+      const { admin: is_admin } = req.user;
+      if (!status || !appointment_id) {
+          return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+              new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+          );
+      }
+      if (is_admin) {
+          const result = await changeStatus(status, appointment_id);
+
+          if (result.affectedRows > 0) {
+              return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                  new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+              );
+          } else {
+              return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                  new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+              );
+          }
+      }
+  } catch (error) {
+      next(error);
+  }
+};
+
+const approveAppointment= async (req, res, next) => {
+  try {
+      const { appointment_id } = req.query;
+      const { admin: is_admin } = req.user;
+      if (!appointment_id) {
+          return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+              new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+          );
+      }
+      if (is_admin) {
+          const result = await scheduleAppointment(appointment_id);
+
+          if (result.affectedRows > 0) {
+              return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                  new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+              );
+          } else {
+              return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                  new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+              );
+          }
+      }
+  } catch (error) {
+      next(error);
+  }
+};
+
+
+
+const displayAppointmentRequest = async (req, res, next) => {
+  try {
+    const { admin: is_admin } = req.user;
+    if (is_admin) {
+      const user = await displayRequest();
+
+      res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_MESSAGE.GET_ADMIN, user));
+    }
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 export default {
+  displayAppointmentRequest,
+  approveAppointment,
+  changeAppointmentsStatus,
   deleteDoctor,
   addDoctor,
   addAdmin,

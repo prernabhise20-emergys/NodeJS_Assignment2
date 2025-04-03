@@ -7,7 +7,6 @@ import {
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
-    changeStatus,
     showAppointments,
     updateDoctorData
 } from "../models/doctorModel.js";
@@ -68,57 +67,48 @@ const displayAppointments = async (req, res, next) => {
         next(error)
     }
 }
-const changeAppointmentsStatus = async (req, res, next) => {
+// const changeAppointmentsStatus = async (req, res, next) => {
+//     try {
+//         const { status, appointment_id } = req.query;
+//         const { admin: is_admin } = req.user;
+//         if (!status || !appointment_id) {
+//             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//                 new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+//             );
+//         }
+//         console.log(req.query);
+//         if (is_admin) {
+//             const result = await changeStatus(status, appointment_id);
+
+//             if (result.affectedRows > 0) {
+//                 return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//                     new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+//                 );
+//             } else {
+//                 return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//                     new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+//                 );
+//             }
+//         }
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
+const displayScheduledAppointments = async (req, res, next) => {
     try {
-        const { status, appointment_id } = req.query;
-const {admin:is_admin,doctor:is_doctor}=req.user;
-        if (!status || !appointment_id) {
-            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-                new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
-            );
-        }
-        console.log(req.query);
-if(is_admin||is_doctor){
-        const result = await changeStatus(status, appointment_id);
-
-        if (result.affectedRows > 0) {
-            return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
-            );
-        } else {
-            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-                new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
-            );
-        }
+        const { doctor_id } = req.query;
+       const data= await showScheduledAppointments(doctor_id);
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_MESSAGE.BOOKED_APPOINTMENTS,data)
+        );
     }
-    } catch (error) {
-        next(error);
+    catch (error) {
+        next(error)
     }
-};
-
-
-
-
-// const changeAppointmentsStatus=async(req,res,next)=>{
-//     try{
-// const {status,appointment_id}=req.query;
-// console.log(req.query);
-
-// await changeStatus(status,appointment_id)
-//  res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//     new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
-// );
-
-// res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-//     new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
-// );
-//     }
-//     catch(error){
-//         next(error)
-//     }
-// }
+}
 export default {
-    changeAppointmentsStatus,
+    displayScheduledAppointments,
     updateDoctor,
     displayAppointments
 }

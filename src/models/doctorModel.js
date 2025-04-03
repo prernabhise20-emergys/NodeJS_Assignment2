@@ -44,27 +44,29 @@ const showAppointments = async (doctor_id) => {
   }
 }
 
-const changeStatus = async (status, appointment_id) => {
-  try {
-      console.log(status, appointment_id);
-      return new Promise((resolve, reject) => {
-          db.query(
-              `UPDATE appointments SET status = ? WHERE appointment_id = ?`,
-              [status, appointment_id],
-              (error, result) => {
-                  if (error) {
-                      return reject(error);
-                  }
-                  resolve(result);
+const showScheduledAppointments=async(doctor_id)=>{
+  try{
+    console.log(doctor_id);
+    
+    return new Promise((resolve, reject) => {
+      db.query(
+          `select appointment_date,appointment_time from appointments where status='Scheduled' and doctor_id=?`,
+          doctor_id,
+          (error, result) => {
+              if (error) {
+                  return reject(error);
               }
-          );
-      });
-  } catch (error) {
-      throw error;
+              resolve(result);
+          }
+      );
+  });
   }
-};
+  catch(error){
+    throw error;
+  }
+}
 export  {
-  changeStatus, 
+  showScheduledAppointments,
   updateDoctorData,
   showAppointments
 }

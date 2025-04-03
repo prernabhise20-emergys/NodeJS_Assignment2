@@ -242,10 +242,10 @@ const getDoctors = async (req, res, next) => {
 
     const personalInfo = await getDoctorInfo();
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,personalInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
@@ -260,16 +260,16 @@ const createAppointment = async (req, res, next) => {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_MESSAGE.BOOK_SLOT)
       );
-    
+
     }
 
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED,{appointment_id:result.insertId})
+      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
     );
-  
+
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };
 
@@ -277,13 +277,17 @@ const getDoctorAvailability = async (req, res, next) => {
   const { doctor_id, date } = req.query;
 
   try {
-    const availableSlots = await checkDoctorAvailability(doctor_id, date);
+    const availableTime = await checkDoctorAvailability(doctor_id, date);
+    const startTime = new Date(availableTime[0]).toLocaleTimeString();
+    const endTime = new Date(availableTime[1]).toLocaleTimeString();
+
+
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT,{availableSlots})
+      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, { startTime: startTime, endTime: endTime })
     );
 
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };
 export default {

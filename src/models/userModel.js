@@ -134,7 +134,7 @@ const updateUserData = async (formData, id) => {
     return new Promise((resolve, reject) => {
       db.query(
         "UPDATE user_register set first_name=?, last_name=?, mobile_number=? WHERE id = ?",
-        [ first_name, last_name,mobile_number, id],
+        [first_name, last_name, mobile_number, id],
         (error, result) => {
           if (error) {
             return reject(error);
@@ -175,7 +175,7 @@ const updatePassword = async (email, newPassword) => {
 
 // ************************************************************
 const deleteUserData = async (userId) => {
-  
+
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
@@ -261,7 +261,7 @@ const checkEmailExists = async (email) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT id FROM user_register WHERE is_deleted= false and email = ?",email,
+        "SELECT id FROM user_register WHERE is_deleted= false and email = ?", email,
         (error, results) => {
           if (error) {
             return reject(error);
@@ -282,7 +282,7 @@ const getName = async (email) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT first_name FROM user_register WHERE is_deleted= false and email = ?",email,
+        "SELECT first_name FROM user_register WHERE is_deleted= false and email = ?", email,
         (error, results) => {
           if (error) {
             return reject(error);
@@ -291,7 +291,7 @@ const getName = async (email) => {
         }
       );
     });
-    
+
     return data;
   } catch (error) {
     throw error;
@@ -319,7 +319,6 @@ const DoctorLogin = async (email) => {
   }
 };
 
-
 const getDoctorInfo = async () => {
   try {
     return new Promise((resolve, reject) => {
@@ -336,87 +335,54 @@ const getDoctorInfo = async () => {
   }
 };
 
-
-
-const isDoctorAvailable = (doctor_id, date, time) => {  
+const isDoctorAvailable = (doctor_id, date, time) => {
   return new Promise((resolve, reject) => {
-    db.query( `SELECT COUNT(*) AS count
+    db.query(`SELECT COUNT(*) AS count
     FROM appointments
     WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ?`,
-     [doctor_id, date, time], (error, results) => {
-      if (error) {
-        return reject(error);
-      }
-      const count = results[0].count;
-      resolve(count === 0); 
-    });
+      [doctor_id, date, time], (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        const count = results[0].count;
+        resolve(count === 0);
+      });
   });
 };
 
-
 const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
-  
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
     VALUES (?, ?, ?, ?)`,
-     [date, time, patient_id, doctor_id], (error, result) => {
-      if (error) {
-        return reject(error);
-      }
-      resolve(result); 
-    });
+      [date, time, patient_id, doctor_id], (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      });
   });
-};
-
-
-const generateTimeSlots = (startTime, endTime) => {
-  let slots = [];
-  let currentTime = new Date(startTime);
-
-  while (currentTime < endTime) {
-    let hour = currentTime.getHours().toString().padStart(2, '0');
-    let minute = currentTime.getMinutes().toString().padStart(2, '0');
-    slots.push(`${hour}:${minute}`);
-    currentTime.setMinutes(currentTime.getMinutes() + 30); 
-  }
-
-  return slots;
 };
 
 const checkDoctorAvailability = async (doctor_id, date) => {
-  
-  const startTime = new Date(`${date}T10:00:00`); 
-  const endTime = new Date(`${date}T16:00:00`); 
 
-  const allSlots = generateTimeSlots(startTime, endTime);
+  const startTime = new Date(`${date}T10:00:00`);
+  const endTime = new Date(`${date}T16:00:00`);
+  const arr = [startTime, endTime]
 
   return new Promise((resolve, reject) => {
     db.query(`
-    SELECT TIME_FORMAT(appointment_time, '%H:%i') AS appointment_time 
-FROM appointments 
-WHERE (status = 'Scheduled' OR status = 'Cancelled') 
-  AND doctor_id = ? 
-  AND DATE(appointment_date) = ?
-ORDER BY appointment_time;
-
-    `, [doctor_id, date], (error, results) => {
+   select doctor_id from doctors where is_deleted=false and  doctor_id=?
+    `, doctor_id, (error, results) => {
       if (error) {
         return reject(error);
       }
-
-      const bookedSlots = results.map(result => result.appointment_time);
-
-      const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
-
-      resolve(availableSlots); 
+      resolve(arr);
     });
   });
-};  
-
+};
 
 export {
   checkDoctorAvailability,
-  generateTimeSlots,
   createDoctorAppointment,
   isDoctorAvailable,
   getDoctorInfo,

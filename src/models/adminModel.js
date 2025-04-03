@@ -308,7 +308,73 @@ const deleteDoctorData = async (doctor_id) => {
     throw error;
   }
 };
+
+
+const changeStatus = async (status, appointment_id) => {
+  try {
+      return new Promise((resolve, reject) => {
+          db.query(
+              `UPDATE appointments SET status = ? WHERE appointment_id = ?`,
+              [status, appointment_id],
+              (error, result) => {
+                  if (error) {
+                      return reject(error);
+                  }
+                  resolve(result);
+              }
+          );
+      });
+  } catch (error) {
+      throw error;
+  }
+};
+
+
+const scheduleAppointment = async ( appointment_id) => {
+  try {
+      return new Promise((resolve, reject) => {
+          db.query(
+              `UPDATE appointments SET status ='Scheduled' WHERE appointment_id = ?`,
+               appointment_id,
+              (error, result) => {
+                  if (error) {
+                      return reject(error);
+                  }
+                  resolve(result);
+              }
+          );
+      });
+  } catch (error) {
+      throw error;
+  }
+};
+
+const displayRequest = async () => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        `select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
+      from appointments a join personal_info p 
+      on(a.patient_id=p.patient_id)
+      join disease d
+      on(d.patient_id=p.patient_id)
+      where p.is_deleted=false and a.status='Pending'`,
+        (error, result) => {
+          if (error) return reject(error);
+
+          return resolve(result);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 export {
+  displayRequest,
+  scheduleAppointment,
+  changeStatus,
   deleteDoctorData,
   doctorFlag,
   createDoctorData,

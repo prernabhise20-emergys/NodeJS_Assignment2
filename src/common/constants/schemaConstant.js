@@ -239,8 +239,8 @@ const user_schemas = {
     doctor_id: Joi.number().integer().positive().required()
 }),
 changeStatus:Joi.object({
-  status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled').default('Scheduled').error(
-    new Error("Status are allowed only'Scheduled', 'Completed', 'Cancelled'")
+  status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled','Pending').default('Pending').error(
+    new Error("Status are allowed only'Scheduled', 'Completed', 'Cancelled','Pending")
   ),
 })
 
