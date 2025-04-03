@@ -1,4 +1,5 @@
 import {
+  ERROR_STATUS_CODE,
   SUCCESS_MESSAGE,
   SUCCESS_STATUS_CODE,
 } from "../common/constants/statusConstant.js";
@@ -541,19 +542,17 @@ const createAppointment = async (req, res, next) => {
     const isAvailable = await isDoctorAvailable(doctor_id, date, time);
 
     if (!isAvailable) {
-      return res.status(400).json({
-        success: false,
-        message: "The selected time slot is already booked. Please choose another time.",
-      });
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.BOOK_SLOT,{success:flase})
+      );
+    
     }
 
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
-
-    res.status(201).json({
-      success: true,
-      message: "Appointment successfully created.",
-      appointment_id: result.insertId 
-    });
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED,{success:true,appointment_id:result.insertId})
+    );
+  
   } catch (error) {
     next(error); 
   }
@@ -564,11 +563,10 @@ const getDoctorAvailability = async (req, res, next) => {
 
   try {
     const availableSlots = await checkDoctorAvailability(doctor_id, date);
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT,{success:true,availableSlots})
+    );
 
-    res.status(200).json({
-      success: true,
-      availableSlots,
-    });
   } catch (error) {
     next(error); 
   }

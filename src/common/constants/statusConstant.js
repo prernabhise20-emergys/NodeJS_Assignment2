@@ -11,6 +11,7 @@ const SUCCESS_STATUS_CODE = {
   SUCCESS: 200,
 };
 const ERROR_MESSAGE = {
+  BOOK_SLOT:"The selected time slot is already booked. Please choose another time.",
   EMAIL_NOT_EXISTS:"Email is not found",
   MORE_THAN_LIMIT: "Only 4 documents allow to upload",
   ID_ALREADY_EXISTS: "Patient_id already exists",
@@ -38,6 +39,8 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE={
+  AVAILABLE_SLOT:"Available slot is retrieved successfully",
+  APPOINTMENT_BOOKED:"Appointment successfully booked",
   UPDATED_DOCTOR_INFO_MESSAGE:"Doctor details updated successfully",
   ADDED_DOCTOR_INFO_MESSAGE:"Doctor information added successfully",
   OTP_SENT:"OTP is sent to your email",

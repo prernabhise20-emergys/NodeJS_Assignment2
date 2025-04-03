@@ -297,7 +297,29 @@ const getName = async (email) => {
     throw error;
   }
 };
+
+const DoctorLogin = async (email) => {
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT * FROM user_register WHERE is_deleted=false and email= ?",
+        [email],
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results);
+        }
+      );
+    });
+
+    return result.length > 0;
+  } catch (error) {
+    throw error;
+  }
+};
 export {
+  DoctorLogin,
   getName,
   checkAdminCount,
   displayAdmin,

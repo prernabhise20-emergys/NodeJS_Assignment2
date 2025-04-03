@@ -630,15 +630,12 @@ const getDoctorInfo = async () => {
 };
 
 
-const isDoctorAvailable = (doctor_id, date, time) => {
-  const query = `
-    SELECT COUNT(*) AS count
-    FROM appointments
-    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ?
-  `;
-  
+const isDoctorAvailable = (doctor_id, date, time) => {  
   return new Promise((resolve, reject) => {
-    db.query(query, [doctor_id, date, time], (error, results) => {
+    db.query( `SELECT COUNT(*) AS count
+    FROM appointments
+    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ?`,
+     [doctor_id, date, time], (error, results) => {
       if (error) {
         return reject(error);
       }
@@ -650,13 +647,11 @@ const isDoctorAvailable = (doctor_id, date, time) => {
 
 
 const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
-  const query = `
-    INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
-    VALUES (?, ?, ?, ?)
-  `;
   
   return new Promise((resolve, reject) => {
-    db.query(query, [date, time, patient_id, doctor_id], (error, result) => {
+    db.query(`INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
+    VALUES (?, ?, ?, ?)`,
+     [date, time, patient_id, doctor_id], (error, result) => {
       if (error) {
         return reject(error);
       }
@@ -681,18 +676,18 @@ const generateTimeSlots = (startTime, endTime) => {
 };
 
 const checkDoctorAvailability = async (doctor_id, date) => {
+  
   const startTime = new Date(`${date}T10:00:00`); 
   const endTime = new Date(`${date}T19:00:00`); 
 
   const allSlots = generateTimeSlots(startTime, endTime);
 
-  const query = `
+  return new Promise((resolve, reject) => {
+    db.query(`
     SELECT appointment_time 
     FROM appointments 
     WHERE doctor_id = ? AND DATE(appointment_date) = ?
-  `;
-  return new Promise((resolve, reject) => {
-    db.query(query, [doctor_id, date], (error, results) => {
+  `, [doctor_id, date], (error, results) => {
       if (error) {
         return reject(error);
       }

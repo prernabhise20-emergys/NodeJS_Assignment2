@@ -7,6 +7,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 
 import {
+  DoctorLogin,
   getName,
   checkEmailExists,
   checkAlreadyExist,
@@ -66,6 +67,8 @@ const login = async (req, res, next) => {
     if (check1) {
       throw USER_DELETED;
     }
+const doctorLogin=await DoctorLogin(email)
+console.log("doctor",doctorLogin);
 
     const user = await loginUser(email);
 
@@ -85,6 +88,7 @@ const login = async (req, res, next) => {
         email: user.email,
         user_password: user.user_password,
         admin: user.is_admin,
+        doctor:user.is_doctor
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h" }
@@ -96,7 +100,16 @@ const login = async (req, res, next) => {
         admin_message: user.is_admin,
         token,
       });
-    } else {
+    } 
+    else 
+    if (user.is_doctor) {
+      res.json({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        doctor_message: user.is_doctor,
+        token,
+      });
+    } 
+    else {
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
