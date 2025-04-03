@@ -318,7 +318,104 @@ const DoctorLogin = async (email) => {
     throw error;
   }
 };
+
+
+const getDoctorInfo = async () => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT name, specialization, contact_number from doctors where is_deleted=false`,
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+const isDoctorAvailable = (doctor_id, date, time) => {  
+  return new Promise((resolve, reject) => {
+    db.query( `SELECT COUNT(*) AS count
+    FROM appointments
+    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ?`,
+     [doctor_id, date, time], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+      const count = results[0].count;
+      resolve(count === 0); 
+    });
+  });
+};
+
+
+const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
+  
+  return new Promise((resolve, reject) => {
+    db.query(`INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
+    VALUES (?, ?, ?, ?)`,
+     [date, time, patient_id, doctor_id], (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(result); 
+    });
+  });
+};
+
+
+const generateTimeSlots = (startTime, endTime) => {
+  let slots = [];
+  let currentTime = new Date(startTime);
+
+  while (currentTime < endTime) {
+    let hour = currentTime.getHours().toString().padStart(2, '0');
+    let minute = currentTime.getMinutes().toString().padStart(2, '0');
+    slots.push(`${hour}:${minute}`);
+    currentTime.setMinutes(currentTime.getMinutes() + 30); 
+  }
+
+  return slots;
+};
+
+const checkDoctorAvailability = async (doctor_id, date) => {
+  
+  const startTime = new Date(`${date}T10:00:00`); 
+  const endTime = new Date(`${date}T16:00:00`); 
+
+  const allSlots = generateTimeSlots(startTime, endTime);
+
+  return new Promise((resolve, reject) => {
+    db.query(`
+    SELECT TIME_FORMAT(appointment_time, '%H:%i') AS appointment_time 
+    FROM appointments 
+    WHERE status = 'Scheduled' AND doctor_id = ? AND DATE(appointment_date) = ?
+    `, [doctor_id, date], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+
+      const bookedSlots = results.map(result => result.appointment_time);
+
+      const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+
+      resolve(availableSlots); 
+    });
+  });
+};  
+
+
 export {
+  checkDoctorAvailability,
+  generateTimeSlots,
+  createDoctorAppointment,
+  isDoctorAvailable,
+  getDoctorInfo,
   DoctorLogin,
   getName,
   checkAdminCount,

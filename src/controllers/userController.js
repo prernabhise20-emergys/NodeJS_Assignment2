@@ -7,6 +7,10 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 
 import {
+  createDoctorAppointment,
+  isDoctorAvailable,
+  checkDoctorAvailability,
+  getDoctorInfo,
   DoctorLogin,
   getName,
   checkEmailExists,
@@ -233,7 +237,59 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+const getDoctors = async (req, res, next) => {
+  try {
+
+    const personalInfo = await getDoctorInfo();
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,personalInfo)
+    );
+  } catch (error) {
+   next(error)
+  }
+};
+
+
+const createAppointment = async (req, res, next) => {
+  const { patient_id, doctor_id, date, time } = req.body;
+
+  try {
+    const isAvailable = await isDoctorAvailable(doctor_id, date, time);
+
+    if (!isAvailable) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.BOOK_SLOT)
+      );
+    
+    }
+
+    const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED,{appointment_id:result.insertId})
+    );
+  
+  } catch (error) {
+    next(error); 
+  }
+};
+
+const getDoctorAvailability = async (req, res, next) => {
+  const { doctor_id, date } = req.query;
+
+  try {
+    const availableSlots = await checkDoctorAvailability(doctor_id, date);
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT,{availableSlots})
+    );
+
+  } catch (error) {
+    next(error); 
+  }
+};
 export default {
+  createAppointment,
+  getDoctorAvailability,
+  getDoctors,
   forgotPassword,
   resetPassword,
   register,

@@ -286,26 +286,6 @@ const doctorFlag = async () => {
     throw error;
   }
 };
-const updateDoctorData = async (data,doctor_id) => {
-  try {
-    const updateData = {
-      ...data,
-    };
-
-    console.log('Update data:', updateData);
-
-    return new Promise((resolve, reject) => {
-      db.query("UPDATE doctors SET ? WHERE doctor_id = ?", [updateData, doctor_id], (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        return resolve(result);
-      });
-    });
-  } catch (error) {
-    throw error;
-  }
-};
 
 const deleteDoctorData = async (doctor_id) => {
   
@@ -330,7 +310,6 @@ const deleteDoctorData = async (doctor_id) => {
 };
 export {
   deleteDoctorData,
-  updateDoctorData,
   doctorFlag,
   createDoctorData,
   getInfo,

@@ -2,16 +2,13 @@ import {
   ERROR_STATUS_CODE,
   SUCCESS_MESSAGE,
   SUCCESS_STATUS_CODE,
+  ERROR_MESSAGE
 } from "../common/constants/statusConstant.js";
 import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
-  checkDoctorAvailability,
-  createDoctorAppointment,
-  isDoctorAvailable,
-  getDoctorInfo,
   getDocumentByPatientIdAndType,
   checkNumberOfDocument,
   checkUserWithPatientID,
@@ -522,59 +519,8 @@ const downloadDocument = async (req, res,next) => {
   }
 };
 
-const getDoctors = async (req, res, next) => {
-  try {
 
-    const personalInfo = await getDoctorInfo();
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,personalInfo)
-    );
-  } catch (error) {
-   next(error)
-  }
-};
-
-
-const createAppointment = async (req, res, next) => {
-  const { patient_id, doctor_id, date, time } = req.body;
-
-  try {
-    const isAvailable = await isDoctorAvailable(doctor_id, date, time);
-
-    if (!isAvailable) {
-      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_MESSAGE.BOOK_SLOT,{success:flase})
-      );
-    
-    }
-
-    const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED,{success:true,appointment_id:result.insertId})
-    );
-  
-  } catch (error) {
-    next(error); 
-  }
-};
-
-const getDoctorAvailability = async (req, res, next) => {
-  const { doctor_id, date } = req.query;
-
-  try {
-    const availableSlots = await checkDoctorAvailability(doctor_id, date);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT,{success:true,availableSlots})
-    );
-
-  } catch (error) {
-    next(error); 
-  }
-};
 export default {
-  getDoctorAvailability,
-  createAppointment,
-  getDoctors,
 downloadDocument,
   getUploadDocument,
   getPersonalDetails,
