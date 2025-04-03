@@ -67,7 +67,7 @@ const login = async (req, res, next) => {
     if (check1) {
       throw USER_DELETED;
     }
-await DoctorLogin(email)
+    await DoctorLogin(email)
 
     const user = await loginUser(email);
 
@@ -87,7 +87,7 @@ await DoctorLogin(email)
         email: user.email,
         user_password: user.user_password,
         admin: user.is_admin,
-        doctor:user.is_doctor
+        doctor: user.is_doctor
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h" }
@@ -99,21 +99,21 @@ await DoctorLogin(email)
         admin_message: user.is_admin,
         token,
       });
-    } 
-    else 
-    if (user.is_doctor) {
-      res.json({
-        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-        doctor_message: user.is_doctor,
-        token,
-      });
-    } 
-    else {
-      res.json({
-        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-        token,
-      });
     }
+    else
+      if (user.is_doctor) {
+        res.json({
+          message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+          doctor_message: user.is_doctor,
+          token,
+        });
+      }
+      else {
+        res.json({
+          message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+          token,
+        });
+      }
   } catch (error) {
     next(error);
   }
@@ -201,10 +201,10 @@ const forgotPassword = async (req, res, next) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const validEmail = await checkEmailExists(email);
-    
+
     if (validEmail) {
-     const first_name= await getName(email)
-     
+      const first_name = await getName(email)
+
       // await sendOtpToEmail(email,name, otp);
 
       const hashOtp = await bcrypt.hash(otp, 10);
@@ -214,8 +214,8 @@ const forgotPassword = async (req, res, next) => {
         .send(new ResponseHandler(SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
     }
     res
-        .status(ERROR_STATUS_CODE.BAD_REQUEST)
-        .send(new ResponseHandler(ERROR_MESSAGE.EMAIL_NOT_EXISTS));
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_MESSAGE.EMAIL_NOT_EXISTS));
   } catch (error) {
     next(error);
   }
