@@ -165,7 +165,8 @@ const createPersonalDetails = async (data, userId, email) => {
       blood_pressure: blood_pressure,
       country_of_origin: country_of_origin,
       created_by: email,
-      updated_by: email,    
+      updated_by: email,  
+      user_id:userId,  
       ...data
     };
 

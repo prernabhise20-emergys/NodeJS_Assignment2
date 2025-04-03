@@ -7,6 +7,7 @@ import {
   import { ResponseHandler } from "../common/utility/handlers.js";
   
   import {
+    showAppointments,
     updateDoctorData
   } from "../models/doctorModel.js";
 
@@ -50,6 +51,17 @@ const updateDoctor = async (req, res, next) => {
     }
   };
   
+  const displayAppointments =async(req,res,next)=>{
+    try{
+const {doctor_id}=req.query;
+
+await showAppointments(doctor_id);
+    }
+    catch(error){
+        next(error)
+    }
+  }
   export default {
-    updateDoctor
+    updateDoctor,
+    displayAppointments
   }

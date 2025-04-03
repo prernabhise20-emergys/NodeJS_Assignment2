@@ -87,6 +87,7 @@ const createPersonalInfo = async (req, res,next) => {
         is_diabetic,
         cardiac_issue,
         blood_pressure,
+        patient_id
       },
     } = req;
 
@@ -101,6 +102,7 @@ const createPersonalInfo = async (req, res,next) => {
       is_diabetic,
       cardiac_issue,
       blood_pressure,
+      patient_id
     };
 
     const result = await createPersonalDetails(data, id, email);
