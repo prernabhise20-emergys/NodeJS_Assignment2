@@ -67,8 +67,7 @@ const login = async (req, res, next) => {
     if (check1) {
       throw USER_DELETED;
     }
-const doctorLogin=await DoctorLogin(email)
-console.log("doctor",doctorLogin);
+await DoctorLogin(email)
 
     const user = await loginUser(email);
 
@@ -110,11 +109,10 @@ console.log("doctor",doctorLogin);
       });
     } 
     else {
-      res
-        .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(
-          new ResponseHandler(SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE, {token:token})
-        );
+      res.json({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        token,
+      });
     }
   } catch (error) {
     next(error);
