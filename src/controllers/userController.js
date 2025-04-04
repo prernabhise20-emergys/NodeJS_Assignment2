@@ -209,7 +209,7 @@ const forgotPassword = async (req, res, next) => {
     if (validEmail) {
       const first_name = await getName(email)
 
-      // await sendOtpToEmail(email,name, otp);
+      await sendOtpToEmail(email,name, otp);
 
       const hashOtp = await bcrypt.hash(otp, 10);
 
@@ -252,7 +252,7 @@ const getDoctors = async (req, res, next) => {
 
 const createAppointment = async (req, res, next) => {
   const { patient_id, doctor_id, date, time } = req.body;
-
+const {email}=req.user;
   try {
     const isAvailable = await isDoctorAvailable(doctor_id, date, time);
 

@@ -6,8 +6,11 @@ import {
 } from "../common/constants/statusConstant.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
+import approveRequest from "../common/utility/approveAppointment.js"
+
 
 import {
+  getPatientData,
   scheduleAppointment,
   changeStatus,
   deleteDoctorData,
@@ -178,8 +181,8 @@ const addDoctor = async (req, res, next) => {
       },
     } = req;
 
-    const { userid:user_id, admin: is_admin } = req.user;
-    
+    const { userid: user_id, admin: is_admin } = req.user;
+
     const data = {
       name,
       specialization,
@@ -221,55 +224,63 @@ const deleteDoctor = async (req, res, next) => {
 
 const changeAppointmentsStatus = async (req, res, next) => {
   try {
-      const { status, appointment_id } = req.query;
-      const { admin: is_admin } = req.user;
-      if (!status || !appointment_id) {
-          return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-              new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
-          );
-      }
-      if (is_admin) {
-          const result = await changeStatus(status, appointment_id);
+    const { status, appointment_id } = req.query;
+    const { admin: is_admin } = req.user;
+    if (!status || !appointment_id) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+      );
+    }
+    if (is_admin) {
+      const result = await changeStatus(status, appointment_id);
 
-          if (result.affectedRows > 0) {
-              return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                  new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
-              );
-          } else {
-              return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-                  new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
-              );
-          }
+      if (result.affectedRows > 0) {
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+          new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+        );
+      } else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        );
       }
+    }
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
-const approveAppointment= async (req, res, next) => {
+const approveAppointment = async (req, res, next) => {
   try {
-      const { appointment_id } = req.query;
-      const { admin: is_admin } = req.user;
-      if (!appointment_id) {
-          return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-              new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
-          );
-      }
-      if (is_admin) {
-          const result = await scheduleAppointment(appointment_id);
+    const { appointment_id } = req.query;
+    const { admin: is_admin, email } = req.user;
+    if (!appointment_id) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+      );
+    }
+    if (is_admin) {
+      const result = await scheduleAppointment(appointment_id);
+      const data = await getPatientData(appointment_id)
 
-          if (result.affectedRows > 0) {
-              return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                  new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
-              );
-          } else {
-              return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-                  new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
-              );
-          }
+      const patientName = data[0].patient_name;
+      const appointmentDate = data[0].appointment_date;
+      const appointmentTime = data[0].appointment_time;
+      const doctorName = data[0].name;
+
+      if (result) {
+        await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName)
+
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+          new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+        );
+      } else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        );
       }
+    }
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
