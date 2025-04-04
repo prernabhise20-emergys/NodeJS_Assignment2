@@ -37,7 +37,9 @@ const ERROR_MESSAGE = {
   ADMIN_ACCESS:"Only admin add to as doctor",
   DOCTOR_NOT_FOUND:"Doctor information is not found",
   NOT_CHANGE_STATUS:"Failed to change status",
-  INVALID_INPUT:"Invalid Input"
+  INVALID_INPUT:"Invalid Input",
+  NOT_AVAILABLE:"Time slot is not available"
+
 };
 
 const SUCCESS_MESSAGE={
@@ -75,7 +77,7 @@ const SUCCESS_MESSAGE={
   DOCUMENT_DELETE_SUCCESSFULLY: "Document deleted successfully",
   GET_ADMIN:"Admin are retrieve successfully",
   ADMIN_ACCESS:"Only admin can access",
-  PASSWORD_UPDATE:"Password is updated successfully"
+  PASSWORD_UPDATE:"Password is updated successfully",
 };
 export {
   ERROR_STATUS_CODE,

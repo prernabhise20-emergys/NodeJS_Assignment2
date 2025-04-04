@@ -43,6 +43,6 @@ router.put(RESET_PASSWORD, userController.resetPassword);
 router.get(GET_DOCTORS,authenticateUser,userController.getDoctors)
 
 router.post(CREATE_APPOINTMENT,authenticateUser,userController.createAppointment)
-router.get(GET_TIMESLOT,authenticateUser,userController.getDoctorAvailability)
+// router.get(GET_TIMESLOT,authenticateUser,userController.getDoctorAvailability)
 
 export default router;

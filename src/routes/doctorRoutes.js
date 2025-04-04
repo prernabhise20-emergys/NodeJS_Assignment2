@@ -14,5 +14,6 @@ const {
 
 router.put(UPDATE_DOCTOR,authenticateUser,doctorController.updateDoctor)
 router.get(DISPLAY_APPOINTMENTS,authenticateUser,doctorController.displayAppointments)
-router.get(SHOW_BOOKED_SLOT,authenticateUser,doctorController.displayScheduledAppointments)
+// router.get(SHOW_BOOKED_SLOT,authenticateUser,doctorController.displayScheduledAppointments)
+
 export default router;

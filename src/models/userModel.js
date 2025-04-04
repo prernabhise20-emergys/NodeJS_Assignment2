@@ -363,26 +363,7 @@ const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
   });
 };
 
-const checkDoctorAvailability = async (doctor_id, date) => {
-
-  const startTime = new Date(`${date}T10:00:00`);
-  const endTime = new Date(`${date}T16:00:00`);
-  const arr = [startTime, endTime]
-
-  return new Promise((resolve, reject) => {
-    db.query(`
-   select doctor_id from doctors where is_deleted=false and  doctor_id=?
-    `, doctor_id, (error, results) => {
-      if (error) {
-        return reject(error);
-      }
-      resolve(arr);
-    });
-  });
-};
-
 export {
-  checkDoctorAvailability,
   createDoctorAppointment,
   isDoctorAvailable,
   getDoctorInfo,

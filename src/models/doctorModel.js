@@ -44,29 +44,7 @@ const showAppointments = async (doctor_id) => {
   }
 }
 
-const showScheduledAppointments=async(doctor_id)=>{
-  try{
-    console.log(doctor_id);
-    
-    return new Promise((resolve, reject) => {
-      db.query(
-          `select appointment_date,appointment_time from appointments where status='Scheduled' and doctor_id=?`,
-          doctor_id,
-          (error, result) => {
-              if (error) {
-                  return reject(error);
-              }
-              resolve(result);
-          }
-      );
-  });
-  }
-  catch(error){
-    throw error;
-  }
-}
 export  {
-  showScheduledAppointments,
   updateDoctorData,
   showAppointments
 }

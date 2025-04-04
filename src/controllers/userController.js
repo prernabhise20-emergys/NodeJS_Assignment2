@@ -9,7 +9,6 @@ import sendOtpToEmail from "../common/utility/otpMail.js";
 import {
   createDoctorAppointment,
   isDoctorAvailable,
-  checkDoctorAvailability,
   getDoctorInfo,
   DoctorLogin,
   getName,
@@ -273,26 +272,8 @@ const {email}=req.user;
   }
 };
 
-const getDoctorAvailability = async (req, res, next) => {
-  const { doctor_id, date } = req.query;
-
-  try {
-    const availableTime = await checkDoctorAvailability(doctor_id, date);
-    const startTime = new Date(availableTime[0]).toLocaleTimeString();
-    const endTime = new Date(availableTime[1]).toLocaleTimeString();
-
-
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, { startTime: startTime, endTime: endTime })
-    );
-
-  } catch (error) {
-    next(error);
-  }
-};
 export default {
   createAppointment,
-  getDoctorAvailability,
   getDoctors,
   forgotPassword,
   resetPassword,

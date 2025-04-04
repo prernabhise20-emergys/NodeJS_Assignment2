@@ -7,7 +7,6 @@ import {
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
-    showScheduledAppointments,
     showAppointments,
     updateDoctorData
 } from "../models/doctorModel.js";
@@ -68,20 +67,8 @@ const displayAppointments = async (req, res, next) => {
         next(error)
     }
 }
-const displayScheduledAppointments = async (req, res, next) => {
-    try {
-        const { doctor_id } = req.query;
-       const data= await showScheduledAppointments(doctor_id);
-        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_MESSAGE.BOOKED_APPOINTMENTS,data)
-        );
-    }
-    catch (error) {
-        next(error)
-    }
-}
+
 export default {
-    displayScheduledAppointments,
     updateDoctor,
     displayAppointments
 }

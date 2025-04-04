@@ -372,7 +372,7 @@ const displayRequest = async () => {
   }
 };
 
-const getPatientData = async (appointment_id) => {
+const getPatientData = async (appointment_id,date) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
@@ -381,12 +381,13 @@ const getPatientData = async (appointment_id) => {
         on(p.patient_id=a.patient_id)
         join doctors d
         on(a.doctor_id=d.doctor_id)
-        where appointment_id=?`,
-        appointment_id,
+        where d.doctor_id=? and a.appointment_date=?`,
+        [appointment_id,date],
         (error, result) => {
           if (error) {
             return reject(error);
           }
+          
           return resolve(result);
         }
       );
@@ -396,7 +397,37 @@ const getPatientData = async (appointment_id) => {
   }
 };
 
+
+const checkDoctorAvailability = async (doctor_id, date) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `
+      SELECT 
+        d.doctorInTime, 
+        d.doctorOutTime, 
+        a.appointment_date, 
+        a.appointment_time 
+      FROM appointments a
+      JOIN doctors d
+        ON a.doctor_id = d.doctor_id
+      WHERE d.is_deleted=false and
+        a.status = 'Scheduled' 
+        AND d.doctor_id = ? 
+        AND a.appointment_date = ?
+      `,
+      [doctor_id, date],
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+};
+
 export {
+  checkDoctorAvailability,
   getPatientData,
   displayRequest,
   scheduleAppointment,
