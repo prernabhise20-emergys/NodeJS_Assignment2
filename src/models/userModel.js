@@ -276,25 +276,27 @@ const checkEmailExists = async (email) => {
   }
 };
 
-
-
 const getName = async (email) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT first_name FROM user_register WHERE is_deleted= false and email = ?", email,
+        "SELECT first_name FROM user_register WHERE is_deleted = false AND email = ?", [email],
         (error, results) => {
           if (error) {
             return reject(error);
           }
-          resolve(results);
+          if (results.length > 0) {
+            resolve(results[0].first_name); 
+          } else {
+            reject(new Error('User not found'));
+          }
         }
       );
     });
 
-    return data;
+    return data; 
   } catch (error) {
-    throw error;
+    throw error; 
   }
 };
 

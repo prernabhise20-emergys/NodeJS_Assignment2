@@ -397,7 +397,6 @@ const getPatientData = async (appointment_id,date) => {
   }
 };
 
-
 const checkDoctorAvailability = async (doctor_id, date) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -410,8 +409,8 @@ const checkDoctorAvailability = async (doctor_id, date) => {
       FROM appointments a
       JOIN doctors d
         ON a.doctor_id = d.doctor_id
-      WHERE d.is_deleted=false and
-        a.status = 'Scheduled' 
+      WHERE d.is_deleted = false
+        AND a.status = 'Scheduled' 
         AND d.doctor_id = ? 
         AND a.appointment_date = ?
       `,

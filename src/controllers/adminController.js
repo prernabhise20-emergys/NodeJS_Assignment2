@@ -306,59 +306,44 @@ const displayAppointmentRequest = async (req, res, next) => {
     next(error);
   }
 };
+
 const getDoctorAvailability = async (req, res, next) => {
   try {
     const { doctor_id, date } = req.query;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
-    if (availableTimes.length === 0) {
-      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
-        new ResponseHandler(ERROR_MESSAGE.NOT_AVAILABLE)
-      );
-    }
-console.log(availableTimes);
-
     const doctorInTime = availableTimes[0].doctorInTime;
-const doctorOutTime = availableTimes[0].doctorOutTime;
+    const doctorOutTime = availableTimes[0].doctorOutTime;
 
-const appointmentDate = new Date(availableTimes[0].appointment_date).toLocaleDateString(); 
-const appointmentTime = new Date(availableTimes[0].appointment_time).toLocaleTimeString(); 
+    const bookedSlots = availableTimes.map((timeSlot) => {
+      
+      const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
+      
+      if (appointmentTime instanceof Date && !isNaN(appointmentTime)) {
+        return {
+          bookedTimeSlot: timeSlot.appointment_time
+        };
+      } else {
+        return {
+          formattedTime: 'Invalid Time', 
+          fetchedTime: timeSlot.appointment_time 
+        };
+      }
+    });
 
-res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-  new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
-    doctorInTime,
-    doctorOutTime,
-    appointmentDate,
-    appointmentTime, 
-  })
-);
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
+        doctorInTime,
+        doctorOutTime,
+        bookedSlots, 
+      })
+    );
 
   } catch (error) {
     next(error);
   }
 };
-
-
-// const getDoctorAvailability = async (req, res, next) => {
-//   try {
-//     const { doctor_id, date } = req.query;
-//    const availableTime=  checkDoctorAvailability(doctor_id, date);
-
-// console.log(availableTime);
-
-//     const startTime = new Date(availableTime[2]).toLocaleTimeString();
-//     const endTime = new Date(availableTime[3]).toLocaleTimeString();
-
-
-//     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {doctorInTime:doctorInTime,doctorOutTime:doctorOutTime, startTime: startTime, endTime: endTime, })
-//     );
-
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 export default {
   getDoctorAvailability,
