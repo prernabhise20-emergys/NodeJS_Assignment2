@@ -204,22 +204,17 @@ const user_schemas = {
     father_cardiac_issue: Joi.boolean().valid(1,0).optional().error(new Error("father_cardiac_issue is required")),
     father_bp: Joi.boolean().valid(1,0).error(new Error("father_bp is required field")),
   }),
-  createDiseaseInfo: Joi.object({
+  createDiseaseInfo : Joi.object({
     diseaseDetails: Joi.object({
-      patient_id: Joi.number().required(),
-      disease_type: Joi.string().required(),
-      disease_description: Joi.string().required(),
-    }).required(),
+      patient_id: Joi.number().required().error(new Error("patient_id is required")),
+      disease_type: Joi.string().required().error(new Error("disease_type is required")),
+      disease_description: Joi.string().required().error(new Error("disease_description is required"))
+    }).required()
   }),
   updateDiseaseInfo: Joi.object({
     patient_id: Joi.number().required(),
-    disease_type: Joi.string()
-      .optional()
-      .error(new Error("disease_type is in string format")),
-    disease_description: Joi.string()
-      .max(255)
-      .optional()
-      .error(new Error("disease_type is in string format")),
+    disease_type:Joi.string().optional().error(new Error("disease_type is in string format")),
+    disease_description:Joi.string().max(255).optional().error(new Error("disease_type is in string format")),
   }),
 
  doctorSchema : Joi.object({
