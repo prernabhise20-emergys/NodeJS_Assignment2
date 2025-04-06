@@ -206,7 +206,7 @@ const forgotPassword = async (req, res, next) => {
     const validEmail = await checkEmailExists(email);
 
     if (validEmail) {
-      const first_name = await getName(email)
+      const name = await getName(email)
 
       await sendOtpToEmail(email,name, otp);
 
