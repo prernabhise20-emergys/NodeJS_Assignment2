@@ -324,12 +324,7 @@ const getDoctorAvailability = async (req, res, next) => {
         return {
           bookedTimeSlot: timeSlot.appointment_time
         };
-      } else {
-        return {
-          formattedTime: 'Invalid Time', 
-          fetchedTime: timeSlot.appointment_time 
-        };
-      }
+      } 
     });
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(

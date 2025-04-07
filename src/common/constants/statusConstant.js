@@ -43,6 +43,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE={
+  PRESCRIPTION_UPLOAD:"Prescription uploaded successfully",
   BOOKED_APPOINTMENTS:"Scheduled appointments data display successfully",
   CHANGE_STATUS:"Appointments status change successfully",
   SCHEDULED_APPOINTMENTS:"Scheduled appointments is retrived successfully",

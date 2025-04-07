@@ -1,5 +1,4 @@
 import transporter from '../../config/emailConfig.js';
-import path from 'path';
 
 const sendPrescription = async (email, cloudinaryUrl) => {
   try {
@@ -11,9 +10,8 @@ const sendPrescription = async (email, cloudinaryUrl) => {
         <html>
           <body>
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-              <h2>Prescription Uploaded Successfully</h2>
-              <p>Your prescription has been uploaded successfully. You can download it from the link below:</p>
-              <p><a href="${cloudinaryUrl}">${cloudinaryUrl}</a></p>
+              <h4>Hello,</h4>
+              <p>Your prescription has been uploaded successfully. You can download it from the attachment below:</p>
               <p>If you have any issues or concerns, please feel free to reach out.</p>
               <p>Thank you!</p>
             </div>
