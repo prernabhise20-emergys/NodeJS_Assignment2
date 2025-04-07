@@ -7,6 +7,8 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 
 import {
+  checkDoctor,
+  doctorFlag,
   createDoctorAppointment,
   isDoctorAvailable,
   getDoctorInfo,
@@ -45,7 +47,8 @@ const register = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-
+   
+      
     await createUserData(
       email,
       user_password,
@@ -55,6 +58,13 @@ const register = async (req, res, next) => {
     );
 
     await sendVerificationEmail(email);
+
+    const result = await checkDoctor(email);
+      if (result) {
+       await doctorFlag(email);
+       
+      }
+
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_MESSAGE.REGISTER_SUCCESS));
@@ -70,7 +80,8 @@ const login = async (req, res, next) => {
     if (check1) {
       throw USER_DELETED;
     }
-    await DoctorLogin(email)
+   const doctor= await DoctorLogin(email)
+console.log(doctor);
 
     const user = await loginUser(email);
 
@@ -78,9 +89,9 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    const match = await bcrypt.compare(user_password, user.user_password);
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
 
-    if (!match) {
+    if (!passwordMatch) {
       throw INVALID_USER;
     }
 
@@ -103,11 +114,12 @@ const login = async (req, res, next) => {
         token,
       });
     }
-    else
+  console.log(user.is_doctor);
+  
       if (user.is_doctor) {
         res.json({
           message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-          doctor_message: user.is_doctor,
+          doctor_message:user.is_doctor,
           token,
         });
       }

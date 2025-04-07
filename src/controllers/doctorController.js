@@ -2,6 +2,7 @@ import {
     ERROR_MESSAGE,
     SUCCESS_MESSAGE,
     SUCCESS_STATUS_CODE,
+    
 } from "../common/constants/statusConstant.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
@@ -13,7 +14,6 @@ import {
     showAppointments,
     updateDoctorData
 } from "../models/doctorModel.js";
-
 
 const updateDoctor = async (req, res, next) => {
     try {

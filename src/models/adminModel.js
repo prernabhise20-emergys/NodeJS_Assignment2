@@ -270,22 +270,6 @@ const createDoctorData = async (data) => {
   }
 };
 
-const doctorFlag = async () => {
-  try {
-    const data = await new Promise((resolve, reject) => {
-      db.query("UPDATE user_register SET is_doctor= TRUE", (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        return resolve(result);
-      });
-    });
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
 
 const deleteDoctorData = async (doctor_id) => {
   
@@ -432,7 +416,6 @@ export {
   scheduleAppointment,
   changeStatus,
   deleteDoctorData,
-  doctorFlag,
   createDoctorData,
   getInfo,
   displayAdmin,

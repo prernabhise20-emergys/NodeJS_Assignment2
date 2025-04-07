@@ -365,7 +365,64 @@ const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
   });
 };
 
+const doctorFlag = async (email) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query("UPDATE user_register set is_doctor = true WHERE email = ?",email, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(result);
+      });
+    });
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+const checkDoctor = async (email) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query("SELECT email FROM doctors WHERE email = ?",email, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(result);
+      });
+    });
+
+    return data.length>0;
+  } catch (error) {
+    throw error;
+  }
+};
+// const checkDoctor = async (email) => {
+//   try {
+//     const query = "SELECT doctor_id FROM doctors WHERE email = ?";
+//     const [result] = db.query(query, [email]);
+
+//     return result.length > 0;
+//   } catch (error) {
+//     console.error("Error checking doctor:", error);
+//     throw error;
+//   }
+// };
+
+// const doctorFlag = async (email) => {
+//   try {
+//     const query = "UPDATE user_register SET is_doctor = TRUE WHERE email = ?";
+//     const [result] = db.query(query, [email]);
+
+//     return result;
+//   } catch (error) {
+//     console.error("Error updating doctor flag:", error);
+//     throw error;
+//   }
+// };
 export {
+checkDoctor,
+  doctorFlag,
   createDoctorAppointment,
   isDoctorAvailable,
   getDoctorInfo,

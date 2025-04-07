@@ -15,7 +15,6 @@ import {
   scheduleAppointment,
   changeStatus,
   deleteDoctorData,
-  doctorFlag,
   createDoctorData,
   ageGroupWiseData,
   deletePatientDetails,
@@ -199,9 +198,6 @@ const addDoctor = async (req, res, next) => {
 
     if (is_admin) {
       const result = await createDoctorData(data);
-      if (result) {
-        await doctorFlag();
-      }
       res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
       );
