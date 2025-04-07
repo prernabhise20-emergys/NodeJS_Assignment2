@@ -8,7 +8,6 @@ import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 const router = express.Router();
 
 const {
-  GET_TIMESLOT,
   CREATE_APPOINTMENT,
   GET_DOCTORS,
   FORGET_PASSWORD,

@@ -202,7 +202,7 @@ const checkIfUserExists = async (email) => {
   try {
     const result = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT * FROM user_register WHERE is_deleted=false and email= ?",
+        "SELECT id FROM user_register WHERE is_deleted=false and email= ?",
         [email],
         (error, results) => {
           if (error) {

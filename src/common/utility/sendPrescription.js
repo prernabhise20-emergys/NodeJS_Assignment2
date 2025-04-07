@@ -20,7 +20,7 @@ const sendPrescription = async (email, cloudinaryUrl) => {
       `,
       attachments: [
         {
-          filename: 'prescription.xlsx',
+          filename: 'prescription.pdf',
           path: cloudinaryUrl, 
         },
       ],

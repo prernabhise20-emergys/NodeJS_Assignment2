@@ -46,9 +46,7 @@ const showAppointments = async (doctor_id) => {
 const savePrescription = async (appointment_id, url) => {
   try {
     return new Promise((resolve, reject) => {
-      // Ensure the database query is correct. This assumes you have a 'doctor_id' to save as well.
-      const query = 'INSERT INTO prescriptions (appointment_id, file_url) VALUES (?, ?)';
-      db.query(query, [appointment_id, url], (error, result) => {
+      db.query(`INSERT INTO prescriptions (appointment_id, file_url) VALUES (?, ?)`, [appointment_id, url], (error, result) => {
         if (error) {
           return reject(error);
         }
@@ -59,23 +57,7 @@ const savePrescription = async (appointment_id, url) => {
     throw error;
   }
 };
-// const savePriscription=async(appointment_id,url)=>{
-//   try{
-//     return new Promise((resolve, reject) => {
-//       db.query(`insert into prescriptions set ? `,[appointment_id,url],
-//         doctor_id, (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           return resolve(result);
-//         });
-//     });
 
-//   }
-//   catch(error){
-//     throw error;
-//   }
-// }
 export  {
   savePrescription,
   updateDoctorData,

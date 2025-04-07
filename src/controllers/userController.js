@@ -74,8 +74,10 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
+
   try {
     const { email, user_password } = req.body;
+    
     const check1 = await checkUserDeleteOrNot(email);
     if (check1) {
       throw USER_DELETED;
