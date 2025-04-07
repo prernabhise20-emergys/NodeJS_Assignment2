@@ -44,7 +44,7 @@ const getDeleteUserInfo = async (email) => {
 const checkAlreadyExist = (email) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
+      `SELECT id FROM user_register WHERE is_deleted=true and email = ?`,
       email,
       (error, result) => {
         if (error) {
@@ -58,7 +58,7 @@ const checkAlreadyExist = (email) => {
 const checkUserDeleteOrNot = (email) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT * FROM user_register WHERE is_deleted=true and email = ?`,
+      `SELECT id FROM user_register WHERE is_deleted=true and email = ?`,
       email,
       (error, result) => {
         if (error) {
@@ -150,10 +150,8 @@ const updateUserData = async (formData, id) => {
 
 const updatePassword = async (email, newPassword) => {
   try {
-    console.log('model', newPassword);
 
     const hashPassword = await bcrypt.hash(newPassword, 10);
-    console.log(hashPassword);
 
     const result = await new Promise((resolve, reject) => {
       db.query(
@@ -300,26 +298,26 @@ const getName = async (email) => {
   }
 };
 
-const DoctorLogin = async (email) => {
-  try {
-    const result = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM user_register WHERE is_deleted=false and email= ?",
-        [email],
-        (error, results) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(results);
-        }
-      );
-    });
+// const DoctorLogin = async (email) => {
+//   try {
+//     const result = await new Promise((resolve, reject) => {
+//       db.query(
+//         "SELECT * FROM user_register WHERE is_deleted=false and email= ?",
+//         [email],
+//         (error, results) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           resolve(results);
+//         }
+//       );
+//     });
 
-    return result.length > 0;
-  } catch (error) {
-    throw error;
-  }
-};
+//     return result.length > 0;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const getDoctorInfo = async () => {
   try {
@@ -397,36 +395,13 @@ const checkDoctor = async (email) => {
     throw error;
   }
 };
-// const checkDoctor = async (email) => {
-//   try {
-//     const query = "SELECT doctor_id FROM doctors WHERE email = ?";
-//     const [result] = db.query(query, [email]);
 
-//     return result.length > 0;
-//   } catch (error) {
-//     console.error("Error checking doctor:", error);
-//     throw error;
-//   }
-// };
-
-// const doctorFlag = async (email) => {
-//   try {
-//     const query = "UPDATE user_register SET is_doctor = TRUE WHERE email = ?";
-//     const [result] = db.query(query, [email]);
-
-//     return result;
-//   } catch (error) {
-//     console.error("Error updating doctor flag:", error);
-//     throw error;
-//   }
-// };
 export {
 checkDoctor,
   doctorFlag,
   createDoctorAppointment,
   isDoctorAvailable,
   getDoctorInfo,
-  DoctorLogin,
   getName,
   checkAdminCount,
   displayAdmin,

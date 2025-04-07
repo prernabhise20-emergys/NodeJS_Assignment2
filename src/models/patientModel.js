@@ -18,9 +18,6 @@ const getPatientInfo = async (id) => {
         JOIN disease d ON d.patient_id = p.patient_id 
         JOIN documents do ON do.patient_id = p.patient_id 
         WHERE p.is_deleted = false 
-          AND f.is_deleted = false 
-          AND d.is_deleted = false 
-          AND do.is_deleted = false 
           AND r.id = ?`,
         id,
         (error, result) => {
@@ -167,7 +164,6 @@ const createPersonalDetails = async (data, userId, email) => {
       created_by: email,
       updated_by: email,  
       user_id:userId,  
-      ...data
     };
 
     return new Promise((resolve, reject) => {

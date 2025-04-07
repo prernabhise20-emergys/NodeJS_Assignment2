@@ -38,7 +38,9 @@ const ERROR_MESSAGE = {
   DOCTOR_NOT_FOUND:"Doctor information is not found",
   NOT_CHANGE_STATUS:"Failed to change status",
   INVALID_INPUT:"Invalid Input",
-  NOT_AVAILABLE:"Time slot is not available"
+  NOT_AVAILABLE:"Time slot is not available",
+  LOGIN_FAILED:"Failed to login",
+  FAILED_TO_RETRIVE:"Failed to retrieve data"
 
 };
 

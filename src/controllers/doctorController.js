@@ -3,15 +3,16 @@ import {
     SUCCESS_MESSAGE,
     SUCCESS_STATUS_CODE,
     ERROR_STATUS_CODE
-    
+
 } from "../common/constants/statusConstant.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
 import xlsx from 'xlsx';
 import puppeteer from "puppeteer";
-
+import { createPrescription } from '../common/utility/createPrescription.js'
 import {
+    getAppointmentData,
     savePrescription,
     showAppointments,
     updateDoctorData
@@ -75,6 +76,7 @@ const displayAppointments = async (req, res, next) => {
     }
 }
 
+
 // const uploadPrescription = async (req, res, next) => {
 //     try {
 //       const { appointment_id, capacity, diagnosis, medicines } = req.body;
@@ -125,51 +127,31 @@ const displayAppointments = async (req, res, next) => {
 //       next(error);
 //     }
 //   };
-  
+
 const uploadPrescription = async (req, res, next) => {
-    const { appointment_id, capacity, diagnosis, medicines } = req.body;
-    const { email } = req.user;
-
-    const createPrescription = (data) => {
-        return `
-            <html>
-            <head>
-                <title>Prescription</title>
-            </head>
-            <body>
-                <h1>Prescription</h1>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>Appointment ID</th>
-                            <th>Diagnosis</th>
-                            <th>Medicines</th>
-                            <th>Capacity</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>${data.appointment_id}</td>
-                            <td>${data.diagnosis}</td>
-                            <td>${data.medicines}</td>
-                            <td>${data.capacity}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `;
-    };
-
     try {
+        const { appointment_id, capacity, diagnosis, medicines, dosage, before_meal, after_meal } = req.body;
+        const { email } = req.user;
+        const data = { appointment_id, capacity, diagnosis, medicines, dosage, before_meal, after_meal }
+        console.log(data);
+
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
-        const prescriptionHTML = createPrescription({ appointment_id, capacity, diagnosis, medicines });
-        
+
+        const patienData = await getAppointmentData(appointment_id);
+
+        const patientName = patienData.patientName;
+        const date = patienData.date
+        console.log(patientName);
+        console.log(date);
+
+
+        const prescriptionHTML = createPrescription(data, patientName, date);
+
         await page.setContent(prescriptionHTML);
 
         const pdfBuffer = await page.pdf({
-            path:'prescription.pdf',
+            path: 'prescription.pdf',
             format: 'A4',
             printBackground: true
         });
@@ -196,6 +178,8 @@ const uploadPrescription = async (req, res, next) => {
         next(error);
     }
 };
+
+
 
 export default {
     uploadPrescription,

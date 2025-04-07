@@ -33,9 +33,6 @@ const getInfo = async (is_admin, limit, offset) => {
           documents do ON do.patient_id = p.patient_id 
         WHERE 
           p.is_deleted = FALSE 
-          AND f.is_deleted = FALSE 
-          AND d.is_deleted = FALSE 
-          AND do.is_deleted = FALSE 
         ORDER BY 
           p.patient_id 
         LIMIT ? OFFSET ?`,
@@ -255,8 +252,8 @@ const createDoctorData = async (data) => {
       ...data
     };
 
-    console.log('doctordata',doctorData);
-    
+    console.log('doctordata', doctorData);
+
     return new Promise((resolve, reject) => {
       db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
         if (error) {
@@ -272,7 +269,7 @@ const createDoctorData = async (data) => {
 
 
 const deleteDoctorData = async (doctor_id) => {
-  
+
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
@@ -296,40 +293,40 @@ const deleteDoctorData = async (doctor_id) => {
 
 const changeStatus = async (status, appointment_id) => {
   try {
-      return new Promise((resolve, reject) => {
-          db.query(
-              `UPDATE appointments SET status = ? WHERE appointment_id = ?`,
-              [status, appointment_id],
-              (error, result) => {
-                  if (error) {
-                      return reject(error);
-                  }
-                  resolve(result);
-              }
-          );
-      });
+    return new Promise((resolve, reject) => {
+      db.query(
+        `UPDATE appointments SET status = ? WHERE appointment_id = ?`,
+        [status, appointment_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
 
 
-const scheduleAppointment = async ( appointment_id) => {
+const scheduleAppointment = async (appointment_id) => {
   try {
-      return new Promise((resolve, reject) => {
-          db.query(
-              `UPDATE appointments SET status ='Scheduled' WHERE appointment_id = ?`,
-               appointment_id,
-              (error, result) => {
-                  if (error) {
-                      return reject(error);
-                  }
-                  resolve(result);
-              }
-          );
-      });
+    return new Promise((resolve, reject) => {
+      db.query(
+        `UPDATE appointments SET status ='Scheduled' WHERE appointment_id = ?`,
+        appointment_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
 
@@ -374,35 +371,10 @@ const getPatientData = async (appointment_id) => {
       );
     });
   } catch (error) {
-    
+
     throw error;
   }
 };
-
-// const getPatientData = async (appointment_id,date) => {
-//   try {
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `select p.patient_name,a.appointment_date,a.appointment_time,d.name
-//         from personal_info p join appointments a
-//         on(p.patient_id=a.patient_id)
-//         join doctors d
-//         on(a.doctor_id=d.doctor_id)
-//         where d.doctor_id=? and a.appointment_date=?`,
-//         [appointment_id,date],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-          
-//           return resolve(result);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 const checkDoctorAvailability = async (doctor_id, date) => {
   return new Promise((resolve, reject) => {

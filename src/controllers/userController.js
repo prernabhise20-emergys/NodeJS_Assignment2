@@ -12,7 +12,6 @@ import {
   createDoctorAppointment,
   isDoctorAvailable,
   getDoctorInfo,
-  DoctorLogin,
   getName,
   checkEmailExists,
   checkAlreadyExist,
@@ -77,15 +76,18 @@ const login = async (req, res, next) => {
 
   try {
     const { email, user_password } = req.body;
+    console.log(req.body);
     
     const check1 = await checkUserDeleteOrNot(email);
+    console.log(check1);
+    
     if (check1) {
       throw USER_DELETED;
     }
-   const doctor= await DoctorLogin(email)
-console.log(doctor);
+  //  const doctor= await DoctorLogin(email)
 
     const user = await loginUser(email);
+console.log(user);
 
     if (!user) {
       throw INVALID_USER;
@@ -116,17 +118,16 @@ console.log(doctor);
         token,
       });
     }
-  console.log(user.is_doctor);
   
       if (user.is_doctor) {
-        res.json({
+      res.json({
           message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
           doctor_message:user.is_doctor,
           token,
         });
       }
       else {
-        res.json({
+       res.json({
           message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
           token,
         });

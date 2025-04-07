@@ -1,12 +1,12 @@
 import transporter from '../../config/emailConfig.js';
 
-const approveRequest = async (email,patientName,appointmentDate,appointmentTime,doctorName) => {
-    try {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Appointment Confirmation',
-        html: `
+const approveRequest = async (email, patientName, appointmentDate, appointmentTime, doctorName) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Appointment Confirmation',
+      html: `
         <html>
   <body>
     <div style="font-family: Arial, sans-serif; line-height: 1.5;">
@@ -25,15 +25,15 @@ const approveRequest = async (email,patientName,appointmentDate,appointmentTime,
 </html>
 
         `,
-      };
-  
-      await transporter.sendMail(mailOptions);
-  
-  console.log('Appointment Confirmation email sent');
-  
-    } catch (error) {
-      console.error('Error sending:', error);
-    throw new Error('Failed to send  email');  
-}
-  };
-  export default approveRequest;
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    console.log('Appointment Confirmation email sent');
+
+  } catch (error) {
+    console.error('Error sending:', error);
+    throw new Error('Failed to send  email');
+  }
+};
+export default approveRequest;

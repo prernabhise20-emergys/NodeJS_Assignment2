@@ -58,7 +58,33 @@ const savePrescription = async (appointment_id, url) => {
   }
 };
 
-export  {
+const getAppointmentData = async (appointment_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT p.patient_name AS patientName, p.created_date as date
+        from appointments a join personal_info p
+        ON p.patient_id = a.patient_id
+        WHERE p.is_deleted = false AND a.appointment_id = ?`,
+        [appointment_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          if (!result || result.length === 0) {
+            return reject(new Error(`No data found for appointment_id: ${appointment_id}`));
+          }
+          return resolve(result[0]); 
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export {
+  getAppointmentData,
   savePrescription,
   updateDoctorData,
   showAppointments

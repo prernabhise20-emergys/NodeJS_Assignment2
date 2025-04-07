@@ -24,24 +24,51 @@ router.post(
   schemaValidator(user_schemas.createUserSchema),
   userController.register
 );
+
 router.post(
   LOGIN,
   schemaValidator(user_schemas.userLoginSchema),
   userController.login
 );
-router.get(GET_USER, authenticateUser, userController.getUser);
+
+router.get(GET_USER,
+  authenticateUser,
+  userController.getUser
+);
+
 router.put(
   UPDATE_USER,
   authenticateUser,
   schemaValidator(user_schemas.updateUserSchema),
   userController.updateUser
 );
-router.delete(DELETE_USER, authenticateUser, userController.deleteUser);
-router.post(FORGET_PASSWORD, userController.forgotPassword);
-router.put(RESET_PASSWORD, userController.resetPassword);
-router.get(GET_DOCTORS,authenticateUser,userController.getDoctors)
 
-router.post(CREATE_APPOINTMENT,authenticateUser,userController.createAppointment)
-// router.get(GET_TIMESLOT,authenticateUser,userController.getDoctorAvailability)
+router.delete(
+  DELETE_USER,
+  authenticateUser,
+  userController.deleteUser
+);
+
+router.post(
+  FORGET_PASSWORD,
+  userController.forgotPassword
+);
+
+router.put(
+  RESET_PASSWORD,
+  userController.resetPassword
+);
+
+router.get(
+  GET_DOCTORS,
+  authenticateUser,
+  userController.getDoctors
+)
+
+router.post(
+  CREATE_APPOINTMENT,
+  authenticateUser,
+  userController.createAppointment
+)
 
 export default router;
