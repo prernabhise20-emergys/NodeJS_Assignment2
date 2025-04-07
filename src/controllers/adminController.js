@@ -254,6 +254,7 @@ const approveAppointment = async (req, res, next) => {
   try {
     const { appointment_id } = req.query;
     const { admin: is_admin, email } = req.user;
+
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
@@ -261,7 +262,13 @@ const approveAppointment = async (req, res, next) => {
     }
     if (is_admin) {
       const result = await scheduleAppointment(appointment_id);
-      const data = await getPatientData(appointment_id)
+      const data = await getPatientData(appointment_id); 
+
+      if (!data || data.length === 0) {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        );
+      }
 
       const patientName = data[0].patient_name;
       const appointmentDate = data[0].appointment_date;
@@ -269,7 +276,7 @@ const approveAppointment = async (req, res, next) => {
       const doctorName = data[0].name;
 
       if (result) {
-        await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName)
+        await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
           new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
@@ -293,7 +300,7 @@ const displayAppointmentRequest = async (req, res, next) => {
 
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_MESSAGE.GET_ADMIN, user));
+        .send(new ResponseHandler(SUCCESS_MESSAGE.REQUESTED_APPOINTMENT, user));
     }
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)

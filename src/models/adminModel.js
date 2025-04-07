@@ -355,31 +355,54 @@ const displayRequest = async () => {
     throw error;
   }
 };
-
-const getPatientData = async (appointment_id,date) => {
+const getPatientData = async (appointment_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `select p.patient_name,a.appointment_date,a.appointment_time,d.name
-        from personal_info p join appointments a
-        on(p.patient_id=a.patient_id)
-        join doctors d
-        on(a.doctor_id=d.doctor_id)
-        where d.doctor_id=? and a.appointment_date=?`,
-        [appointment_id,date],
+        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name
+         FROM personal_info p 
+         JOIN appointments a ON (p.patient_id = a.patient_id)
+         JOIN doctors d ON (a.doctor_id = d.doctor_id)
+         WHERE a.appointment_id = ?`,
+        [appointment_id],
         (error, result) => {
           if (error) {
             return reject(error);
           }
-          
           return resolve(result);
         }
       );
     });
   } catch (error) {
+    
     throw error;
   }
 };
+
+// const getPatientData = async (appointment_id,date) => {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         `select p.patient_name,a.appointment_date,a.appointment_time,d.name
+//         from personal_info p join appointments a
+//         on(p.patient_id=a.patient_id)
+//         join doctors d
+//         on(a.doctor_id=d.doctor_id)
+//         where d.doctor_id=? and a.appointment_date=?`,
+//         [appointment_id,date],
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+          
+//           return resolve(result);
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const checkDoctorAvailability = async (doctor_id, date) => {
   return new Promise((resolve, reject) => {

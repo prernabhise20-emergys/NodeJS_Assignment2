@@ -2,6 +2,7 @@ import {
     ERROR_MESSAGE,
     SUCCESS_MESSAGE,
     SUCCESS_STATUS_CODE,
+    ERROR_STATUS_CODE
     
 } from "../common/constants/statusConstant.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
@@ -22,8 +23,9 @@ const updateDoctor = async (req, res, next) => {
                 name,
                 specialization,
                 contact_number,
-                email,
-                doctor_id
+                doctor_id,
+                doctorInTime,
+                doctorOutTime
             },
         } = req;
 
@@ -33,7 +35,8 @@ const updateDoctor = async (req, res, next) => {
             name,
             specialization,
             contact_number,
-            email
+            doctorInTime,
+            doctorOutTime
         };
 
         console.log(data);
@@ -71,42 +74,57 @@ const displayAppointments = async (req, res, next) => {
     }
 }
 
-const uploadPrescription = async (req, res,next) => {
-
-    const { appointment_id, capacity, diagnosis, medicines } = req.body;
-    const { email } = req.user;
-
-    const prescriptionData = [
-        ['appointment_id', 'Diagnosis', 'Medicines', 'Capacity'],
-        [appointment_id, diagnosis, medicines, capacity],
-    ];
-
-    const ws = xlsx.utils.aoa_to_sheet(prescriptionData);
-    const wb = xlsx.utils.book_new();
-    xlsx.utils.book_append_sheet(wb, ws, 'Prescription');
-
+const uploadPrescription = async (req, res, next) => {
     try {
-        const excelBuffer = xlsx.write(wb, { bookType: 'xlsx', type: 'buffer' });
-
-        const result = await uploadFile({
-            buffer: excelBuffer,
-            originalname: 'prescription.xlsx',
-        });
-
-        const cloudinaryBaseUrl = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/';
-
-        const cloudinaryUniquePath = result.secure_url.split('raw/upload/')[1];
-        const fullCloudinaryUrl = cloudinaryBaseUrl + cloudinaryUniquePath;
-
-        await savePrescription(appointment_id, fullCloudinaryUrl);
-        await sendPrescription(email, fullCloudinaryUrl)
-        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD,{cloudinaryUrl:cloudinaryUniquePath})
+      const { appointment_id, capacity, diagnosis, medicines } = req.body;
+      const { email, doctor } = req.user;
+   
+      if (!doctor) {
+        return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
+          new ResponseHandler(ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
         );
-    } catch (error) {
-       next(error)
+      }
+      else{
+      
+  
+      if (!appointment_id || !capacity || !diagnosis || !medicines) {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+        );
+      }
+  
+      const prescriptionData = [
+        ['Appointment ID', 'Diagnosis', 'Medicines', 'Capacity'],
+        [appointment_id, diagnosis, medicines, capacity],
+      ];
+  
+      const ws = xlsx.utils.aoa_to_sheet(prescriptionData);
+      const wb = xlsx.utils.book_new();
+      xlsx.utils.book_append_sheet(wb, ws, 'Prescription');
+  
+      const excelBuffer = xlsx.write(wb, { bookType: 'xlsx', type: 'buffer' });
+  
+      const result = await uploadFile({
+        buffer: excelBuffer,
+        originalname: 'prescription.xlsx',
+      });
+  
+      const cloudinaryBaseUrl = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/';
+      const cloudinaryUniquePath = result.secure_url.split('raw/upload/')[1];
+      const fullCloudinaryUrl = cloudinaryBaseUrl + cloudinaryUniquePath;
+  
+      await savePrescription(appointment_id, fullCloudinaryUrl);
+      await sendPrescription(email, fullCloudinaryUrl);
+  
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+      );
     }
-};
+    } catch (error) {
+      next(error);
+    }
+  };
+  
 
 export default {
     uploadPrescription,
