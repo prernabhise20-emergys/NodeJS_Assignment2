@@ -1,18 +1,17 @@
-const createPrescription = (data, patientName, date) => {
+const createPrescription = (data, patientName, date, age, gender, doctorName, specialization, birthDate) => {
     console.log('data', data);
-    console.log(patientName);
-    console.log(date);
+    console.log('Patient Name:', patientName);
+    console.log('Date:', date);
+    console.log(doctorName);
 
     let tableRows = '';
     for (let i = 0; i < data.medicines.length; i++) {
-        tableRows +=         
-        `
+        tableRows += `
             <tr>
                 <td>${data.medicines[i]}</td>
                 <td>${data.capacity[i]}</td>
                 <td>${data.dosage[i]}</td>
-                <td>${data.before_meal[i] ? 'true' : 'false'}</td>
-                <td>${data.after_meal[i] ? 'true' : 'false'}</td>
+                <td>${data.frequency[i]}</td>
             </tr>
         `;
     }
@@ -43,14 +42,28 @@ const createPrescription = (data, patientName, date) => {
             th {
                 background-color: #f4f4f4;
             }
+                .date{
+                float:right;
+                }
+            .footer {
+                margin-top: 40px;
+                text-align: center;
+                font-size: 14px;
+                float:right;
+            }
         </style>
         <body>
             <div class="prescription-header">
                 <h1>Medical Prescription</h1>
+                <p class="date">Date: ${date}</p>
+                <p><strong> City Care Medical Center </strong></p>
             </div>
+        
             <div class="details">
                 <p><strong>Patient Name:</strong> ${patientName}</p>
-                <p><strong>Date:</strong> ${date}</p>
+                <p><strong>Date Of Birth:</strong> ${birthDate}</p>
+                <p><strong>Age:</strong> ${age} year</p>
+                <p><strong>Gender:</strong> ${gender}</p>
             </div>
             <table>
                 <thead>
@@ -58,15 +71,17 @@ const createPrescription = (data, patientName, date) => {
                         <th>Medicine</th>
                         <th>Capacity</th>
                         <th>Dosage</th>
-                        <th>Before Meal</th>
-                        <th>After Meal</th>
+                        <th>Frequency</th>
                     </tr>
-                    
                 </thead>
                 <tbody>
                     ${tableRows}
                 </tbody>
             </table>
+            <div class="footer">
+            <p>${doctorName}
+                <p>${specialization}</p>
+            </div>
         </body>
         </html>
     `;

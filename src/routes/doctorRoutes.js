@@ -3,7 +3,6 @@ import doctorController from "../controllers/doctorController.js";
 import authenticateUser from "../middlewares/authMiddleware.js";
 import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 import {
-
   upload,
 } from "../config/uploadDocument.js";
 const router = express.Router();

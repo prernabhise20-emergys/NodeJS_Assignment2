@@ -62,9 +62,11 @@ const getAppointmentData = async (appointment_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT p.patient_name AS patientName, p.created_date as date
+        `SELECT p.patient_name AS patientName,p.age,p.gender,p.date_of_birth, a.appointment_date as date,d.name AS doctorName,d.specialization
         from appointments a join personal_info p
         ON p.patient_id = a.patient_id
+        join doctors d
+        on(d.doctor_id=a.doctor_id)
         WHERE p.is_deleted = false AND a.appointment_id = ?`,
         [appointment_id],
         (error, result) => {

@@ -274,8 +274,10 @@ const approveAppointment = async (req, res, next) => {
       const appointmentDate = data[0].appointment_date;
       const appointmentTime = data[0].appointment_time;
       const doctorName = data[0].name;
+console.log(patientName, appointmentDate, appointmentTime, doctorName);
+console.log(result);
 
-      if (result) {
+      if (result.affectedRows==1) {
         await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(

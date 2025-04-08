@@ -298,38 +298,18 @@ const getName = async (email) => {
   }
 };
 
-// const DoctorLogin = async (email) => {
-//   try {
-//     const result = await new Promise((resolve, reject) => {
-//       db.query(
-//         "SELECT * FROM user_register WHERE is_deleted=false and email= ?",
-//         [email],
-//         (error, results) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           resolve(results);
-//         }
-//       );
-//     });
-
-//     return result.length > 0;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
 const getDoctorInfo = async () => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT name, specialization, contact_number from doctors where is_deleted=false`,
+        `SELECT doctor_id, name, specialization from doctors where is_deleted=false`,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
         }
       );
     });
+    
   } catch (error) {
     throw error;
   }

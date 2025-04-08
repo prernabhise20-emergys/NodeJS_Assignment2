@@ -84,7 +84,6 @@ const login = async (req, res, next) => {
     if (check1) {
       throw USER_DELETED;
     }
-  //  const doctor= await DoctorLogin(email)
 
     const user = await loginUser(email);
 console.log(user);

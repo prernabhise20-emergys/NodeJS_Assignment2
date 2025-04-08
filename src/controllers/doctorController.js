@@ -2,13 +2,12 @@ import {
     ERROR_MESSAGE,
     SUCCESS_MESSAGE,
     SUCCESS_STATUS_CODE,
-    ERROR_STATUS_CODE
 
 } from "../common/constants/statusConstant.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
-import xlsx from 'xlsx';
+// import xlsx from 'xlsx';
 import puppeteer from "puppeteer";
 import { createPrescription } from '../common/utility/createPrescription.js'
 import {
@@ -81,44 +80,44 @@ const displayAppointments = async (req, res, next) => {
 //     try {
 //       const { appointment_id, capacity, diagnosis, medicines } = req.body;
 //       const { email, doctor } = req.user;
-   
+
 //       if (!doctor) {
 //         return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
 //           new ResponseHandler(ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
 //         );
 //       }
 //       else{
-      
-  
+
+
 //       if (!appointment_id || !capacity || !diagnosis || !medicines) {
 //         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
 //           new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
 //         );
 //       }
-  
+
 //       const prescriptionData = [
 //         ['Appointment ID', 'Diagnosis', 'Medicines', 'Capacity'],
 //         [appointment_id, diagnosis, medicines, capacity],
 //       ];
-  
+
 //       const ws = xlsx.utils.aoa_to_sheet(prescriptionData);
 //       const wb = xlsx.utils.book_new();
 //       xlsx.utils.book_append_sheet(wb, ws, 'Prescription');
-  
+
 //       const excelBuffer = xlsx.write(wb, { bookType: 'xlsx', type: 'buffer' });
-  
+
 //       const result = await uploadFile({
 //         buffer: excelBuffer,
 //         originalname: 'prescription.xlsx',
 //       });
-  
+
 //       const cloudinaryBaseUrl = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/';
 //       const cloudinaryUniquePath = result.secure_url.split('raw/upload/')[1];
 //       const fullCloudinaryUrl = cloudinaryBaseUrl + cloudinaryUniquePath;
-  
+
 //       await savePrescription(appointment_id, fullCloudinaryUrl);
 //       await sendPrescription(email, fullCloudinaryUrl);
-  
+
 //       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
 //         new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
 //       );
@@ -130,23 +129,31 @@ const displayAppointments = async (req, res, next) => {
 
 const uploadPrescription = async (req, res, next) => {
     try {
-        const { appointment_id, capacity, diagnosis, medicines, dosage, before_meal, after_meal } = req.body;
+        const { appointment_id, medicines, capacity, dosage, frequency } = req.body;
         const { email } = req.user;
-        const data = { appointment_id, capacity, diagnosis, medicines, dosage, before_meal, after_meal }
+        const data = { appointment_id, medicines, capacity, dosage, frequency }
         console.log(data);
 
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
-        const patienData = await getAppointmentData(appointment_id);
+        const patientData = await getAppointmentData(appointment_id);
 
-        const patientName = patienData.patientName;
-        const date = patienData.date
-        console.log(patientName);
-        console.log(date);
+        const { patientName, date: date1, age, doctorName, specialization, gender,date_of_birth } = patientData;
 
+        const birthdate = new Date(date1);
+        const day = birthdate.getDate().toString().padStart(2, '0');
+        const month = birthdate.toLocaleString('en-US', { month: 'short' });
+        const year = birthdate.getFullYear();
+        const formattedDate = `${day} ${month} ${year}`;
 
-        const prescriptionHTML = createPrescription(data, patientName, date);
+        const date = new Date(date_of_birth);
+        const day1 = date.getDate().toString().padStart(2, '0');
+        const month1 = date.toLocaleString('en-US', { month: 'short' });
+        const year1 = date.getFullYear();
+        const birthDate = `${day1} ${month1} ${year1}`;
+
+        const prescriptionHTML = createPrescription(data, patientName, formattedDate, age, gender, doctorName, specialization,birthDate);
 
         await page.setContent(prescriptionHTML);
 
