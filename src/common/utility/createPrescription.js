@@ -45,6 +45,10 @@ const createPrescription = (data, patientName, date, age, gender, doctorName, sp
                 .date{
                 float:right;
                 }
+                .add{
+                 text-align: center;
+
+                }
             .footer {
                 margin-top: 40px;
                 text-align: center;
@@ -54,11 +58,12 @@ const createPrescription = (data, patientName, date, age, gender, doctorName, sp
         </style>
         <body>
             <div class="prescription-header">
-                <h1>Medical Prescription</h1>
-                <p class="date">Date: ${date}</p>
-                <p><strong> City Care Medical Center </strong></p>
+                <h1>City Care Medical Center</h1>
+                <p><strong>Address:</strong> Sonchafa Colony,Bolhegaon Phata, Ahilyanagar</p>
             </div>
-        
+        <div> 
+        <p class="date">Date: ${date}</p>
+        </div>
             <div class="details">
                 <p><strong>Patient Name:</strong> ${patientName}</p>
                 <p><strong>Date Of Birth:</strong> ${birthDate}</p>

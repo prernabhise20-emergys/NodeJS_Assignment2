@@ -132,7 +132,6 @@ const uploadPrescription = async (req, res, next) => {
         const { appointment_id, medicines, capacity, dosage, frequency } = req.body;
         const { email } = req.user;
         const data = { appointment_id, medicines, capacity, dosage, frequency }
-        console.log(data);
 
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
