@@ -1,6 +1,7 @@
 const schemaValidator = (schema) => {
   return (req, res, next) => {
     try {
+      console.log(req.body);
       const { error } = schema.validate(req.body);
       if (error) {
         throw error;

@@ -325,7 +325,7 @@ const getDoctorAvailability = async (req, res, next) => {
       
       const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
       
-      if (appointmentTime instanceof Date && !isNaN(appointmentTime)) {
+      if (appointmentTime instanceof Date) {
         return {
           bookedTimeSlot: timeSlot.appointment_time
         };

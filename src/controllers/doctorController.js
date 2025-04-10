@@ -129,30 +129,21 @@ const displayAppointments = async (req, res, next) => {
 
 const uploadPrescription = async (req, res, next) => {
     try {
-        const { appointment_id, medicines, capacity, dosage, frequency } = req.body;
+        const { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } = req.body;
         const { email } = req.user;
-        const data = { appointment_id, medicines, capacity, dosage, frequency }
 
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
         const patientData = await getAppointmentData(appointment_id);
 
-        const { patientName, date: date1, age, doctorName, specialization, gender,date_of_birth } = patientData;
+        const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
 
-        const birthdate = new Date(date1);
-        const day = birthdate.getDate().toString().padStart(2, '0');
-        const month = birthdate.toLocaleString('en-US', { month: 'short' });
-        const year = birthdate.getFullYear();
-        const formattedDate = `${day} ${month} ${year}`;
+        const formattedAppointmentDate = formatDate(appointmentDate);
+        const formattedBirthDate = formatDate(date_of_birth);
 
-        const date = new Date(date_of_birth);
-        const day1 = date.getDate().toString().padStart(2, '0');
-        const month1 = date.toLocaleString('en-US', { month: 'short' });
-        const year1 = date.getFullYear();
-        const birthDate = `${day1} ${month1} ${year1}`;
-
-        const prescriptionHTML = createPrescription(data, patientName, formattedDate, age, gender, doctorName, specialization,birthDate);
+        const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
+        const prescriptionHTML = createPrescription(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
 
         await page.setContent(prescriptionHTML);
 
@@ -168,7 +159,6 @@ const uploadPrescription = async (req, res, next) => {
             buffer: pdfBuffer,
             originalname: 'prescription.pdf',
         });
-
         const cloudinaryBaseUrl = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/';
 
         const cloudinaryUniquePath = result.secure_url.split('raw/upload/')[1];
@@ -181,9 +171,21 @@ const uploadPrescription = async (req, res, next) => {
             new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
+        console.error("Error uploading prescription:", error);
         next(error);
     }
 };
+
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+};
+
+export { createPrescription };
 
 
 

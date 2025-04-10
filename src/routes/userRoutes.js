@@ -19,6 +19,8 @@ const {
   RESET_PASSWORD,
 } = ROUTE_CONSTANTS;
 
+
+
 router.post(
   REGISTER,
   schemaValidator(user_schemas.createUserSchema),

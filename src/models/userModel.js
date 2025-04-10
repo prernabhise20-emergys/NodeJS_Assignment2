@@ -302,7 +302,7 @@ const getDoctorInfo = async () => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT doctor_id, name, specialization from doctors where is_deleted=false`,
+        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime from doctors where is_deleted=false`,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
