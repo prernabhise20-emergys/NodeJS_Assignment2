@@ -422,12 +422,12 @@ router.post(
  *               email:
  *                 type: string
  *                 format: email
- *                 description: Email address of the user
+ *                 description: Email address of the user.
  *                 example: "p9@gmail.com"
- *               NewPassword:
+ *               newPassword:
  *                 type: string
  *                 format: password
- *                 description: New password for the user account.
+ *                 description: The new password for the user's account.
  *                 example: "123456"
  *     responses:
  *       200:
@@ -463,12 +463,136 @@ router.put(
   RESET_PASSWORD,
   userController.resetPassword
 );
-
+/**
+ * @swagger
+ * /api/user/getDoctors:
+ *   get:
+ *     summary: Get Doctors Information
+ *     description: Returns user details of doctors.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Doctor information retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Doctor information retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     doctor_id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: Dr.Prerna Bhise
+ *                     specialization:
+ *                       type: string
+ *                       example: Physiotherapiest
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error."
+ */
 router.get(
   GET_DOCTORS,
   authenticateUser,
   userController.getDoctors
 )
+
+/**
+ * @swagger
+ * /api/user/bookAppointment:
+ *   post:
+ *     summary: Request for book the appointment
+ *     description: Create a appointment request, after approve then sends a confirmation email.
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               patient_id:
+ *                 type: string
+ *                 format: number
+ *                 description: patient id of the user
+ *                 example: "1"
+ *               doctor_id:
+ *                 type: string
+ *                 format: number
+ *                 description: patient id of the user
+ *                 example: "2"
+ *               Date:
+ *                 type: string
+ *                 description: date of appointment
+ *                 example: "2025-04-10"
+ *               time:
+ *                 type: string
+ *                 description: time of appointment
+ *                 example: "1:30:00"
+ *     responses:
+ *       200:
+ *         description: Appointment request sent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "Appointment request sent successfully."
+ *       400:
+ *         description: The selected time slot is already booked. Please choose another time.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: "The selected time slot is already booked. Please choose another time."
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
+ */
 
 router.post(
   CREATE_APPOINTMENT,

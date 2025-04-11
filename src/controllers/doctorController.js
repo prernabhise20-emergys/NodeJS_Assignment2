@@ -2,7 +2,7 @@ import {
     ERROR_MESSAGE,
     SUCCESS_MESSAGE,
     SUCCESS_STATUS_CODE,
-
+    ERROR_STATUS_CODE
 } from "../common/constants/statusConstant.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
@@ -50,7 +50,7 @@ const updateDoctor = async (req, res, next) => {
             );
         }
 
-        return res.status(SUCCESS_STATUS_CODE.FORBIDDEN).send(
+        return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
             new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS)
         );
     } catch (error) {

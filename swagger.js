@@ -26,7 +26,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./src/routes/userRoutes.js', './src/routes/adminRoutes.js'],
+  apis: ['./src/routes/userRoutes.js', './src/routes/adminRoutes.js','./src/routes/doctorRoutes.js'],
 };
 
 export default swaggerOptions;
