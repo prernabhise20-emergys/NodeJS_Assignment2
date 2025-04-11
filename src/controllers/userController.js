@@ -182,7 +182,8 @@ const getUser = async (req, res, next) => {
   try {
     const { userid: id, email: emailID } = req.user;
     const checkExists = await checkAlreadyExist(emailID);
-
+    console.log("req.user:", req.user);
+    
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);
       if (deletedUserInfo) {

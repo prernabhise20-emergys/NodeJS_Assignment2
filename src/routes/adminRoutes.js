@@ -37,7 +37,7 @@ router.delete(
 router.get(GET_AGE_GROUP, authenticateUser, adminController.ageGroupData);
 router.put(ADD_ADMIN, authenticateUser, adminController.addAdmin);
 router.put(REMOVE_ADMIN, authenticateUser, adminController.removeAdmin);
-router.get(GET_ADMIN, adminController.getAdmin);
+router.get(GET_ADMIN,authenticateUser, adminController.getAdmin);
 router.post(ADD_DOCTOR,authenticateUser,adminController.addDoctor)
 router.delete(DELETE_DOCTOR,authenticateUser,adminController.deleteDoctor);
 router.put(CHANGE_STATUS,authenticateUser,schemaValidator(user_schemas.changeStatus),adminController.changeAppointmentsStatus)

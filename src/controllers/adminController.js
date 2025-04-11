@@ -149,6 +149,8 @@ const removeAdmin = async (req, res, next) => {
   }
 };
 
+
+
 const getAdmin = async (req, res, next) => {
   try {
     const { admin: is_admin } = req.user;
