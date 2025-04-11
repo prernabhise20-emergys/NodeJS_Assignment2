@@ -7,7 +7,7 @@ import { user_schemas } from "../common/constants/schemaConstant.js"
 const router = express.Router();
 
 const {
-  SHOW_AVAILABILITY,
+  ALL_APPOINTMENTS,
   APPOINTMENT_REQUEST,
   APPROVE_APPOINTMENT,
   CHANGE_STATUS,
@@ -96,5 +96,6 @@ router.delete(DELETE_DOCTOR,authenticateUser,adminController.deleteDoctor);
 router.put(CHANGE_STATUS,authenticateUser,schemaValidator(user_schemas.changeStatus),adminController.changeAppointmentsStatus)
 router.put(APPROVE_APPOINTMENT,authenticateUser,schemaValidator(user_schemas.changeStatus),adminController.approveAppointment)
 router.get(APPOINTMENT_REQUEST, authenticateUser, adminController.displayAppointmentRequest);
-router.get(SHOW_AVAILABILITY,authenticateUser,adminController.getDoctorAvailability)
+router.get(ALL_APPOINTMENTS,authenticateUser,adminController.getAllAppointments)
+
 export default router;

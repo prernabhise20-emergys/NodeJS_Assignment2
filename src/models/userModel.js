@@ -376,7 +376,35 @@ const checkDoctor = async (email) => {
   }
 };
 
+const checkDoctorAvailability = async (doctor_id, date) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `
+      SELECT 
+        d.doctorInTime, 
+        d.doctorOutTime, 
+        a.appointment_date, 
+        a.appointment_time 
+      FROM appointments a
+      JOIN doctors d
+        ON a.doctor_id = d.doctor_id
+      WHERE d.is_deleted = false
+        AND a.status = 'Scheduled' 
+        AND d.doctor_id = ? 
+        AND a.appointment_date = ?
+      `,
+      [doctor_id, date],
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+};
 export {
+  checkDoctorAvailability,
 checkDoctor,
   doctorFlag,
   createDoctorAppointment,

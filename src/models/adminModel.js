@@ -376,24 +376,17 @@ const getPatientData = async (appointment_id) => {
   }
 };
 
-const checkDoctorAvailability = async (doctor_id, date) => {
+const  getAllAppointmentInformation=async()=>{
   return new Promise((resolve, reject) => {
     db.query(
       `
-      SELECT 
-        d.doctorInTime, 
-        d.doctorOutTime, 
-        a.appointment_date, 
-        a.appointment_time 
-      FROM appointments a
-      JOIN doctors d
-        ON a.doctor_id = d.doctor_id
-      WHERE d.is_deleted = false
-        AND a.status = 'Scheduled' 
-        AND d.doctor_id = ? 
-        AND a.appointment_date = ?
+    select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
+      from appointments a join personal_info p 
+      on(a.patient_id=p.patient_id)
+      join disease d
+      on(d.patient_id=p.patient_id)
+      where p.is_deleted=false order by appointment_id;
       `,
-      [doctor_id, date],
       (error, results) => {
         if (error) {
           return reject(error);
@@ -402,10 +395,9 @@ const checkDoctorAvailability = async (doctor_id, date) => {
       }
     );
   });
-};
-
+}
 export {
-  checkDoctorAvailability,
+  getAllAppointmentInformation,
   getPatientData,
   displayRequest,
   scheduleAppointment,

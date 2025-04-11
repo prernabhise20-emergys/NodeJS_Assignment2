@@ -46,7 +46,8 @@ const ROUTE_CONSTANTS = {
   APPROVE_APPOINTMENT:"/approveAppoint",
   APPOINTMENT_REQUEST:"/displayAppointmentRequest",
   SHOW_AVAILABILITY:"/showAvailability",
-  ADD_PRISCRIPTION:"/addPriscription"
+  ADD_PRISCRIPTION:"/addPriscription",
+  ALL_APPOINTMENTS:"/allAppointments"
 };
 
 export default ROUTE_CONSTANTS;

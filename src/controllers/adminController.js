@@ -10,7 +10,7 @@ import approveRequest from "../common/utility/approveAppointment.js"
 
 
 import {
-  checkDoctorAvailability,
+  getAllAppointmentInformation,
   getPatientData,
   scheduleAppointment,
   changeStatus,
@@ -314,41 +314,26 @@ const displayAppointmentRequest = async (req, res, next) => {
   }
 };
 
-const getDoctorAvailability = async (req, res, next) => {
+const getAllAppointments = async (req, res, next) => {
   try {
-    const { doctor_id, date } = req.query;
+const {admin}=req.user;
+if(admin){
+  const appointments = await getAllAppointmentInformation();
 
-    const availableTimes = await checkDoctorAvailability(doctor_id, date);
-
-    const doctorInTime = availableTimes[0].doctorInTime;
-    const doctorOutTime = availableTimes[0].doctorOutTime;
-
-    const bookedSlots = availableTimes.map((timeSlot) => {
-      
-      const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
-      
-      if (appointmentTime instanceof Date) {
-        return {
-          bookedTimeSlot: timeSlot.appointment_time
-        };
-      } 
-    });
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
-        doctorInTime,
-        doctorOutTime,
-        bookedSlots, 
+      new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
+       appointments
       })
     );
-
+  }
   } catch (error) {
     next(error);
   }
 };
 
 export default {
-  getDoctorAvailability,
+  getAllAppointments,
   displayAppointmentRequest,
   approveAppointment,
   changeAppointmentsStatus,

@@ -7,6 +7,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 
 import {
+  checkDoctorAvailability,
   checkDoctor,
   doctorFlag,
   createDoctorAppointment,
@@ -287,7 +288,40 @@ const {email}=req.user;
   }
 };
 
+const getDoctorAvailability = async (req, res, next) => {
+  try {
+    const { doctor_id, date } = req.query;
+
+    const availableTimes = await checkDoctorAvailability(doctor_id, date);
+
+    const doctorInTime = availableTimes[0].doctorInTime;
+    const doctorOutTime = availableTimes[0].doctorOutTime;
+
+    const bookedSlots = availableTimes.map((timeSlot) => {
+      
+      const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
+      
+      if (appointmentTime instanceof Date) {
+        return {
+          bookedTimeSlot: timeSlot.appointment_time
+        };
+      } 
+    });
+
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
+        doctorInTime,
+        doctorOutTime,
+        bookedSlots, 
+      })
+    );
+
+  } catch (error) {
+    next(error);
+  }
+};
 export default {
+  getDoctorAvailability,
   createAppointment,
   getDoctors,
   forgotPassword,
