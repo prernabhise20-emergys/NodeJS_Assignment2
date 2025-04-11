@@ -290,7 +290,8 @@ const {email}=req.user;
 
 const getDoctorAvailability = async (req, res, next) => {
   try {
-    const { doctor_id, date } = req.query;
+    const { doctor_id } = req.query;
+    const {date}=req.body;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
@@ -307,6 +308,10 @@ const getDoctorAvailability = async (req, res, next) => {
         };
       } 
     });
+console.log("doctorInTime",doctorInTime);
+console.log("outTime",doctorOutTime);
+console.log(bookedSlots);
+
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
