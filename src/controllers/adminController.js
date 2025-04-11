@@ -35,12 +35,12 @@ const getAllInfo = async (req, res, next) => {
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
-    let { page, limit, documentSize } = req.query;
+    let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
-    documentSize = parseInt(documentSize || 4);
+    // documentSize = parseInt(documentSize || 4);
 
-    limit = limit * documentSize;
+    limit = limit * 4;
 
     const offset = (page - 1) * limit;
 
@@ -55,7 +55,7 @@ const getAllInfo = async (req, res, next) => {
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit / documentSize,
+        limit: limit / 4,
         totalPatients: totalCount,
       },
     });

@@ -127,54 +127,73 @@ const displayAppointments = async (req, res, next) => {
 //     }
 //   };
 
+import { generatePdf } from "../common/utility/prescriptionPdf.js";
+
 const uploadPrescription = async (req, res, next) => {
     try {
         const { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } = req.body;
         const { email } = req.user;
 
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-
         const patientData = await getAppointmentData(appointment_id);
-
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
 
         const formattedAppointmentDate = formatDate(appointmentDate);
         const formattedBirthDate = formatDate(date_of_birth);
 
         const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
-        const prescriptionHTML = createPrescription(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
 
-        await page.setContent(prescriptionHTML);
-
-        const pdfBuffer = await page.pdf({
-            path: 'prescription.pdf',
-            format: 'A4',
-            printBackground: true
-        });
-
-        await browser.close();
+        const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
 
         const result = await uploadFile({
             buffer: pdfBuffer,
-            originalname: 'prescription.pdf',
+            originalname: "prescription.pdf",
         });
-        const cloudinaryBaseUrl = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/';
 
-        const cloudinaryUniquePath = result.secure_url.split('raw/upload/')[1];
-        const fullCloudinaryUrl = cloudinaryBaseUrl + cloudinaryUniquePath;
+        const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
 
-        await savePrescription(appointment_id, fullCloudinaryUrl);
-        await sendPrescription(email, fullCloudinaryUrl);
+        await savePrescription(appointment_id, cloudinaryUniquePath);
+        await sendPrescription(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
             new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
-        console.error("Error uploading prescription:", error);
         next(error);
     }
 };
+
+// const uploadPrescription = async (req, res, next) => {
+//     try {
+//         const { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } = req.body;
+//         const { email } = req.user;
+
+//         const patientData = await getAppointmentData(appointment_id);
+//         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
+
+//         const formattedAppointmentDate = formatDate(appointmentDate);
+//         const formattedBirthDate = formatDate(date_of_birth);
+
+//         const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
+
+//         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
+
+//         const result = await uploadFile({
+//             buffer: pdfBuffer,
+//             originalname: "prescription.pdf",
+//         });
+
+//         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
+
+//         await savePrescription(appointment_id, cloudinaryUniquePath);
+//         await sendPrescription(email, result.secure_url);
+
+//         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//             new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+//         );
+//     } catch (error) {
+//         next(error);
+//     }
+// };
 
 
 const formatDate = (dateString) => {
@@ -184,10 +203,6 @@ const formatDate = (dateString) => {
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
 };
-
-export { createPrescription };
-
-
 
 export default {
     uploadPrescription,
