@@ -573,23 +573,6 @@ const modifyDocument = (documentData) => {
   });
 };
 
-const removeDocument = (patient_id, document_type) => {
-  return new Promise((resolve, reject) => {
-    const values = [patient_id, document_type];
-
-    db.query(
-      `UPDATE documents SET IS_DELETED = true WHERE patient_id = ? AND document_type = ?`,
-      values,
-      (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(result);
-      }
-    );
-  });
-};
-
 const getDocumentByPatientIdAndType=async(patient_id,document_type)=>{
   try {
     const data = await new Promise((resolve, reject) => {
@@ -620,7 +603,6 @@ export {
   checkDocumentExists,
   getDiseaseInfo,
   modifyDocument,
-  removeDocument,
   saveDocument,
   createPersonalDetails,
   checkNumberOfDocument,

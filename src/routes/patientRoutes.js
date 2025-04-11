@@ -126,14 +126,6 @@ router.put(
   patientController.updateDocument
 );
 
-router.delete(
-  DELETE_DOCUMENT,
-  authenticateUser,
-  upload.none(),
-  patientController.deleteDocument
-);
-
-
 router.get(
   DOWNLOAD_DOCUMENT,
   authenticateUser,

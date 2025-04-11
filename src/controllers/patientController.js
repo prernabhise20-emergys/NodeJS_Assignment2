@@ -28,7 +28,6 @@ import {
   deleteDiseaseDetails,
   saveDocument,
   modifyDocument,
-  removeDocument,
   checkDocumentExists,
 
 } from "../models/patientModel.js";
@@ -468,29 +467,6 @@ const updateDocument = async (req, res, next) => {
   }
 };
 
-const deleteDocument = async (req, res, next) => {
-  try {
-    const { patient_id, document_type } = req.body;
-    const { userid: id, admin: is_admin } = req.user;
-
-    const documentExists = await checkDocumentExists(document_type, patient_id);
-    if (!documentExists) {
-      throw DOCUMENT_NOT_FOUND;
-    }
-    const isValidPatient = await checkUserWithPatientID(id, patient_id);
-    if (isValidPatient || is_admin) {
-      await removeDocument(patient_id, document_type);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_DELETE_SUCCESSFULLY)
-      );
-    }
-    throw NOT_DELETED;
-  } catch (error) {
-    next(error)
-  }
-};
-
 
 const downloadDocument = async (req, res, next) => {
   try {
@@ -537,5 +513,4 @@ export default {
   updateDiseaseInfo,
   deleteDiseaseInfo,
   updateDocument,
-  deleteDocument,
 };
