@@ -600,6 +600,6 @@ router.post(
   authenticateUser,
   userController.createAppointment
 )
-router.get(SHOW_AVAILABILITY,authenticateUser,userController.getDoctorAvailability)
+router.post(SHOW_AVAILABILITY,authenticateUser,userController.getDoctorAvailability)
 
 export default router;
