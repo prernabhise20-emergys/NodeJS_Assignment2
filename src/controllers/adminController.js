@@ -316,10 +316,11 @@ const displayAppointmentRequest = async (req, res, next) => {
 
 const getAllAppointments = async (req, res, next) => {
   try {
-const {admin}=req.user;
-if(admin){
+const {admin,doctor}=req.user;
+if(admin || doctor){
   const appointments = await getAllAppointmentInformation();
 
+console.log(appointments);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
