@@ -317,8 +317,9 @@ const displayAppointmentRequest = async (req, res, next) => {
 const getAllAppointments = async (req, res, next) => {
   try {
 const {admin,doctor}=req.user;
+const{doctor_id}=req.query;
 if(admin || doctor){
-  const appointments = await getAllAppointmentInformation();
+  const appointments = await getAllAppointmentInformation(doctor_id);
 
 console.log(appointments);
 

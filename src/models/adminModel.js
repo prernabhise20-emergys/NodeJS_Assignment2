@@ -376,7 +376,7 @@ const getPatientData = async (appointment_id) => {
   }
 };
 
-const  getAllAppointmentInformation=async()=>{
+const  getAllAppointmentInformation=async(doctor_id)=>{
   return new Promise((resolve, reject) => {
     db.query(
       `
@@ -385,8 +385,8 @@ const  getAllAppointmentInformation=async()=>{
       on(a.patient_id=p.patient_id)
       join disease d
       on(d.patient_id=p.patient_id)
-      where p.is_deleted=false order by appointment_id;
-      `,
+      where p.is_deleted=false and doctor_id=? order by appointment_id;
+      `,doctor_id,
       (error, results) => {
         if (error) {
           return reject(error);
