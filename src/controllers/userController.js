@@ -288,43 +288,50 @@ const {email}=req.user;
   }
 };
 
+
 const getDoctorAvailability = async (req, res, next) => {
   try {
     const { doctor_id } = req.query;
-    const {date}=req.body;
+    const { date } = req.body;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
-    const doctorInTime = availableTimes[0].doctorInTime;
-    const doctorOutTime = availableTimes[0].doctorOutTime;
+    if (!availableTimes || availableTimes.length === 0) {
+      return res.status(404).send(new ResponseHandler('No available slots found for the selected doctor and date.'));
+    }
 
-    const bookedSlots = availableTimes.map((timeSlot) => {
-      
-      const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
-      
-      if (appointmentTime instanceof Date) {
-        return {
-          bookedTimeSlot: timeSlot.appointment_time
-        };
-      } 
-    });
-console.log("doctorInTime",doctorInTime);
-console.log("outTime",doctorOutTime);
-console.log(bookedSlots);
+    const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
+    const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
 
+    const bookedSlots = availableTimes
+      .map((timeSlot) => {
+        const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
+
+        if (appointmentTime instanceof Date && !isNaN(appointmentTime)) {
+          return {
+            bookedTimeSlot: timeSlot.appointment_time,
+          };
+        }
+        return null; 
+      })
+      .filter(Boolean); 
+
+    console.log("doctorInTime", doctorInTime);
+    console.log("doctorOutTime", doctorOutTime);
+    console.log(bookedSlots);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
-        bookedSlots, 
+        bookedSlots,
       })
     );
-
   } catch (error) {
-    next(error);
+    next(error); 
   }
 };
+
 export default {
   getDoctorAvailability,
   createAppointment,
