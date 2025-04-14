@@ -284,7 +284,7 @@ const getName = async (email) => {
             return reject(error);
           }
           if (results.length > 0) {
-            resolve(results[0].first_name); 
+            resolve(results[0].first_name);
           } else {
             reject(new Error('User not found'));
           }
@@ -292,9 +292,9 @@ const getName = async (email) => {
       );
     });
 
-    return data; 
+    return data;
   } catch (error) {
-    throw error; 
+    throw error;
   }
 };
 
@@ -309,7 +309,7 @@ const getDoctorInfo = async () => {
         }
       );
     });
-    
+
   } catch (error) {
     throw error;
   }
@@ -346,7 +346,7 @@ const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
 const doctorFlag = async (email) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      db.query("UPDATE user_register set is_doctor = true WHERE email = ?",email, (error, result) => {
+      db.query("UPDATE user_register set is_doctor = true WHERE email = ?", email, (error, result) => {
         if (error) {
           return reject(error);
         }
@@ -362,7 +362,7 @@ const doctorFlag = async (email) => {
 const checkDoctor = async (email) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      db.query("SELECT email FROM doctors WHERE email = ?",email, (error, result) => {
+      db.query("SELECT email FROM doctors WHERE email = ?", email, (error, result) => {
         if (error) {
           return reject(error);
         }
@@ -370,48 +370,71 @@ const checkDoctor = async (email) => {
       });
     });
 
-    return data.length>0;
+    return data.length > 0;
   } catch (error) {
     throw error;
   }
 };
-
 const checkDoctorAvailability = async (doctor_id, date) => {
   try {
     const results = await new Promise((resolve, reject) => {
       db.query(
         `
-        SELECT 
-          d.doctorInTime, 
-          d.doctorOutTime, 
-          a.appointment_date, 
-          a.appointment_time 
-        FROM appointments a
-        JOIN doctors d
-          ON a.doctor_id = d.doctor_id
-        WHERE d.is_deleted = false
-          AND a.status = 'Scheduled' 
-          AND d.doctor_id = ? 
-          AND a.appointment_date = ?`,
-        [doctor_id, date],
+SELECT 
+    d.doctorInTime, 
+    d.doctorOutTime, 
+    a.appointment_date, 
+    a.appointment_time 
+FROM appointments a
+JOIN doctors d
+    ON a.doctor_id = d.doctor_id
+WHERE 
+    d.is_deleted = false
+    AND a.status = 'Scheduled' 
+    AND d.doctor_id = ?
+    AND a.appointment_date = ?
+
+UNION ALL
+
+
+SELECT 
+    d.doctorInTime, 
+    d.doctorOutTime, 
+    NULL AS appointment_date, 
+    NULL AS appointment_time
+FROM doctors d
+WHERE d.doctor_id = ?
+AND NOT EXISTS (
+    SELECT 1 
+    FROM appointments a
+    WHERE 
+        a.doctor_id = ?
+        AND a.appointment_date = ?
+);
+
+        `,
+        [doctor_id, date, doctor_id,doctor_id,date], 
         (error, results) => {
           if (error) {
-            return reject(error);
+            return reject(error); 
           }
-          resolve(results);
+          resolve(results); 
         }
       );
     });
 
-    return results;
+    return results; 
   } catch (error) {
-    throw new Error('Error checking doctor availability: ' + error.message);
+    throw new Error('Error checking doctor availability: ' + error.message); 
   }
 };
 
+           
+
+
 export {
   checkDoctorAvailability,
-checkDoctor,
+  checkDoctor,
   doctorFlag,
   createDoctorAppointment,
   isDoctorAvailable,

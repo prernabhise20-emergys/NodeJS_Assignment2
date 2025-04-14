@@ -288,8 +288,6 @@ const createAppointment = async (req, res, next) => {
     next(error);
   }
 };
-
-
 const getDoctorAvailability = async (req, res, next) => {
   try {
     const { doctor_id } = req.query;
@@ -298,30 +296,63 @@ const getDoctorAvailability = async (req, res, next) => {
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
     if (!availableTimes || availableTimes.length === 0) {
-      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE));
+      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
+        new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE)
+      );
     }
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
-    
-    let timeSlot = [];
-    for (let i = 0; i < availableTimes.length; i++) {
-      timeSlot[i] = availableTimes[i]?.appointment_time
-      console.log(timeSlot);
-    }
 
+    const timeSlot = availableTimes
+      .filter(row => row.appointment_time !== null) 
+      .map(row => row.appointment_time); 
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
-        timeSlot
+        timeSlot,
       })
     );
   } catch (error) {
-    next(error);
+    next(error); 
   }
 };
+
+
+// const getDoctorAvailability = async (req, res, next) => {
+//   try {
+//     const { doctor_id } = req.query;
+//     const { date } = req.body;
+
+//     const availableTimes = await checkDoctorAvailability(doctor_id, date);
+
+//     if (!availableTimes || availableTimes.length === 0) {
+//       return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE));
+//     }
+
+//     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
+//     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
+    
+//     let timeSlot = [];
+//     for (let i = 0; i < availableTimes.length; i++) {
+//       timeSlot[i] = availableTimes[i]?.appointment_time
+//       console.log(timeSlot);
+//     }
+
+
+//     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
+//         doctorInTime,
+//         doctorOutTime,
+//         timeSlot
+//       })
+//     );
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export default {
   getDoctorAvailability,
