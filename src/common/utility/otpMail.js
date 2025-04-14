@@ -1,6 +1,6 @@
 import transporter from '../../config/emailConfig.js';
 
-const sendOtpToEmail = async (email, otp) => {
+const sendOtpToEmail = async (email,name, otp) => {
     try {
       const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -11,8 +11,8 @@ const sendOtpToEmail = async (email, otp) => {
             <body>
               <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                 <h2>Password Reset Request</h2>
-                <p>Dear User,</p>
-                <p>You have requested to reset your password. Please use the following OTP to proceed:</p>
+                <p>Dear, ${name} </p>
+                <p>You have requested to reset your password. Please use the following ${otp} to proceed:</p>
                 <p style="font-size: 24px; font-weight: bold; color: #333;">${otp}</p>
                 <p>If you did not request a password reset, please ignore this email.</p>
                 <p>Thank you,</p>

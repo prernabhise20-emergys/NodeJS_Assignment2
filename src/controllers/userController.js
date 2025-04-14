@@ -7,6 +7,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 
 import {
+  getName,
   checkEmailExists,
   checkAlreadyExist,
   getDeleteUserInfo,
@@ -99,7 +100,7 @@ const login = async (req, res, next) => {
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
-          new ResponseHandler(SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE, token)
+          new ResponseHandler(SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE, {token:token})
         );
     }
   } catch (error) {
@@ -187,11 +188,13 @@ const forgotPassword = async (req, res, next) => {
     const { email } = req.body;
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     const validEmail = await checkEmailExists(email);
-    console.log(validEmail);
     
     if (validEmail) {
-      await sendOtpToEmail(email, otp);
+     const first_name= await getName(email)
+     
+      // await sendOtpToEmail(email,name, otp);
 
       const hashOtp = await bcrypt.hash(otp, 10);
 
