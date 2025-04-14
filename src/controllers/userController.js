@@ -297,7 +297,7 @@ const getDoctorAvailability = async (req, res, next) => {
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
     if (!availableTimes || availableTimes.length === 0) {
-      return res.status(404).send(new ResponseHandler(ERROR_MESSAGE.NOT_AVAILABLE));
+      return res.status(404).send(new ResponseHandler('No available slots found for the selected doctor and date.'));
     }
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';

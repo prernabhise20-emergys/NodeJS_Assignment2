@@ -25,6 +25,7 @@ const {
   DELETE_DISEASE_INFO,
   UPLOAD_DOCUMENTS,
   UPDATE_DOCUMENT,
+  DELETE_DOCUMENT,
   GET_UPLOAD_INFO,
   GET_DISEASE_INFO,
   DOWNLOAD_DOCUMENT
@@ -106,7 +107,6 @@ router.delete(
   authenticateUser,
   patientController.deleteDiseaseInfo
 );
-
 router.get(
   GET_UPLOAD_INFO,
   authenticateUser,
