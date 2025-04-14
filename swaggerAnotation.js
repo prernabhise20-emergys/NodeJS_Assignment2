@@ -744,7 +744,7 @@
  *                   properties:
  *                     patient_name:
  *                       type: string
- *                       example: "John Doe"
+ *                       example: "Satej"
  *                     date_of_birth:
  *                       type: string
  *                       format: date
@@ -809,7 +809,7 @@
 
 /**
  * @swagger
- * /api/patient/addPersonalData:
+ * /api/patient/addPersonalInfo:
  *   post:
  *     summary: Add personal information for a patient
  *     description: Allows adding personal details of a patient including health metrics like weight, height, BMI, and more.
@@ -827,7 +827,7 @@
  *               patient_name:
  *                 type: string
  *                 description: The name of the patient
- *                 example: "John Doe"
+ *                 example: "Satej"
  *               date_of_birth:
  *                 type: string
  *                 format: date
@@ -836,17 +836,17 @@
  *               gender:
  *                 type: string
  *                 description: The gender of the patient
- *                 example: "Male"
+ *                 example: "male"
  *               weight:
- *                 type: number
+ *                 type: string
  *                 format: float
  *                 description: The weight of the patient in kilograms
- *                 example: 75.5
+ *                 example: "75.5"
  *               height:
  *                 type: number
- *                 format: float
+ *                 format: string
  *                 description: The height of the patient in feet (will be converted to meters)
- *                 example: 5.8
+ *                 example: "5.8"
  *               country_of_origin:
  *                 type: string
  *                 description: The country of origin of the patient
@@ -862,7 +862,7 @@
  *               blood_pressure:
  *                 type: string
  *                 description: The blood pressure of the patient
- *                 example: "120/80"
+ *                 example: "false"
  *     responses:
  *       201:
  *         description: Successfully added the personal information for the patient.
@@ -932,7 +932,7 @@
  *               patient_name:
  *                 type: string
  *                 description: The name of the patient
- *                 example: "John Doe"
+ *                 example: "Satej"
  *               date_of_birth:
  *                 type: string
  *                 format: date
@@ -1139,7 +1139,7 @@
  *                   properties:
  *                     father_name:
  *                       type: string
- *                       example: "John Doe"
+ *                       example: "ram"
  *                     father_age:
  *                       type: integer
  *                       example: 50
@@ -1148,7 +1148,7 @@
  *                       example: "USA"
  *                     mother_name:
  *                       type: string
- *                       example: "Jane Doe"
+ *                       example: "mala"
  *                     mother_age:
  *                       type: integer
  *                       example: 48
@@ -1204,7 +1204,7 @@
 
 /**
  * @swagger
- * /api/patient/showPatientDetails:
+ * /api/patient/getPatientInfo:
  *   get:
  *     summary: Retrieve patient details
  *     description: This endpoint retrieves the details of the authenticated patient.
@@ -1234,7 +1234,7 @@
  *                       example: 1
  *                     patient_name:
  *                       type: string
- *                       example: "John Doe"
+ *                       example: "Satej"
  *                     date_of_birth:
  *                       type: string
  *                       format: date
@@ -1266,10 +1266,10 @@
  *                     example: 1
  *                   father_name:
  *                     type: string
- *                     example: "John Doe"
+ *                     example: "ram"
  *                   mother_name:
  *                     type: string
- *                     example: "Jane Doe"
+ *                     example: "mala"
  *                   father_age:
  *                     type: integer
  *                     example: 50
@@ -1335,7 +1335,7 @@
  *             properties:
  *               father_name:
  *                 type: string
- *                 example: "John Doe"
+ *                 example: "ram"
  *               father_age:
  *                 type: integer
  *                 example: 50
@@ -1344,7 +1344,7 @@
  *                 example: "USA"
  *               mother_name:
  *                 type: string
- *                 example: "Jane Doe"
+ *                 example: "mala"
  *               mother_age:
  *                 type: integer
  *                 example: 48
@@ -1462,7 +1462,7 @@
  *                       example: "Hypertension"
  *                     disease_description:
  *                       type: string
- *                       example: "A condition where the force of the blood against the artery walls is too high."
+ *                       example: "due to stress."
  */
 
 /**
@@ -1493,7 +1493,7 @@
  *                     example: "Hypertension"
  *                   disease_description:
  *                     type: string
- *                     example: "A condition where the force of the blood against the artery walls is too high."
+ *                     example: "due to stress."
  *     responses:
  *       200:
  *         description: Disease information added successfully.
@@ -1532,7 +1532,7 @@
  *                 example: "Hypertension"
  *               disease_description:
  *                 type: string
- *                 example: "A condition where the force of the blood against the artery walls is too high."
+ *                 example: "due to stress."
  *               patient_id:
  *                 type: integer
  *                 example: 1
@@ -1589,7 +1589,7 @@
 
 /**
  * @swagger
- * /api/patient/upload-info/{patient_id}:
+ * /api/patient/getUploadInfo/{patient_id}:
  *   get:
  *     summary: Get uploaded documents for a patient
  *     description: Retrieve all uploaded document metadata for a specific patient.
@@ -1625,7 +1625,7 @@
  *                     properties:
  *                       document_type:
  *                         type: string
- *                         example: "X-ray"
+ *                         example: "adhar"
  *                       document_url:
  *                         type: string
  *                         example: "documents/userid/filename.png"
@@ -1633,7 +1633,7 @@
 
 /**
  * @swagger
- * /api/patient/upload-document:
+ * /api/patient/upload:
  *   post:
  *     summary: Upload a document
  *     description: Upload a single document file (PDF/Image/etc) for a patient.
@@ -1657,7 +1657,7 @@
  *                 format: binary
  *               document_type:
  *                 type: string
- *                 example: "X-ray"
+ *                 example: "Adhar"
  *               patient_id:
  *                 type: integer
  *                 example: 1

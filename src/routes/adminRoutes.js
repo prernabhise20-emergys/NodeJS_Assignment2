@@ -21,60 +21,6 @@ const {
   GET_ADMIN,
 } = ROUTE_CONSTANTS;
 
-/**
- * @swagger
- * /api/admin/getAllInfo:
- *   get:
- *     summary: Retrieve all patient information.
- *     description: Only admins have access to retrieve all patient information.
- *     tags:
- *       - Admin
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         required: true
- *         schema:
- *           type: integer
- *           example: 1
- *         description: Page number.
- *       - in: query
- *         name: limit
- *         required: true
- *         schema:
- *           type: integer
- *           example: 5
- *         description: Page limit.
- *     responses:
- *       200:
- *         description: Patient information retrieved successfully.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: integer
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: "Patient information retrieved successfully."
- *       500:
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 statusCode:
- *                   type: integer
- *                   example: 500
- *                 message:
- *                   type: string
- *                   example: "Internal server error."
- */
-
 router.get(
   GET_ALL_PATIENT_DETAILS,
   authenticateUser,

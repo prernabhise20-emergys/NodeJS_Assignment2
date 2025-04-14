@@ -47,8 +47,8 @@ const register = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-   
-      
+
+
     await createUserData(
       email,
       user_password,
@@ -60,10 +60,10 @@ const register = async (req, res, next) => {
     await sendVerificationEmail(email);
 
     const result = await checkDoctor(email);
-      if (result) {
-       await doctorFlag(email);
-       
-      }
+    if (result) {
+      await doctorFlag(email);
+
+    }
 
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -77,17 +77,14 @@ const login = async (req, res, next) => {
 
   try {
     const { email, user_password } = req.body;
-    console.log(req.body);
-    
+
     const check1 = await checkUserDeleteOrNot(email);
-    console.log(check1);
-    
+
     if (check1) {
       throw USER_DELETED;
     }
 
     const user = await loginUser(email);
-console.log(user);
 
     if (!user) {
       throw INVALID_USER;
@@ -98,6 +95,7 @@ console.log(user);
     if (!passwordMatch) {
       throw INVALID_USER;
     }
+    console.log('id', user.id);
 
     const token = jwt.sign(
       {
@@ -108,7 +106,10 @@ console.log(user);
         doctor: user.is_doctor
       },
       process.env.SECRET_KEY,
-      { expiresIn: "3h" }
+      {
+        expiresIn: "3h",
+        algorithm: 'HS256'
+      }
     );
 
     if (user.is_admin) {
@@ -118,20 +119,20 @@ console.log(user);
         token,
       });
     }
-  
-      if (user.is_doctor) {
+
+    if (user.is_doctor) {
       res.json({
-          message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-          doctor_message:user.is_doctor,
-          token,
-        });
-      }
-      else {
-       res.json({
-          message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-          token,
-        });
-      }
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        doctor_message: user.is_doctor,
+        token,
+      });
+    }
+    else {
+      res.json({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        token,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -184,7 +185,7 @@ const getUser = async (req, res, next) => {
     const { userid: id, email: emailID } = req.user;
     const checkExists = await checkAlreadyExist(emailID);
     console.log("req.user:", req.user);
-    
+
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);
       if (deletedUserInfo) {
@@ -224,7 +225,7 @@ const forgotPassword = async (req, res, next) => {
     if (validEmail) {
       const name = await getName(email)
 
-      await sendOtpToEmail(email,name, otp);
+      await sendOtpToEmail(email, name, otp);
 
       const hashOtp = await bcrypt.hash(otp, 10);
 
@@ -267,7 +268,7 @@ const getDoctors = async (req, res, next) => {
 
 const createAppointment = async (req, res, next) => {
   const { patient_id, doctor_id, date, time } = req.body;
-const {email}=req.user;
+  const { email } = req.user;
   try {
     const isAvailable = await isDoctorAvailable(doctor_id, date, time);
 
@@ -297,38 +298,28 @@ const getDoctorAvailability = async (req, res, next) => {
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
     if (!availableTimes || availableTimes.length === 0) {
-      return res.status(404).send(new ResponseHandler('No available slots found for the selected doctor and date.'));
+      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE));
     }
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
+    
+    let timeSlot = [];
+    for (let i = 0; i < availableTimes.length; i++) {
+      timeSlot[i] = availableTimes[i]?.appointment_time
+      console.log(timeSlot);
+    }
 
-    const bookedSlots = availableTimes
-      .map((timeSlot) => {
-        const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
-
-        if (appointmentTime instanceof Date && !isNaN(appointmentTime)) {
-          return {
-            bookedTimeSlot: timeSlot.appointment_time,
-          };
-        }
-        return null; 
-      })
-      .filter(Boolean); 
-
-    console.log("doctorInTime", doctorInTime);
-    console.log("doctorOutTime", doctorOutTime);
-    console.log(bookedSlots);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
-        bookedSlots,
+        timeSlot
       })
     );
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };
 

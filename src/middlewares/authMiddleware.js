@@ -10,6 +10,9 @@ import {
 const authenticateUser = (req, res, next) => {
   try {
     let token = req.header("Authorization");
+    console.log(token)
+
+    token = token.split("Bearer ")[1];
 
     if (!token) {
       return res.status(ERROR_STATUS_CODE.INVALID).json({
@@ -17,12 +20,22 @@ const authenticateUser = (req, res, next) => {
         message: ERROR_MESSAGE.INVALID_TOKEN_MESSAGE,
       });
     }
-    
-    if (token.startsWith("Bearer ")) {
-      token = token.split(" ")[1];
-    }
 
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const decode = jwt.decode(token, { complete: true })
+    
+    const { header: { alg } } = decode
+
+    const decoded = jwt.verify(token, process.env.SECRET_KEY, { alg });
+
+    // jwt.verify(token, process.env.SECRET_KEY,(error, decoded) => {
+    //   if (error) {
+    //     console.error('Token verification failed:', error);
+    //   } else {
+    // console.log('Token successfully verified:', decoded);
+    //   }
+    // });
+
+    console.log("decoded", decoded)
 
     if (!decoded) {
       return res.status(ERROR_STATUS_CODE.FORBIDDEN).json({
@@ -31,9 +44,8 @@ const authenticateUser = (req, res, next) => {
       });
     }
 
-
     req.user = decoded;
-console.log(req.user);
+    console.log(req.user);
 
     next();
   } catch (error) {
@@ -45,6 +57,5 @@ console.log(req.user);
     });
   }
 };
-
 
 export default authenticateUser;

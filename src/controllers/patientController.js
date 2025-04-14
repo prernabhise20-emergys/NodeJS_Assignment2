@@ -385,10 +385,10 @@ const uploadDocument = async (req, res, next) => {
       throw MISSING_REQUIRED;
     }
 
-    const moreThanLimit = await checkNumberOfDocument(patient_id)
-    if (moreThanLimit) {
-      throw MORE_THAN_LIMIT;
-    }
+    // const moreThanLimit = await checkNumberOfDocument(patient_id)
+    // if (moreThanLimit) {
+    //   throw MORE_THAN_LIMIT;
+    // }
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
 
