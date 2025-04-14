@@ -11,9 +11,6 @@ import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 
 const router = express.Router();
 const {
-  GET_TIMESLOT,
-  CREATE_APPOINTMENT,
-  GET_DOCTORS,
   GET_FAMILY_INFO,
   GET_PERSONAL_INFO,
   ADD_PERSONAL_DATA,
@@ -28,7 +25,6 @@ const {
   DELETE_DISEASE_INFO,
   UPLOAD_DOCUMENTS,
   UPDATE_DOCUMENT,
-  DELETE_DOCUMENT,
   GET_UPLOAD_INFO,
   GET_DISEASE_INFO,
   DOWNLOAD_DOCUMENT
@@ -110,6 +106,7 @@ router.delete(
   authenticateUser,
   patientController.deleteDiseaseInfo
 );
+
 router.get(
   GET_UPLOAD_INFO,
   authenticateUser,
@@ -129,14 +126,6 @@ router.put(
   patientController.updateDocument
 );
 
-router.delete(
-  DELETE_DOCUMENT,
-  authenticateUser,
-  upload.none(),
-  patientController.deleteDocument
-);
-
-
 router.get(
   DOWNLOAD_DOCUMENT,
   authenticateUser,
@@ -144,7 +133,4 @@ router.get(
 );
 
 
-router.get(GET_DOCTORS,authenticateUser,patientController.getDoctors)
-router.post(CREATE_APPOINTMENT,authenticateUser,patientController.createAppointment)
-router.get(GET_TIMESLOT,authenticateUser,patientController.getDoctorAvailability)
 export default router;

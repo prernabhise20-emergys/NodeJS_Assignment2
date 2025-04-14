@@ -7,6 +7,12 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 
 import {
+  checkDoctorAvailability,
+  checkDoctor,
+  doctorFlag,
+  createDoctorAppointment,
+  isDoctorAvailable,
+  getDoctorInfo,
   getName,
   checkEmailExists,
   checkAlreadyExist,
@@ -41,7 +47,8 @@ const register = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-
+   
+      
     await createUserData(
       email,
       user_password,
@@ -51,6 +58,13 @@ const register = async (req, res, next) => {
     );
 
     await sendVerificationEmail(email);
+
+    const result = await checkDoctor(email);
+      if (result) {
+       await doctorFlag(email);
+       
+      }
+
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_MESSAGE.REGISTER_SUCCESS));
@@ -60,22 +74,28 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
+
   try {
     const { email, user_password } = req.body;
+    console.log(req.body);
+    
     const check1 = await checkUserDeleteOrNot(email);
+    console.log(check1);
+    
     if (check1) {
       throw USER_DELETED;
     }
 
     const user = await loginUser(email);
+console.log(user);
 
     if (!user) {
       throw INVALID_USER;
     }
 
-    const match = await bcrypt.compare(user_password, user.user_password);
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
 
-    if (!match) {
+    if (!passwordMatch) {
       throw INVALID_USER;
     }
 
@@ -85,6 +105,7 @@ const login = async (req, res, next) => {
         email: user.email,
         user_password: user.user_password,
         admin: user.is_admin,
+        doctor: user.is_doctor
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h" }
@@ -96,13 +117,21 @@ const login = async (req, res, next) => {
         admin_message: user.is_admin,
         token,
       });
-    } else {
-      res
-        .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(
-          new ResponseHandler(SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE, {token:token})
-        );
     }
+  
+      if (user.is_doctor) {
+      res.json({
+          message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+          doctor_message:user.is_doctor,
+          token,
+        });
+      }
+      else {
+       res.json({
+          message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+          token,
+        });
+      }
   } catch (error) {
     next(error);
   }
@@ -154,7 +183,8 @@ const getUser = async (req, res, next) => {
   try {
     const { userid: id, email: emailID } = req.user;
     const checkExists = await checkAlreadyExist(emailID);
-
+    console.log("req.user:", req.user);
+    
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);
       if (deletedUserInfo) {
@@ -190,11 +220,11 @@ const forgotPassword = async (req, res, next) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const validEmail = await checkEmailExists(email);
-    
+
     if (validEmail) {
-     const first_name= await getName(email)
-     
-      // await sendOtpToEmail(email,name, otp);
+      const name = await getName(email)
+
+      await sendOtpToEmail(email,name, otp);
 
       const hashOtp = await bcrypt.hash(otp, 10);
 
@@ -203,8 +233,8 @@ const forgotPassword = async (req, res, next) => {
         .send(new ResponseHandler(SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
     }
     res
-        .status(ERROR_STATUS_CODE.BAD_REQUEST)
-        .send(new ResponseHandler(ERROR_MESSAGE.EMAIL_NOT_EXISTS));
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_MESSAGE.EMAIL_NOT_EXISTS));
   } catch (error) {
     next(error);
   }
@@ -222,7 +252,90 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+const getDoctors = async (req, res, next) => {
+  try {
+
+    const personalInfo = await getDoctorInfo();
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
+    );
+  } catch (error) {
+    next(error)
+  }
+};
+
+
+const createAppointment = async (req, res, next) => {
+  const { patient_id, doctor_id, date, time } = req.body;
+const {email}=req.user;
+  try {
+    const isAvailable = await isDoctorAvailable(doctor_id, date, time);
+
+    if (!isAvailable) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.BOOK_SLOT)
+      );
+
+    }
+
+    const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
+    );
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const getDoctorAvailability = async (req, res, next) => {
+  try {
+    const { doctor_id } = req.query;
+    const { date } = req.body;
+
+    const availableTimes = await checkDoctorAvailability(doctor_id, date);
+
+    if (!availableTimes || availableTimes.length === 0) {
+      return res.status(404).send(new ResponseHandler(ERROR_MESSAGE.NOT_AVAILABLE));
+    }
+
+    const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
+    const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
+
+    const bookedSlots = availableTimes
+      .map((timeSlot) => {
+        const appointmentTime = new Date(`1970-01-01T${timeSlot.appointment_time}Z`);
+
+        if (appointmentTime instanceof Date && !isNaN(appointmentTime)) {
+          return {
+            bookedTimeSlot: timeSlot.appointment_time,
+          };
+        }
+        return null; 
+      })
+      .filter(Boolean); 
+
+    console.log("doctorInTime", doctorInTime);
+    console.log("doctorOutTime", doctorOutTime);
+    console.log(bookedSlots);
+
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
+        doctorInTime,
+        doctorOutTime,
+        bookedSlots,
+      })
+    );
+  } catch (error) {
+    next(error); 
+  }
+};
+
 export default {
+  getDoctorAvailability,
+  createAppointment,
+  getDoctors,
   forgotPassword,
   resetPassword,
   register,

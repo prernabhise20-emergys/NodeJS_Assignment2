@@ -39,7 +39,15 @@ const ROUTE_CONSTANTS = {
   DELETE_DOCTOR:"/deleteDoctor",
   GET_DOCTORS:"/getDoctors",
   CREATE_APPOINTMENT:"/bookAppointment",
-  GET_TIMESLOT:"/getTimeSlot"
+  GET_TIMESLOT:"/getTimeSlot",
+  DISPLAY_APPOINTMENTS:"/displayAppointments",
+  CHANGE_STATUS:"/changeStatus",
+  SHOW_BOOKED_SLOT:"/bookedSlot",
+  APPROVE_APPOINTMENT:"/approveAppoint",
+  APPOINTMENT_REQUEST:"/displayAppointmentRequest",
+  SHOW_AVAILABILITY:"/showAvailability",
+  ADD_PRISCRIPTION:"/addPriscription",
+  ALL_APPOINTMENTS:"/allAppointments"
 };
 
 export default ROUTE_CONSTANTS;

@@ -18,9 +18,6 @@ const getPatientInfo = async (id) => {
         JOIN disease d ON d.patient_id = p.patient_id 
         JOIN documents do ON do.patient_id = p.patient_id 
         WHERE p.is_deleted = false 
-          AND f.is_deleted = false 
-          AND d.is_deleted = false 
-          AND do.is_deleted = false 
           AND r.id = ?`,
         id,
         (error, result) => {
@@ -165,8 +162,8 @@ const createPersonalDetails = async (data, userId, email) => {
       blood_pressure: blood_pressure,
       country_of_origin: country_of_origin,
       created_by: email,
-      updated_by: email,    
-      ...data
+      updated_by: email,  
+      user_id:userId,  
     };
 
     return new Promise((resolve, reject) => {
@@ -576,23 +573,6 @@ const modifyDocument = (documentData) => {
   });
 };
 
-const removeDocument = (patient_id, document_type) => {
-  return new Promise((resolve, reject) => {
-    const values = [patient_id, document_type];
-
-    db.query(
-      `UPDATE documents SET IS_DELETED = true WHERE patient_id = ? AND document_type = ?`,
-      values,
-      (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(result);
-      }
-    );
-  });
-};
-
 const getDocumentByPatientIdAndType=async(patient_id,document_type)=>{
   try {
     const data = await new Promise((resolve, reject) => {
@@ -612,105 +592,8 @@ const getDocumentByPatientIdAndType=async(patient_id,document_type)=>{
   }
 }
 
-
-const getDoctorInfo = async () => {
-  try {
-    return new Promise((resolve, reject) => {
-      db.query(
-        `SELECT name, specialization from doctors where is_deleted=false`,
-        (error, result) => {
-          if (error) return reject(error);
-          return resolve(result);
-        }
-      );
-    });
-  } catch (error) {
-    throw error;
-  }
-};
-
-
-const isDoctorAvailable = (doctor_id, date, time) => {
-  const query = `
-    SELECT COUNT(*) AS count
-    FROM appointments
-    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ?
-  `;
-  
-  return new Promise((resolve, reject) => {
-    db.query(query, [doctor_id, date, time], (error, results) => {
-      if (error) {
-        return reject(error);
-      }
-      const count = results[0].count;
-      resolve(count === 0); 
-    });
-  });
-};
-
-
-const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
-  const query = `
-    INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
-    VALUES (?, ?, ?, ?)
-  `;
-  
-  return new Promise((resolve, reject) => {
-    db.query(query, [date, time, patient_id, doctor_id], (error, result) => {
-      if (error) {
-        return reject(error);
-      }
-      resolve(result); 
-    });
-  });
-};
-
-
-const generateTimeSlots = (startTime, endTime) => {
-  let slots = [];
-  let currentTime = new Date(startTime);
-
-  while (currentTime < endTime) {
-    let hour = currentTime.getHours().toString().padStart(2, '0');
-    let minute = currentTime.getMinutes().toString().padStart(2, '0');
-    slots.push(`${hour}:${minute}`);
-    currentTime.setMinutes(currentTime.getMinutes() + 30); 
-  }
-
-  return slots;
-};
-
-const checkDoctorAvailability = async (doctor_id, date) => {
-  const startTime = new Date(`${date}T10:00:00`); 
-  const endTime = new Date(`${date}T19:00:00`); 
-
-  const allSlots = generateTimeSlots(startTime, endTime);
-
-  const query = `
-    SELECT appointment_time 
-    FROM appointments 
-    WHERE doctor_id = ? AND DATE(appointment_date) = ?
-  `;
-  return new Promise((resolve, reject) => {
-    db.query(query, [doctor_id, date], (error, results) => {
-      if (error) {
-        return reject(error);
-      }
-
-      const bookedSlots = results.map(result => result.appointment_time);
-
-      const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
-
-      resolve(availableSlots); 
-    });
-  });
-};
-
 export {
-  checkDoctorAvailability,
-  isDoctorAvailable,
-  createDoctorAppointment,
-  getDoctorInfo,
+
   getDocumentByPatientIdAndType,
   getDeletePatientInfo,
   checkAlreadyExist,
@@ -720,7 +603,6 @@ export {
   checkDocumentExists,
   getDiseaseInfo,
   modifyDocument,
-  removeDocument,
   saveDocument,
   createPersonalDetails,
   checkNumberOfDocument,
@@ -736,3 +618,4 @@ export {
   getUploadInfo,
   deleteDiseaseDetails,
 };
+

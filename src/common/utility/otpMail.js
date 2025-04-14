@@ -1,34 +1,22 @@
 import transporter from '../../config/emailConfig.js';
 
-const sendOtpToEmail = async (email,name, otp) => {
-    try {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Password Reset OTP',
-        html: `
-          <html>
-            <body>
-              <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <h2>Password Reset Request</h2>
-                <p>Dear, ${name} </p>
-                <p>You have requested to reset your password. Please use the following ${otp} to proceed:</p>
-                <p style="font-size: 24px; font-weight: bold; color: #333;">${otp}</p>
-                <p>If you did not request a password reset, please ignore this email.</p>
-                <p>Thank you,</p>
-              </div>
-            </body>
-          </html>
-        `,
-      };
-  
-      await transporter.sendMail(mailOptions);
-  
-  console.log('otp email sent');
-  
-    } catch (error) {
-      console.error('Error sending OTP:', error);
-    throw new Error('Failed to send otp email');  
-}
-  };
-  export default sendOtpToEmail;
+import {otpMailBody} from '../constants/mailTemplate.js'
+const sendOtpToEmail = async (email, name, otp) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER, 
+      to: email,
+      subject: 'Password Reset OTP', 
+      html: otpMailBody(name, otp), 
+    };
+
+    await transporter.sendMail(mailOptions); 
+    console.log('OTP email sent successfully');
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    throw new Error('Failed to send OTP email');
+  }
+};
+
+export default sendOtpToEmail;
+

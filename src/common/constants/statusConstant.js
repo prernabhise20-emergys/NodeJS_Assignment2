@@ -11,6 +11,8 @@ const SUCCESS_STATUS_CODE = {
   SUCCESS: 200,
 };
 const ERROR_MESSAGE = {
+ NOT_AVAILABLE:" No available slots found for the selected doctor and date.",
+  BOOK_SLOT:"The selected time slot is already booked. Please choose another time.",
   EMAIL_NOT_EXISTS:"Email is not found",
   MORE_THAN_LIMIT: "Only 4 documents allow to upload",
   ID_ALREADY_EXISTS: "Patient_id already exists",
@@ -34,10 +36,24 @@ const ERROR_MESSAGE = {
   FORBIDDEN_MESSAGE:"Unauthorized access",
   DOCUMENT_NOT_FOUND:"Document not found",
   ADMIN_ACCESS:"Only admin add to as doctor",
-  DOCTOR_NOT_FOUND:"Doctor information is not found"
+  DOCTOR_NOT_FOUND:"Doctor information is not found",
+  NOT_CHANGE_STATUS:"Failed to change status",
+  INVALID_INPUT:"Invalid Input",
+  NOT_AVAILABLE:"Time slot is not available",
+  LOGIN_FAILED:"Failed to login",
+  FAILED_TO_RETRIVE:"Failed to retrieve data"
+
 };
 
 const SUCCESS_MESSAGE={
+  ALL_APPOINTMENTS:"Retrive all appointments information successfully",
+  REQUESTED_APPOINTMENT:"Requested appointments retreived successfully",
+  PRESCRIPTION_UPLOAD:"Prescription uploaded successfully",
+  BOOKED_APPOINTMENTS:"Scheduled appointments data display successfully",
+  CHANGE_STATUS:"Appointments status change successfully",
+  SCHEDULED_APPOINTMENTS:"Scheduled appointments is retrived successfully",
+  AVAILABLE_SLOT:"Available slot is retrieved successfully",
+  APPOINTMENT_BOOKED:"Appointment successfully booked",
   UPDATED_DOCTOR_INFO_MESSAGE:"Doctor details updated successfully",
   ADDED_DOCTOR_INFO_MESSAGE:"Doctor information added successfully",
   OTP_SENT:"OTP is sent to your email",
@@ -67,7 +83,7 @@ const SUCCESS_MESSAGE={
   DOCUMENT_DELETE_SUCCESSFULLY: "Document deleted successfully",
   GET_ADMIN:"Admin are retrieve successfully",
   ADMIN_ACCESS:"Only admin can access",
-  PASSWORD_UPDATE:"Password is updated successfully"
+  PASSWORD_UPDATE:"Password is updated successfully",
 };
 export {
   ERROR_STATUS_CODE,

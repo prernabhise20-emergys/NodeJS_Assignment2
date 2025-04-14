@@ -2,14 +2,19 @@ import {
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
   SUCCESS_STATUS_CODE,
+  ERROR_STATUS_CODE
 } from "../common/constants/statusConstant.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
+import approveRequest from "../common/utility/approveAppointment.js"
+
 
 import {
+  getAllAppointmentInformation,
+  getPatientData,
+  scheduleAppointment,
+  changeStatus,
   deleteDoctorData,
-  updateDoctorData,
-  doctorFlag,
   createDoctorData,
   ageGroupWiseData,
   deletePatientDetails,
@@ -19,6 +24,7 @@ import {
   checkAdminCount,
   removeAdminAuthority,
   displayAdmin,
+  displayRequest
 } from "../models/adminModel.js";
 const { UNAUTHORIZED_ACCESS, NOT_DELETED } = AUTH_RESPONSES;
 
@@ -29,12 +35,12 @@ const getAllInfo = async (req, res, next) => {
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
-    let { page, limit, documentSize } = req.query;
+    let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
-    documentSize = parseInt(documentSize || 4);
+    // documentSize = parseInt(documentSize || 4);
 
-    limit = limit * documentSize;
+    limit = limit * 4;
 
     const offset = (page - 1) * limit;
 
@@ -49,7 +55,7 @@ const getAllInfo = async (req, res, next) => {
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit / documentSize,
+        limit: limit / 4,
         totalPatients: totalCount,
       },
     });
@@ -143,6 +149,8 @@ const removeAdmin = async (req, res, next) => {
   }
 };
 
+
+
 const getAdmin = async (req, res, next) => {
   try {
     const { admin: is_admin } = req.user;
@@ -171,26 +179,27 @@ const addDoctor = async (req, res, next) => {
         name,
         specialization,
         contact_number,
-        email
+        email,
+        doctorInTime,
+        doctorOutTime
       },
     } = req;
 
-    const { userid:user_id, admin: is_admin } = req.user;
-    
+    const { userid: user_id, admin: is_admin } = req.user;
+
     const data = {
       name,
       specialization,
       contact_number,
       email,
-      user_id
+      user_id,
+      doctorInTime,
+        doctorOutTime
     };
     console.log(data);
 
     if (is_admin) {
       const result = await createDoctorData(data);
-      if (result) {
-        await doctorFlag();
-      }
       res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
       );
@@ -203,54 +212,9 @@ const addDoctor = async (req, res, next) => {
   }
 };
 
-
-const updateDoctor = async (req, res, next) => {
-  try {
-    const {
-      body: {
-        name,
-        specialization,
-        contact_number,
-        email,
-        doctor_id
-      },
-    } = req;
-
-    const { userid: id, admin: is_admin } = req.user;
-
-    const data = {
-      name,
-      specialization,
-      contact_number,
-      email
-    };
-
-    console.log(data);
-
-    if (is_admin) {
-      const result = await updateDoctorData(data,doctor_id);
-      if (result) {
-        await doctorFlag();
-      }
-
-      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)
-      );
-    }
-
-    return res.status(SUCCESS_STATUS_CODE.FORBIDDEN).send(
-      new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS)
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-
-
 const deleteDoctor = async (req, res, next) => {
   try {
     const { doctor_id } = req.query;
-console.log(doctor_id);
 
     await deleteDoctorData(doctor_id);
     res
@@ -260,9 +224,122 @@ console.log(doctor_id);
     next(error);
   }
 };
+
+const changeAppointmentsStatus = async (req, res, next) => {
+  try {
+    const { status, appointment_id } = req.query;
+    const { admin: is_admin } = req.user;
+    if (!status || !appointment_id) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+      );
+    }
+    if (is_admin) {
+      const result = await changeStatus(status, appointment_id);
+
+      if (result.affectedRows > 0) {
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+          new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+        );
+      } else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        );
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const approveAppointment = async (req, res, next) => {
+  try {
+    const { appointment_id } = req.query;
+    const { admin: is_admin, email } = req.user;
+
+    if (!appointment_id) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+      );
+    }
+    if (is_admin) {
+      const result = await scheduleAppointment(appointment_id);
+      const data = await getPatientData(appointment_id); 
+
+      if (!data || data.length === 0) {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        );
+      }
+
+      const patientName = data[0].patient_name;
+      const appointmentDate = data[0].appointment_date;
+      const appointmentTime = data[0].appointment_time;
+      const doctorName = data[0].name;
+console.log(patientName, appointmentDate, appointmentTime, doctorName);
+console.log(result);
+
+      if (result.affectedRows==1) {
+        await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName);
+
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+          new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+        );
+      } else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        );
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const displayAppointmentRequest = async (req, res, next) => {
+  try {
+    const { admin: is_admin } = req.user;
+    if (is_admin) {
+      const user = await displayRequest();
+
+      res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_MESSAGE.REQUESTED_APPOINTMENT, user));
+    }
+    res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllAppointments = async (req, res, next) => {
+  try {
+const {admin,doctor}=req.user;
+const{doctor_id}=req.query;
+if(admin || doctor){
+  const appointments = await getAllAppointmentInformation(doctor_id);
+
+console.log(appointments);
+
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
+       appointments
+      })
+    );
+  }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
+  getAllAppointments,
+  displayAppointmentRequest,
+  approveAppointment,
+  changeAppointmentsStatus,
   deleteDoctor,
-  updateDoctor,
   addDoctor,
   addAdmin,
   removeAdmin,
@@ -271,3 +348,5 @@ export default {
   adminDeletePatientData,
   getAllInfo,
 };
+
+

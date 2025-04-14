@@ -1,16 +1,14 @@
 import {
+  ERROR_STATUS_CODE,
   SUCCESS_MESSAGE,
   SUCCESS_STATUS_CODE,
+  ERROR_MESSAGE
 } from "../common/constants/statusConstant.js";
 import { uploadFile } from "../common/utility/upload.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 
 import {
-  checkDoctorAvailability,
-  createDoctorAppointment,
-  isDoctorAvailable,
-  getDoctorInfo,
   getDocumentByPatientIdAndType,
   checkNumberOfDocument,
   checkUserWithPatientID,
@@ -30,7 +28,6 @@ import {
   deleteDiseaseDetails,
   saveDocument,
   modifyDocument,
-  removeDocument,
   checkDocumentExists,
 
 } from "../models/patientModel.js";
@@ -47,36 +44,34 @@ const {
 
 // *****************************************************************
 
-const showPatientDetails = async (req, res) => {
+const showPatientDetails = async (req, res,next) => {
   try {
     const { userid: id } = req.user;
 
     const patientInfo = await getPatientInfo(id);
-  res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,patientInfo)
-      );
-
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, patientInfo)
+    );
   } catch (error) {
     next(error)
   }
 };
 
 // *********************************************************************
-const getPersonalDetails = async (req, res,next) => {
+const getPersonalDetails = async (req, res, next) => {
   try {
     const { patient_id } = req.params;
     const familyInfo = await getPersonalInfo(patient_id);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,familyInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
-    
   } catch (error) {
     next(error);
   }
 };
 
-const createPersonalInfo = async (req, res,next) => {
+const createPersonalInfo = async (req, res, next) => {
   try {
     const {
       body: {
@@ -89,6 +84,7 @@ const createPersonalInfo = async (req, res,next) => {
         is_diabetic,
         cardiac_issue,
         blood_pressure,
+
       },
     } = req;
 
@@ -108,15 +104,15 @@ const createPersonalInfo = async (req, res,next) => {
     const result = await createPersonalDetails(data, id, email);
 
     res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE,{patient_id: result.insertId})
+      new ResponseHandler(SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE, { patient_id: result.insertId })
     );
-   
+
   } catch (error) {
-  next(error)
+    next(error)
   }
 };
 
-const updatePersonalInfo = async (req, res,next) => {
+const updatePersonalInfo = async (req, res, next) => {
   try {
     const {
       body: {
@@ -175,35 +171,34 @@ const deletePersonalInfo = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deletePersonalDetails(patient_id);
-    
+
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
       );
-        }
+    }
     throw NOT_DELETED;
   } catch (error) {
     next(error)
   }
 };
 // *************************************************************************
-const getFamilyDetails = async (req, res,next) => {
+const getFamilyDetails = async (req, res, next) => {
   try {
     const { patient_id } = req.params;
     const familyInfo = await getFamilyInfo(patient_id);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,familyInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
-    
+    throw FAILED_TO_RETRIVE;
   } catch (error) {
     next(error)
   }
 };
-const addFamilyInfo = async (req, res,next) => {
+const addFamilyInfo = async (req, res, next) => {
   try {
     const { familyDetails } = req.body;
     const { patient_id } = familyDetails;
-    console.log("Patient ID:", patient_id);
 
     await insertFamilyInfo(familyDetails);
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -263,7 +258,8 @@ const updateFamilyInfoDetails = async (req, res, next) => {
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.FAMILY_UPDATE_SUCCESSFULLY)
-      );    }
+      );
+    }
     throw NOT_UPDATE;
   } catch (error) {
     next(error)
@@ -296,10 +292,10 @@ const getDiseaseDetails = async (req, res, next) => {
     const personalInfo = await getDiseaseInfo(patient_id);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DETAILS,personalInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DETAILS, personalInfo)
     );
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
@@ -314,7 +310,7 @@ const addDiseaseInfo = async (req, res, next) => {
     );
 
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
@@ -333,11 +329,11 @@ const updateDiseaseInfo = async (req, res, next) => {
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.DISEASE_UPDATE_SUCCESSFULLY)
       );
-      
+
     }
     throw NOT_UPDATE;
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
@@ -367,16 +363,17 @@ const getUploadDocument = async (req, res, next) => {
 
     const personalInfo = await getUploadInfo(patient_id);
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,personalInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
+    throw FAILED_TO_RETRIVE;
+
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
 const uploadDocument = async (req, res, next) => {
   try {
-    console.log("Received File:", req.file);
 
     if (!req.file) {
       throw NO_FILE_FOUND;
@@ -388,11 +385,10 @@ const uploadDocument = async (req, res, next) => {
       throw MISSING_REQUIRED;
     }
 
-   const moreThanLimit= await checkNumberOfDocument(patient_id)
-if(moreThanLimit)
-{
-  throw MORE_THAN_LIMIT;
-}
+    const moreThanLimit = await checkNumberOfDocument(patient_id)
+    if (moreThanLimit) {
+      throw MORE_THAN_LIMIT;
+    }
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
 
@@ -422,14 +418,14 @@ if(moreThanLimit)
     await saveDocument(documentData);
 
     res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPLOAD,documentPath)
+      new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPLOAD, documentPath)
     );
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
-const updateDocument = async (req, res,next) => {
+const updateDocument = async (req, res, next) => {
   try {
     if (!req.file) {
       throw NO_FILE_FOUND;
@@ -471,31 +467,8 @@ const updateDocument = async (req, res,next) => {
   }
 };
 
-const deleteDocument = async (req, res, next) => {
-  try {
-    const { patient_id, document_type } = req.body;
-    const { userid: id, admin: is_admin } = req.user;
 
-    const documentExists = await checkDocumentExists(document_type, patient_id);
-    if (!documentExists) {
-      throw DOCUMENT_NOT_FOUND;
-    }
-    const isValidPatient = await checkUserWithPatientID(id, patient_id);
-    if (isValidPatient || is_admin) {
-      await removeDocument(patient_id, document_type);
-
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_DELETE_SUCCESSFULLY)
-      );    
-    }
-    throw NOT_DELETED;
-  } catch (error) {
-   next(error)
-  }
-};
-
-
-const downloadDocument = async (req, res,next) => {
+const downloadDocument = async (req, res, next) => {
   try {
     const { patient_id, document_type } = req.query;
 
@@ -515,69 +488,15 @@ const downloadDocument = async (req, res,next) => {
     const documentUrl = document.document_url;
 
     return res.redirect(documentUrl);
-    
-  } catch (error) {
- next(error)
-  }
-};
 
-const getDoctors = async (req, res, next) => {
-  try {
-
-    const personalInfo = await getDoctorInfo();
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,personalInfo)
-    );
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
 
-const createAppointment = async (req, res, next) => {
-  const { patient_id, doctor_id, date, time } = req.body;
-
-  try {
-    const isAvailable = await isDoctorAvailable(doctor_id, date, time);
-
-    if (!isAvailable) {
-      return res.status(400).json({
-        success: false,
-        message: "The selected time slot is already booked. Please choose another time.",
-      });
-    }
-
-    const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
-
-    res.status(201).json({
-      success: true,
-      message: "Appointment successfully created.",
-      appointment_id: result.insertId 
-    });
-  } catch (error) {
-    next(error); 
-  }
-};
-
-const getDoctorAvailability = async (req, res, next) => {
-  const { doctor_id, date } = req.query;
-
-  try {
-    const availableSlots = await checkDoctorAvailability(doctor_id, date);
-
-    res.status(200).json({
-      success: true,
-      availableSlots,
-    });
-  } catch (error) {
-    next(error); 
-  }
-};
 export default {
-  getDoctorAvailability,
-  createAppointment,
-  getDoctors,
-downloadDocument,
+  downloadDocument,
   getUploadDocument,
   getPersonalDetails,
   getFamilyDetails,
@@ -594,5 +513,4 @@ downloadDocument,
   updateDiseaseInfo,
   deleteDiseaseInfo,
   updateDocument,
-  deleteDocument,
 };

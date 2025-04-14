@@ -1,14 +1,17 @@
 import express from "express";
 import adminController from "../controllers/adminController.js";
-// import doctorController from "../controllers/doctorController.js"
 import authenticateUser from "../middlewares/authMiddleware.js";
 import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
-
+import { schemaValidator } from "../middlewares/userValidation.js";
+import { user_schemas } from "../common/constants/schemaConstant.js"
 const router = express.Router();
 
 const {
+  ALL_APPOINTMENTS,
+  APPOINTMENT_REQUEST,
+  APPROVE_APPOINTMENT,
+  CHANGE_STATUS,
   DELETE_DOCTOR,
-  UPDATE_DOCTOR,
   ADD_DOCTOR,
   GET_AGE_GROUP,
   ADMIN_DELETE_PATIENT_DATA,
@@ -31,11 +34,14 @@ router.delete(
 );
 
 router.get(GET_AGE_GROUP, authenticateUser, adminController.ageGroupData);
-
 router.put(ADD_ADMIN, authenticateUser, adminController.addAdmin);
 router.put(REMOVE_ADMIN, authenticateUser, adminController.removeAdmin);
-router.get(GET_ADMIN, authenticateUser, adminController.getAdmin);
+router.get(GET_ADMIN,authenticateUser, adminController.getAdmin);
 router.post(ADD_DOCTOR,authenticateUser,adminController.addDoctor)
-router.put(UPDATE_DOCTOR,authenticateUser,adminController.updateDoctor)
-router.delete(DELETE_DOCTOR,authenticateUser,adminController.deleteDoctor)
+router.delete(DELETE_DOCTOR,authenticateUser,adminController.deleteDoctor);
+router.put(CHANGE_STATUS,authenticateUser,schemaValidator(user_schemas.changeStatus),adminController.changeAppointmentsStatus)
+router.put(APPROVE_APPOINTMENT,authenticateUser,schemaValidator(user_schemas.changeStatus),adminController.approveAppointment)
+router.get(APPOINTMENT_REQUEST, authenticateUser, adminController.displayAppointmentRequest);
+router.get(ALL_APPOINTMENTS,authenticateUser,adminController.getAllAppointments)
+
 export default router;

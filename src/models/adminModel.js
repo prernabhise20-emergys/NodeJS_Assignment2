@@ -33,9 +33,6 @@ const getInfo = async (is_admin, limit, offset) => {
           documents do ON do.patient_id = p.patient_id 
         WHERE 
           p.is_deleted = FALSE 
-          AND f.is_deleted = FALSE 
-          AND d.is_deleted = FALSE 
-          AND do.is_deleted = FALSE 
         ORDER BY 
           p.patient_id 
         LIMIT ? OFFSET ?`,
@@ -255,8 +252,8 @@ const createDoctorData = async (data) => {
       ...data
     };
 
-    console.log('doctordata',doctorData);
-    
+    console.log('doctordata', doctorData);
+
     return new Promise((resolve, reject) => {
       db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
         if (error) {
@@ -270,45 +267,9 @@ const createDoctorData = async (data) => {
   }
 };
 
-const doctorFlag = async () => {
-  try {
-    const data = await new Promise((resolve, reject) => {
-      db.query("UPDATE user_register SET is_doctor= TRUE", (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        return resolve(result);
-      });
-    });
-
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
-const updateDoctorData = async (data,doctor_id) => {
-  try {
-    const updateData = {
-      ...data,
-    };
-
-    console.log('Update data:', updateData);
-
-    return new Promise((resolve, reject) => {
-      db.query("UPDATE doctors SET ? WHERE doctor_id = ?", [updateData, doctor_id], (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        return resolve(result);
-      });
-    });
-  } catch (error) {
-    throw error;
-  }
-};
 
 const deleteDoctorData = async (doctor_id) => {
-  
+
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
@@ -328,10 +289,120 @@ const deleteDoctorData = async (doctor_id) => {
     throw error;
   }
 };
+
+
+const changeStatus = async (status, appointment_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `UPDATE appointments SET status = ? WHERE appointment_id = ?`,
+        [status, appointment_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+const scheduleAppointment = async (appointment_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `UPDATE appointments SET status ='Scheduled' WHERE appointment_id = ?`,
+        appointment_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const displayRequest = async () => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        `select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
+      from appointments a join personal_info p 
+      on(a.patient_id=p.patient_id)
+      join disease d
+      on(d.patient_id=p.patient_id)
+      where p.is_deleted=false and a.status='Pending'`,
+        (error, result) => {
+          if (error) return reject(error);
+
+          return resolve(result);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+const getPatientData = async (appointment_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name
+         FROM personal_info p 
+         JOIN appointments a ON (p.patient_id = a.patient_id)
+         JOIN doctors d ON (a.doctor_id = d.doctor_id)
+         WHERE a.appointment_id = ?`,
+        [appointment_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        }
+      );
+    });
+  } catch (error) {
+
+    throw error;
+  }
+};
+
+const  getAllAppointmentInformation=async(doctor_id)=>{
+  return new Promise((resolve, reject) => {
+    db.query(
+      `
+    select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
+      from appointments a join personal_info p 
+      on(a.patient_id=p.patient_id)
+      join disease d
+      on(d.patient_id=p.patient_id)
+      where p.is_deleted=false and doctor_id=? order by appointment_id;
+      `,doctor_id,
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+}
 export {
+  getAllAppointmentInformation,
+  getPatientData,
+  displayRequest,
+  scheduleAppointment,
+  changeStatus,
   deleteDoctorData,
-  updateDoctorData,
-  doctorFlag,
   createDoctorData,
   getInfo,
   displayAdmin,

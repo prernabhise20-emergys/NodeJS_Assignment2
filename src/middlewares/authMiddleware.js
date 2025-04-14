@@ -9,7 +9,7 @@ import {
 
 const authenticateUser = (req, res, next) => {
   try {
-    const token = req.header("Authorization");
+    let token = req.header("Authorization");
 
     if (!token) {
       return res.status(ERROR_STATUS_CODE.INVALID).json({
@@ -17,9 +17,12 @@ const authenticateUser = (req, res, next) => {
         message: ERROR_MESSAGE.INVALID_TOKEN_MESSAGE,
       });
     }
+    
+    if (token.startsWith("Bearer ")) {
+      token = token.split(" ")[1];
+    }
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    console.log(decoded);
 
     if (!decoded) {
       return res.status(ERROR_STATUS_CODE.FORBIDDEN).json({
@@ -28,14 +31,20 @@ const authenticateUser = (req, res, next) => {
       });
     }
 
+
     req.user = decoded;
+console.log(req.user);
+
     next();
   } catch (error) {
+    console.log("Decoded error:", error);
+
     res.status(ERROR_STATUS_CODE.INVALID).json({
       status: ERROR_STATUS_CODE.INVALID,
       message: ERROR_MESSAGE.INVALID_TOKEN_MESSAGE,
     });
   }
 };
+
 
 export default authenticateUser;

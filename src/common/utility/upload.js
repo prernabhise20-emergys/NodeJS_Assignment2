@@ -1,4 +1,3 @@
-import multer from 'multer';
 import cloudinary from 'cloudinary';
 import streamifier from 'streamifier';
 

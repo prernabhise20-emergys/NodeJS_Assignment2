@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+
 const user_schemas = {
   createUserSchema: Joi.object({
     email: Joi.string()
@@ -176,12 +177,12 @@ const user_schemas = {
     mother_name: Joi.string().min(3).max(100).optional().error(new Error("mother_name is required and must be at least 3 characters")),
     mother_age: Joi.number().min(18).optional().error(new Error("mother_age is required")),
     mother_country_origin: Joi.string().min(3).max(25).optional().error(new Error("mother_country_origin is required")),
-  mother_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
-    mother_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
-    mother_bp: Joi.boolean().error(new Error("parent_bp is required field")),
-    father_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
-    father_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
-    father_bp: Joi.boolean().error(new Error("parent_bp is required field")),
+  mother_diabetic: Joi.boolean().optional().error(new Error("mother_diabetic is required")),
+    mother_cardiac_issue: Joi.boolean().optional().error(new Error("mother_cardiac_issue is required")),
+    mother_bp: Joi.boolean().error(new Error("mother_bp is required field")),
+    father_diabetic: Joi.boolean().optional().error(new Error("father_diabetic is required")),
+    father_cardiac_issue: Joi.boolean().optional().error(new Error("father_cardiac_issue is required")),
+    father_bp: Joi.boolean().error(new Error("father_bp is required field")),
   }).required()
 }),
 
@@ -196,29 +197,24 @@ const user_schemas = {
     mother_name: Joi.string().min(3).max(100).error(new Error("mother_name is string format and must be at least 3 characters")),
     mother_age: Joi.number().min(18).error(new Error("father_age is min 18")),
     mother_country_origin: Joi.string().min(3).max(25).error(new Error("father_country_origin is minimum 3 character")),
-    mother_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
-    mother_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
-    mother_bp: Joi.boolean().error(new Error("parent_bp is required field")),
-    father_diabetic: Joi.boolean().optional().error(new Error("parent_diabetic is required")),
-    father_cardiac_issue: Joi.boolean().optional().error(new Error("parent_cardiac_issue is required")),
-    father_bp: Joi.boolean().error(new Error("parent_bp is required field")),
+    mother_diabetic: Joi.boolean().valid(1,0).optional().error(new Error("mother_diabetic is required")),
+    mother_cardiac_issue: Joi.boolean().valid(1,0).optional().error(new Error("mother_cardiac_issue is required")),
+    mother_bp: Joi.boolean().valid(1,0).error(new Error("mother_bp is required field")),
+    father_diabetic: Joi.boolean().valid(1,0).optional().error(new Error("father_diabetic is required")),
+    father_cardiac_issue: Joi.boolean().valid(1,0).optional().error(new Error("father_cardiac_issue is required")),
+    father_bp: Joi.boolean().valid(1,0).error(new Error("father_bp is required field")),
   }),
-  createDiseaseInfo: Joi.object({
+  createDiseaseInfo : Joi.object({
     diseaseDetails: Joi.object({
-      patient_id: Joi.number().required(),
-      disease_type: Joi.string().required(),
-      disease_description: Joi.string().required(),
-    }).required(),
+      patient_id: Joi.number().required().error(new Error("patient_id is required")),
+      disease_type: Joi.string().required().error(new Error("disease_type is required")),
+      disease_description: Joi.string().required().error(new Error("disease_description is required"))
+    }).required()
   }),
   updateDiseaseInfo: Joi.object({
     patient_id: Joi.number().required(),
-    disease_type: Joi.string()
-      .optional()
-      .error(new Error("disease_type is in string format")),
-    disease_description: Joi.string()
-      .max(255)
-      .optional()
-      .error(new Error("disease_type is in string format")),
+    disease_type:Joi.string().optional().error(new Error("disease_type is in string format")),
+    disease_description:Joi.string().max(255).optional().error(new Error("disease_type is in string format")),
   }),
 
  doctorSchema : Joi.object({
@@ -236,6 +232,11 @@ const user_schemas = {
     status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled').default('Scheduled'),
     patient_id: Joi.number().integer().positive().required(),
     doctor_id: Joi.number().integer().positive().required()
+}),
+changeStatus:Joi.object({
+  status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled','Pending').default('Pending').error(
+    new Error("Status are allowed only'Scheduled', 'Completed', 'Cancelled','Pending")
+  ),
 })
 
 
