@@ -14,6 +14,8 @@ const ERROR_MESSAGE = {
  NOT_AVAILABLE:" No available slots found for the selected doctor and date.",
   BOOK_SLOT:"The selected time slot is already booked. Please choose another time.",
   EMAIL_NOT_EXISTS:"Email is not found",
+  BOOK_SLOT:"The selected time slot is already booked. Please choose another time.",
+  EMAIL_NOT_EXISTS:"Email is not found",
   MORE_THAN_LIMIT: "Only 4 documents allow to upload",
   ID_ALREADY_EXISTS: "Patient_id already exists",
   CANNOT_DELETE: "Cannot delete the last admin user",
