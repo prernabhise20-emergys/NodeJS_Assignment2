@@ -87,6 +87,7 @@ const SUCCESS_MESSAGE = {
   PASSWORD_UPDATE: "Password is updated successfully",
   USER_INFO_SUCCESS_MESSAGE: "User details retrieve successfully"
 };
+
 export {
   ERROR_STATUS_CODE,
   SUCCESS_STATUS_CODE,

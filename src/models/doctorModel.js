@@ -1,5 +1,32 @@
 import db from "../db/connection.js";
 
+
+
+const getDoctor = async (userid) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        `  SELECT name as doctorName,     
+    specialization, 
+    contact_number, 
+    doctorInTime,
+    doctorOutTime
+    from doctors
+WHERE is_deleted = FALSE 
+AND user_id = ?`,
+        userid,
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const updateDoctorData = async (data,user_id) => {
   try {
     const updateData = {
@@ -111,6 +138,7 @@ const getAppointmentData = async (appointment_id) => {
 };
 
 export {
+  getDoctor,
   getAppointmentData,
   savePrescription,
   updateDoctorData,

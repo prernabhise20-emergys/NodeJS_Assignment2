@@ -10,10 +10,11 @@ const router = express.Router();
 const {
   ADD_PRISCRIPTION,
   DISPLAY_APPOINTMENTS,
-  UPDATE_DOCTOR
+  UPDATE_DOCTOR,
+  GET_DOCTOR_PROFILE
 } = ROUTE_CONSTANTS;
 
-
+router.get(GET_DOCTOR_PROFILE,authenticateUser,doctorController.getDoctorProfile)
 router.put(
   UPDATE_DOCTOR,
   authenticateUser,

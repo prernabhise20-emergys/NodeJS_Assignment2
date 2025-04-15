@@ -8,15 +8,31 @@ import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
 // import xlsx from 'xlsx';
-import puppeteer from "puppeteer";
-import { createPrescription } from '../common/utility/createPrescription.js'
+// import puppeteer from "puppeteer";
+// import { createPrescription } from '../common/utility/createPrescription.js'
 import {
     getAppointmentData,
     savePrescription,
     showAppointments,
-    updateDoctorData
+    updateDoctorData,
+    getDoctor
 } from "../models/doctorModel.js";
 
+
+
+const getDoctorProfile = async (req, res, next) => {
+    try {
+      const { userid } = req.user;
+      
+      const doctorData = await getDoctor(userid);
+  
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DETAILS, doctorData)
+      );
+    } catch (error) {
+      next(error)
+    }
+  };
 const updateDoctor = async (req, res, next) => {
     try {
         const {
@@ -176,38 +192,6 @@ const uploadPrescription = async (req, res, next) => {
     }
 };
 
-// const uploadPrescription = async (req, res, next) => {
-//     try {
-//         const { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } = req.body;
-//         const { email } = req.user;
-
-//         const patientData = await getAppointmentData(appointment_id);
-//         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
-
-//         const formattedAppointmentDate = formatDate(appointmentDate);
-//         const formattedBirthDate = formatDate(date_of_birth);
-
-//         const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
-
-//         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
-
-//         const result = await uploadFile({
-//             buffer: pdfBuffer,
-//             originalname: "prescription.pdf",
-//         });
-
-//         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
-
-//         await savePrescription(appointment_id, cloudinaryUniquePath);
-//         await sendPrescription(email, result.secure_url);
-
-//         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//             new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
-//         );
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 
 
 const formatDate = (dateString) => {
@@ -219,6 +203,7 @@ const formatDate = (dateString) => {
 };
 
 export default {
+    getDoctorProfile,
     uploadPrescription,
     updateDoctor,
     displayAppointments

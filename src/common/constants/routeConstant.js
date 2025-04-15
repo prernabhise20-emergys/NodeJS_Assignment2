@@ -50,7 +50,8 @@ const ROUTE_CONSTANTS = {
   ALL_APPOINTMENTS:"/allAppointments",
   APPOINTMENTS:"/appointments",
   ALL_EMAIL_ADMIN:"/getEmailsForAdmin",
-  ALL_EMAIL_DOCTOR:"/getEmailsForDoctor"
+  ALL_EMAIL_DOCTOR:"/getEmailsForDoctor",
+  GET_DOCTOR_PROFILE:"/getDoctorProfile"
 };
 
 export default ROUTE_CONSTANTS;
