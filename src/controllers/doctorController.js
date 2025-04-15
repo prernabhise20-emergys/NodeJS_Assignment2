@@ -38,8 +38,9 @@ const updateDoctor = async (req, res, next) => {
             doctorInTime,
             doctorOutTime
         };
+console.log(userid);
 
-        console.log(data);
+        console.log('data',data);
 
         if (is_doctor) {
             await updateDoctorData(data,userid);
@@ -59,20 +60,31 @@ const updateDoctor = async (req, res, next) => {
 
 const displayAppointments = async (req, res, next) => {
     try {
-        const { userid} = req.user;
+        const { userid: user_id } = req.user;
         const { doctor: is_doctor, admin: is_admin } = req.user;
+
+        console.log("User ID being passed:", user_id); 
+
         if (is_doctor || is_admin) {
             const appointments = await showAppointments(user_id);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
             );
+        } else {
+            return res.status(SUCCESS_STATUS_CODE.UNAUTHORIZED).send(
+                new ResponseHandler("Access Denied: You are not authorized.")
+            );
         }
+    } catch (error) {
+        console.error("Error in displayAppointments:", error);
+        next(error);
     }
-    catch (error) {
-        next(error)
-    }
-}
+};
+
+
+
+
 
 
 // const uploadPrescription = async (req, res, next) => {

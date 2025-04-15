@@ -8,7 +8,8 @@ const getUserData = async (userid) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        `SELECT  
+        `SELECT 
+    u.email,     
     u.first_name, 
     u.last_name, 
     u.mobile_number, 
