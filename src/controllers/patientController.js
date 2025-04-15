@@ -44,7 +44,7 @@ const {
 
 // *****************************************************************
 
-const showPatientDetails = async (req, res,next) => {
+const showPatientDetails = async (req, res, next) => {
   try {
     const { userid: id } = req.user;
 
@@ -467,29 +467,38 @@ const updateDocument = async (req, res, next) => {
   }
 };
 
+import cloudinaryBaseUrl from '../common/constants/pathConstant.js'
 
 const downloadDocument = async (req, res, next) => {
   try {
-    const { patient_id, document_type } = req.query;
+
+    const { patient_id } = req.query;
+    const { document_type } = req.body;
 
     if (!patient_id || !document_type) {
       throw MISSING_REQUIRED;
     }
+
+    console.log(patient_id, document_type);
 
     const document = await getDocumentByPatientIdAndType(
       patient_id,
       document_type
     );
 
+    console.log('doc', document);
+
     if (!document) {
       throw DOCUMENT_NOT_FOUND;
     }
 
-    const documentUrl = document.document_url;
+    const documentUrl = cloudinaryBaseUrl + document.document_url;
+    console.log('url', documentUrl);
 
     return res.redirect(documentUrl);
 
   } catch (error) {
+
     next(error)
   }
 };

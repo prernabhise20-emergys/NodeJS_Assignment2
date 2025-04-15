@@ -405,6 +405,199 @@
  */
 
 
+/**
+ * @swagger
+ * /api/user/getDoctors:
+ *   get:
+ *     summary: Get doctor profile
+ *     description: Returns doctor details.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Doctor data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Doctor details fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     doctor_id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: "Dr.Prerna Bhise"
+ *                     specialization:
+ *                       type: string
+ *                       example: "MD.Medicine"
+ *                     doctorInTime:
+ *                       type: string
+ *                       example: "11:00:00"
+ *                     doctorOutTime:
+ *                       type: string
+ *                       example: "04:00:00"
+ *       401:
+ *         description: Unauthorized - Invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid token."
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
+ */
+
+/**
+ * @swagger
+ * /api/user/bookAppointment:
+ *   post:
+ *     summary: Book Appointment
+ *     description: Create a new appointment.
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               patient_id:
+ *                 type: number
+ *                 example: 1
+ *               doctor_id:
+ *                 type: number
+ *                 example: "6"
+ *               date:
+ *                 type: string
+ *                 example: "2025-04-10"
+ *               time:
+ *                 type: string
+ *                 example: "10:00:00"
+ *     responses:
+ *       200:
+ *         description: Registration successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "Registration successful"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
+ */
+
+/**
+ * @swagger
+ * /api/user/showAvailability:
+ *   post:
+ *     summary: Retrieve doctor availability for a specific date
+ *     description: Get available time slots for a doctor on a given date.
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - name: doctor_id
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the doctor whose availability is requested.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 format: date
+ *                 description: The date for which availability is needed (YYYY-MM-DD).
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved doctor availability
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 doctorInTime:
+ *                   type: string
+ *                 doctorOutTime:
+ *                   type: string
+ *                 timeSlot:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       404:
+ *         description: Doctor is not available on the specified date
+ *       500:
+ *         description: Server error
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1956,12 +2149,25 @@
  *   get:
  *     tags:
  *       - Admin
- *     summary: View all appointments
+ *     summary: View all appointments with particular doctor id
  *     parameters:
  *       - in: query
  *         name: doctor_id
  *         schema:
  *           type: string
+ *     responses:
+ *       200:
+ *         description: Appointments retrieved successfully
+ */
+
+
+/**
+ * @swagger
+ * /api/admin/appointments:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: View all appointments 
  *     responses:
  *       200:
  *         description: Appointments retrieved successfully

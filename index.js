@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 const corsOptions = {
   origin: "*",
   methods: "GET, POST, PUT, DELETE",
-  // allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);

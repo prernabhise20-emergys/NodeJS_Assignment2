@@ -156,13 +156,13 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    console.log('user_password', user_password);
-    console.log('db', user.user_password);
+    // console.log('user_password', user_password);
+    // console.log('db', user.user_password);
 
-    let decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    console.log(decodedPassword);
+    // let decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    // console.log(decodedPassword);
 
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
     console.log('passwordMatch', passwordMatch);
 
     if (!passwordMatch) {
@@ -392,38 +392,6 @@ const getDoctorAvailability = async (req, res, next) => {
 };
 
 
-// const getDoctorAvailability = async (req, res, next) => {
-//   try {
-//     const { doctor_id } = req.query;
-//     const { date } = req.body;
-
-//     const availableTimes = await checkDoctorAvailability(doctor_id, date);
-
-//     if (!availableTimes || availableTimes.length === 0) {
-//       return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE));
-//     }
-
-//     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
-//     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
-    
-//     let timeSlot = [];
-//     for (let i = 0; i < availableTimes.length; i++) {
-//       timeSlot[i] = availableTimes[i]?.appointment_time
-//       console.log(timeSlot);
-//     }
-
-
-//     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
-//         doctorInTime,
-//         doctorOutTime,
-//         timeSlot
-//       })
-//     );
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 export default {
   getDoctorAvailability,

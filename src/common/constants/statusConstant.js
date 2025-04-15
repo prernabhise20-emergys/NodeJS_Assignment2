@@ -53,7 +53,7 @@ const SUCCESS_MESSAGE = {
   CHANGE_STATUS: "Appointments status change successfully",
   SCHEDULED_APPOINTMENTS: "Scheduled appointments is retrived successfully",
   AVAILABLE_SLOT: "Available slot is retrieved successfully",
-  APPOINTMENT_BOOKED: "Appointment successfully booked",
+  APPOINTMENT_BOOKED: "Appointment request send successfully",
   UPDATED_DOCTOR_INFO_MESSAGE: "Doctor details updated successfully",
   ADDED_DOCTOR_INFO_MESSAGE: "Doctor information added successfully",
   OTP_SENT: "OTP is sent to your email",
