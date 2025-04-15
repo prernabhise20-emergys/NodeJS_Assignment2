@@ -10,6 +10,7 @@ import approveRequest from "../common/utility/approveAppointment.js"
 
 
 import {
+  setIsDoctor,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
   checkDoctor,
@@ -188,12 +189,11 @@ const addDoctor = async (req, res, next) => {
 
     console.log(req.body);
 
-    // Check if the doctor exists in the user table
     const checkDoctor1 = await checkDoctor(email);
     console.log('checkdoctor',checkDoctor1);
 
     if (checkDoctor1.length > 0) {
-      var user_id = checkDoctor1[0].id; // Assign user_id
+      var user_id = checkDoctor1[0].id; 
     } else {
       return res.status(400).send(new ResponseHandler("User not found"));
     }
@@ -212,6 +212,9 @@ const addDoctor = async (req, res, next) => {
 
     if (is_admin) {
       const result = await createDoctorData(data);
+      if(result){
+      await setIsDoctor(email)
+      }
       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
       );

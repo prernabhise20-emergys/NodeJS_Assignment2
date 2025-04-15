@@ -494,7 +494,30 @@ const getAllEmailForAddDoctor = async () => {
     );
   });
 };
+
+const setIsDoctor = async (email) => {
+  try {
+    if (isAdmin) {
+      return new Promise((resolve, reject) => {
+        db.query(
+          "update user_register set is_doctor=true where email=?",
+          email,
+          (error, results) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(results);
+            }
+          }
+        );
+      });
+    }
+  } catch (error) {
+    throw error;
+  }
+};
 export {
+  setIsDoctor,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
   checkDoctor,
