@@ -334,24 +334,33 @@ const getAllAppointments = async (req, res, next) => {
     next(error);
   }
 };
+
 const getPatientsAppointments = async (req, res, next) => {
   try {
     const { admin, doctor } = req.user;
+
     if (admin || doctor) {
       const appointments = await getAllPatientAppointment();
-
       console.log(appointments);
 
+      const formattedAppointments = appointments.map(appointment => ({
+        ...appointment,
+        appointment_date: new Date(appointment.appointment_date).toISOString().split('T')[0] 
+      }));
+
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
-          appointments
-        })
+        new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, { appointments: formattedAppointments })
       );
     }
   } catch (error) {
     next(error);
   }
 };
+
+
+
+
+
 export default {
   getPatientsAppointments,
   getAllAppointments,

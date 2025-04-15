@@ -399,27 +399,26 @@ const getAllAppointmentInformation = async (doctor_id) => {
   });
 }
 
+
 const getAllPatientAppointment = async () => {
   return new Promise((resolve, reject) => {
     db.query(
-      `
-    SELECT 
-    a.appointment_id, 
-    p.patient_name, 
-    p.gender, 
-    p.age, 
-    d.disease_type, 
-    a.appointment_date, 
-    a.appointment_time, 
-    a.status, 
-    do.name 
-FROM appointments a 
-JOIN personal_info p ON a.patient_id = p.patient_id 
-JOIN disease d ON d.patient_id = p.patient_id 
-JOIN doctors do ON a.doctor_id = do.doctor_id 
-WHERE p.is_deleted = FALSE 
-ORDER BY a.appointment_id
-      `,
+      `SELECT 
+        a.appointment_id, 
+        p.patient_name, 
+        p.gender, 
+        p.age, 
+        d.disease_type, 
+        DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
+        a.appointment_time, 
+        a.status, 
+        do.name 
+      FROM appointments a 
+      JOIN personal_info p ON a.patient_id = p.patient_id 
+      JOIN disease d ON d.patient_id = p.patient_id 
+      JOIN doctors do ON a.doctor_id = do.doctor_id 
+      WHERE p.is_deleted = FALSE 
+      ORDER BY a.appointment_id`,
       (error, results) => {
         if (error) {
           return reject(error);
@@ -428,7 +427,8 @@ ORDER BY a.appointment_id
       }
     );
   });
-}
+};
+
 export {
   getAllPatientAppointment,
   getAllAppointmentInformation,

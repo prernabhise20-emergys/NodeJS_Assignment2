@@ -8,8 +8,15 @@ const getUserData = async (userid) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT email,first_name,last_name,mobile_number FROM user_register WHERE is_deleted =FALSE and id=?",
-        userid,
+        `SELECT u.email, u.first_name, u.last_name, u.mobile_number, d.doctor_id 
+FROM user_register u 
+JOIN doctors d ON d.email = u.email 
+WHERE u.is_deleted = FALSE AND u.id = ?
+UNION ALL
+SELECT email, first_name, last_name, mobile_number, NULL AS doctor_id 
+FROM user_register 
+WHERE is_deleted = FALSE AND id = ?`,
+        [userid, userid],
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -359,6 +366,7 @@ const doctorFlag = async (email) => {
     throw error;
   }
 };
+
 const checkDoctor = async (email) => {
   try {
     const data = await new Promise((resolve, reject) => {
@@ -375,6 +383,7 @@ const checkDoctor = async (email) => {
     throw error;
   }
 };
+
 const checkDoctorAvailability = async (doctor_id, date) => {
   try {
     const results = await new Promise((resolve, reject) => {
@@ -390,17 +399,16 @@ JOIN doctors d
     ON a.doctor_id = d.doctor_id
 WHERE 
     d.is_deleted = false
-    AND a.status = 'Scheduled' 
+    AND a.status IN ('Scheduled', 'Cancelled')  
     AND d.doctor_id = ?
     AND a.appointment_date = ?
 
 UNION ALL
 
-
 SELECT 
     d.doctorInTime, 
     d.doctorOutTime, 
-    NULL AS appointment_date, 
+    '2025-04-03' AS appointment_date,  
     NULL AS appointment_time
 FROM doctors d
 WHERE d.doctor_id = ?
@@ -411,25 +419,24 @@ AND NOT EXISTS (
         a.doctor_id = ?
         AND a.appointment_date = ?
 );
-
         `,
-        [doctor_id, date, doctor_id,doctor_id,date], 
+        [doctor_id, date, doctor_id, doctor_id, date],
         (error, results) => {
           if (error) {
-            return reject(error); 
+            return reject(error);
           }
-          resolve(results); 
+          resolve(results);
         }
       );
     });
 
-    return results; 
+    return results;
   } catch (error) {
-    throw new Error('Error checking doctor availability: ' + error.message); 
+    throw new Error('Error checking doctor availability: ' + error.message);
   }
 };
 
-           
+
 
 
 export {
