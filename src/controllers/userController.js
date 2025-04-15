@@ -5,7 +5,7 @@ import sendVerificationEmail from "../common/utility/sendVerificationEmail.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
-
+import { Buffer } from "buffer";
 import {
   checkDoctorAvailability,
   checkDoctor,
@@ -72,52 +72,7 @@ const register = async (req, res, next) => {
     next(error);
   }
 };
-const login = async (req, res, next) => {
-  try {
-    const { email, user_password } = req.body;
 
-    const isDeleted = await checkUserDeleteOrNot(email);
-    if (isDeleted) {
-      throw USER_DELETED;
-    }
-
-    const user = await loginUser(email);
-    if (!user) {
-      throw INVALID_USER;
-    }
-console.log('user_password',user_password);
-console.log('db',user.user_password);
-
-
-    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
-    console.log('passwordMatch',passwordMatch);
-    
-    if (!passwordMatch) {
-      throw INVALID_USER;
-    }
-
-    const token = jwt.sign(
-      {
-        userid: user.id,
-        email: user.email,
-        admin: user.is_admin,
-        doctor: user.is_doctor
-      },
-      process.env.SECRET_KEY,
-      { expiresIn: "3h", algorithm: "HS256" }
-    );
-
-    return res.status(200).send({
-      message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-      ...(user.is_admin && { admin_message: user.is_admin }),
-      ...(user.is_doctor && { doctor_message: user.is_doctor }),
-      token,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
 
 // const login = async (req, res, next) => {
 
@@ -186,6 +141,73 @@ console.log('db',user.user_password);
 //   }
 // };
 
+
+const login = async (req, res, next) => {
+  try {
+    const { email, user_password } = req.body;
+
+    const isDeleted = await checkUserDeleteOrNot(email);
+    if (isDeleted) {
+      throw USER_DELETED;
+    }
+
+    const user = await loginUser(email);
+    if (!user) {
+      throw INVALID_USER;
+    }
+
+    console.log('user_password', user_password);
+    console.log('db', user.user_password);
+
+    let decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    console.log(decodedPassword);
+
+    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    console.log('passwordMatch', passwordMatch);
+
+    if (!passwordMatch) {
+      throw INVALID_USER;
+    }
+
+    const token = jwt.sign(
+      {
+        userid: user.id,
+        email: user.email,
+        admin: user.is_admin,
+        doctor: user.is_doctor
+      },
+      process.env.SECRET_KEY,
+      { expiresIn: "3h", algorithm: "HS256" }
+    );
+
+   
+    if (user.is_admin) {
+    return res.status(200).send({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        admin_message: user.is_admin,
+        token,
+      });
+    }
+
+    if (user.is_doctor) {
+      return res.status(200).send({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        doctor_message: user.is_doctor,
+        token,
+      });
+    }
+    else {
+      return res.status(200).send({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        token,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 const updateUser = async (req, res, next) => {
   try {
     const {
@@ -253,7 +275,7 @@ const getUser = async (req, res, next) => {
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
           new ResponseHandler(
-            SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+            SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
             user
           )
         );
