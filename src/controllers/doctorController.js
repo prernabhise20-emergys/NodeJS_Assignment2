@@ -24,13 +24,12 @@ const updateDoctor = async (req, res, next) => {
                 name,
                 specialization,
                 contact_number,
-                doctor_id,
                 doctorInTime,
                 doctorOutTime
             },
         } = req;
 
-        const { doctor: is_doctor } = req.user;
+        const { doctor: is_doctor ,userid} = req.user;
 
         const data = {
             name,
@@ -43,7 +42,7 @@ const updateDoctor = async (req, res, next) => {
         console.log(data);
 
         if (is_doctor) {
-            await updateDoctorData(data, doctor_id);
+            await updateDoctorData(data,userid);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)
@@ -60,10 +59,10 @@ const updateDoctor = async (req, res, next) => {
 
 const displayAppointments = async (req, res, next) => {
     try {
-        const { doctor_id } = req.query;
+        const { userid} = req.user;
         const { doctor: is_doctor, admin: is_admin } = req.user;
         if (is_doctor || is_admin) {
-            const appointments = await showAppointments(doctor_id);
+            const appointments = await showAppointments(user_id);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)

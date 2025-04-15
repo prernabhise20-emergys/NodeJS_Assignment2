@@ -7,6 +7,8 @@ import { user_schemas } from "../common/constants/schemaConstant.js"
 const router = express.Router();
 
 const {
+  ALL_EMAIL_DOCTOR,
+  ALL_EMAIL_ADMIN,
   APPOINTMENTS,
   ALL_APPOINTMENTS,
   APPOINTMENT_REQUEST,
@@ -45,4 +47,7 @@ router.put(APPROVE_APPOINTMENT,authenticateUser,schemaValidator(user_schemas.cha
 router.get(APPOINTMENT_REQUEST, authenticateUser, adminController.displayAppointmentRequest);
 router.get(ALL_APPOINTMENTS,authenticateUser,adminController.getAllAppointments)
 router.get(APPOINTMENTS,authenticateUser,adminController.getPatientsAppointments)
+router.get(ALL_EMAIL_ADMIN,authenticateUser,adminController.getAllEmail)
+router.get(ALL_EMAIL_DOCTOR,authenticateUser,adminController.getAllEmailForDoctor)
+
 export default router;

@@ -1,6 +1,6 @@
 import db from "../db/connection.js";
 
-const updateDoctorData = async (data, doctor_id) => {
+const updateDoctorData = async (data,user_id) => {
   try {
     const updateData = {
       ...data,
@@ -9,8 +9,8 @@ const updateDoctorData = async (data, doctor_id) => {
     console.log('Update data:', updateData);
 
     return new Promise((resolve, reject) => {
-      db.query("UPDATE doctors SET ? WHERE doctor_id = ?",
-        [updateData, doctor_id], (error, result) => {
+      db.query("UPDATE doctors SET ? WHERE user_id = ?",
+        [updateData, user_id], (error, result) => {
           if (error) {
             return reject(error);
           }
@@ -22,16 +22,31 @@ const updateDoctorData = async (data, doctor_id) => {
   }
 };
 
-const showAppointments = async (doctor_id) => {
+const showAppointments = async (user_id) => {
   try {
     return new Promise((resolve, reject) => {
-      db.query(`select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time 
-      from appointments a join personal_info p 
-      on(a.patient_id=p.patient_id)
-      join disease d
-      on(d.patient_id=p.patient_id)
-      where p.is_deleted=false and a.status='Scheduled' and a.doctor_id=? `,
-        doctor_id, (error, result) => {
+      db.query(`
+SELECT 
+p.patient_name,
+    u.id AS user_id,
+    u.email,
+    d.name AS doctor_name,
+    d.specialization,
+    a.appointment_id,
+    a.appointment_date,
+    a.appointment_time,
+    a.status,
+    ds.disease_type
+FROM user_register u
+JOIN doctors d ON u.id = d.user_id
+JOIN appointments a ON d.doctor_id = a.doctor_id
+JOIN personal_info p ON a.patient_id = p.patient_id
+LEFT JOIN disease ds ON ds.patient_id = p.patient_id  
+WHERE u.is_deleted = FALSE 
+AND a.status = 'Scheduled'
+AND u.id = ?;
+ ? `,
+        user_id, (error, result) => {
           if (error) {
             return reject(error);
           }

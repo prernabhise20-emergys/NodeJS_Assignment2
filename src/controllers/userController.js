@@ -156,12 +156,6 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    // console.log('user_password', user_password);
-    // console.log('db', user.user_password);
-
-    // let decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    // console.log(decodedPassword);
-
     const passwordMatch = await bcrypt.compare(user_password, user.user_password);
     console.log('passwordMatch', passwordMatch);
 
@@ -174,7 +168,10 @@ const login = async (req, res, next) => {
         userid: user.id,
         email: user.email,
         admin: user.is_admin,
-        doctor: user.is_doctor
+        doctor: user.is_doctor,
+        first_name:user.first_name,
+        last_name:user.last_name,
+        mobile_number:user.mobile_number
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h", algorithm: "HS256" }

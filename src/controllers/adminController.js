@@ -10,6 +10,9 @@ import approveRequest from "../common/utility/approveAppointment.js"
 
 
 import {
+  getAllEmailForAddDoctor,
+  getAllEmailForAddAdmin,
+  checkDoctor,
   getAllAppointmentInformation,
   getPatientData,
   scheduleAppointment,
@@ -170,48 +173,106 @@ const getAdmin = async (req, res, next) => {
   }
 };
 
-
-
-
 const addDoctor = async (req, res, next) => {
   try {
     const {
       body: {
-        name,
         specialization,
-        contact_number,
         email,
         doctorInTime,
         doctorOutTime
       },
     } = req;
 
-    const { userid: user_id, admin: is_admin } = req.user;
+    const { admin: is_admin } = req.user;
+
+    console.log(req.body);
+
+    // Check if the doctor exists in the user table
+    const checkDoctor1 = await checkDoctor(email);
+    console.log('checkdoctor',checkDoctor1);
+
+    if (checkDoctor1.length > 0) {
+      var user_id = checkDoctor1[0].id; // Assign user_id
+    } else {
+      return res.status(400).send(new ResponseHandler("User not found"));
+    }
 
     const data = {
-      name,
+      name:checkDoctor1[0].first_name +' '+ checkDoctor1[0].last_name,
       specialization,
-      contact_number,
+      contact_number:checkDoctor1[0].mobile_number,
       email,
       user_id,
       doctorInTime,
       doctorOutTime
     };
+
     console.log(data);
 
     if (is_admin) {
       const result = await createDoctorData(data);
-      res.status(SUCCESS_STATUS_CODE.CREATED).send(
+      return res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
       );
     }
-    res
+
+    return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
+
+
+
+
+
+
+// const addDoctor = async (req, res, next) => {
+//   try {
+//     const {
+//       body: {
+//         name,
+//         specialization,
+//         contact_number,
+//         email,
+//         doctorInTime,
+//         doctorOutTime
+//       },
+//     } = req;
+
+//     const {admin: is_admin } = req.user;
+// console.log(req.body);
+
+// const checkDoctor1=await checkDoctor(email);
+// console.log(checkDoctor1);
+
+//     const data = {
+//       name,
+//       specialization,
+//       contact_number,
+//       email,
+//       user_id,
+//       doctorInTime,
+//       doctorOutTime
+//     };
+//     console.log(data);
+
+//     if (is_admin) {
+//       const result = await createDoctorData(data);
+//       res.status(SUCCESS_STATUS_CODE.CREATED).send(
+//         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
+//       );
+//     }
+//     res
+//       .status(SUCCESS_STATUS_CODE.SUCCESS)
+//       .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
+//   } catch (error) {
+//     next(error)
+//   }
+// };
 
 const deleteDoctor = async (req, res, next) => {
   try {
@@ -358,10 +419,47 @@ const getPatientsAppointments = async (req, res, next) => {
 };
 
 
+const getAllEmail= async (req, res, next) => {
+  try {
+    const { admin, doctor } = req.user;
+
+    if (admin || doctor) {
+      const emails = await getAllEmailForAddAdmin();
+      console.log(emails);
 
 
 
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE,emails )
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const getAllEmailForDoctor= async (req, res, next) => {
+  try {
+    const { admin, doctor } = req.user;
+
+    if (admin || doctor) {
+      const emails = await getAllEmailForAddDoctor();
+      console.log(emails);
+
+
+
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE,emails )
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 export default {
+  getAllEmailForDoctor,
+  getAllEmail,
   getPatientsAppointments,
   getAllAppointments,
   displayAppointmentRequest,

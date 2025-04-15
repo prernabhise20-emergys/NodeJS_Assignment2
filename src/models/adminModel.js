@@ -245,12 +245,9 @@ const displayAdmin = async () => {
     throw error;
   }
 };
-
 const createDoctorData = async (data) => {
   try {
-    let doctorData = {
-      ...data
-    };
+    let doctorData = { ...data };
 
     console.log('doctordata', doctorData);
 
@@ -266,6 +263,27 @@ const createDoctorData = async (data) => {
     throw error;
   }
 };
+
+// const createDoctorData = async (data) => {
+//   try {
+//     let doctorData = {
+//       ...data
+//     };
+
+//     console.log('doctordata', doctorData);
+
+//     return new Promise((resolve, reject) => {
+//       db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
+//         if (error) {
+//           return reject(error);
+//         }
+//         return resolve(result);
+//       });
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 
 const deleteDoctorData = async (doctor_id) => {
@@ -429,7 +447,57 @@ const getAllPatientAppointment = async () => {
   });
 };
 
+const checkDoctor = async (email) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT id,first_name,last_name,mobile_number FROM user_register WHERE email=?;`, email,
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+};
+
+ 
+ 
+const getAllEmailForAddAdmin = async () => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select
+        email from user_Register 
+        where is_admin=false`,
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+};
+ 
+const getAllEmailForAddDoctor = async () => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select
+        email from user_Register 
+        where is_doctor=false`,
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+};
 export {
+  getAllEmailForAddDoctor,
+  getAllEmailForAddAdmin,
+  checkDoctor,
   getAllPatientAppointment,
   getAllAppointmentInformation,
   getPatientData,

@@ -46,6 +46,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE = {
+  EMAIL_RETRIVE:"Retrieve all emails successfully",
   ALL_APPOINTMENTS: "Retrive all appointments information successfully",
   REQUESTED_APPOINTMENT: "Requested appointments retreived successfully",
   PRESCRIPTION_UPLOAD: "Prescription uploaded successfully",
