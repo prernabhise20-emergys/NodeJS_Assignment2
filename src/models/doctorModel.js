@@ -21,6 +21,9 @@ const updateDoctorData = async (data,user_id) => {
     throw error;
   }
 };
+
+  
+
 const showAppointments = async (user_id) => {
   try {
       console.log("Fetching appointments for User ID:", user_id);

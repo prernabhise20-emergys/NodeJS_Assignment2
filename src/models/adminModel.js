@@ -497,7 +497,7 @@ const getAllEmailForAddDoctor = async () => {
 
 const setIsDoctor = async (email) => {
   try {
-    if (isAdmin) {
+   
       return new Promise((resolve, reject) => {
         db.query(
           "update user_register set is_doctor=true where email=?",
@@ -511,12 +511,29 @@ const setIsDoctor = async (email) => {
           }
         );
       });
-    }
+    
   } catch (error) {
     throw error;
   }
 };
+const getUserByEmail = async (email) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      'SELECT id, first_name, last_name, mobile_number FROM user_register WHERE email = ?',
+      [email],
+      (error, result) => {
+        if (error) {
+          console.error('Error in getUserByEmail:', error);
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
 export {
+  getUserByEmail,
   setIsDoctor,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,

@@ -58,10 +58,12 @@ console.log(userid);
     }
 };
 
+
 const displayAppointments = async (req, res, next) => {
     try {
-        const { userid: user_id } = req.user;
-        const { doctor: is_doctor, admin: is_admin } = req.user;
+        console.log("req.user:", req.user); 
+
+        const { doctor: is_doctor, admin: is_admin ,userid:user_id} = req.user;
 
         console.log("User ID being passed:", user_id); 
 
@@ -73,7 +75,7 @@ const displayAppointments = async (req, res, next) => {
             );
         } else {
             return res.status(SUCCESS_STATUS_CODE.UNAUTHORIZED).send(
-                new ResponseHandler("Access Denied: You are not authorized.")
+                new ResponseHandler(ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
             );
         }
     } catch (error) {
@@ -81,6 +83,7 @@ const displayAppointments = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 
