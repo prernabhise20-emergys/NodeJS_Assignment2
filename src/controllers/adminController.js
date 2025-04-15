@@ -179,9 +179,9 @@ const addDoctor = async (req, res, next) => {
     // Log req.user to see if it's populated correctly
     console.log('req.user:', req.user);
 
-    const { admin: is_admin = false } = req.user || {}; 
+    const { admin: is_admin = false } = req.user || {};
 
-    console.log('Is Admin:', is_admin); 
+    console.log('Is Admin:', is_admin);
 
     const {
       body: {
@@ -215,7 +215,7 @@ const addDoctor = async (req, res, next) => {
     };
 
     console.log(data);
-console.log('admin',is_admin);
+    console.log('admin', is_admin);
 
     if (is_admin) {
       const result = await createDoctorData(data);
@@ -223,7 +223,6 @@ console.log('admin',is_admin);
       if (result) {
         await setIsDoctor(email);
       }
-
       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
       );
@@ -234,7 +233,7 @@ console.log('admin',is_admin);
       .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
     console.error('Error in addDoctor:', error);
-    next(error); 
+    next(error);
   }
 };
 
@@ -488,7 +487,7 @@ const getPatientsAppointments = async (req, res, next) => {
 
       const formattedAppointments = appointments.map(appointment => ({
         ...appointment,
-        appointment_date: new Date(appointment.appointment_date).toISOString().split('T')[0] 
+        appointment_date: new Date(appointment.appointment_date).toISOString().split('T')[0]
       }));
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -501,7 +500,7 @@ const getPatientsAppointments = async (req, res, next) => {
 };
 
 
-const getAllEmail= async (req, res, next) => {
+const getAllEmail = async (req, res, next) => {
   try {
     const { admin, doctor } = req.user;
 
@@ -512,7 +511,7 @@ const getAllEmail= async (req, res, next) => {
 
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE,emails )
+        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }
   } catch (error) {
@@ -521,7 +520,7 @@ const getAllEmail= async (req, res, next) => {
 };
 
 
-const getAllEmailForDoctor= async (req, res, next) => {
+const getAllEmailForDoctor = async (req, res, next) => {
   try {
     const { admin, doctor } = req.user;
 
@@ -532,7 +531,7 @@ const getAllEmailForDoctor= async (req, res, next) => {
 
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE,emails )
+        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }
   } catch (error) {
