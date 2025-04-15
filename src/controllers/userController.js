@@ -77,6 +77,7 @@ const login = async (req, res, next) => {
 
   try {
     const { email, user_password } = req.body;
+console.log(user_password);
 
     const check1 = await checkUserDeleteOrNot(email);
 
@@ -89,6 +90,7 @@ const login = async (req, res, next) => {
     if (!user) {
       throw INVALID_USER;
     }
+console.log('user',user.user_password);
 
     const passwordMatch = await bcrypt.compare(user_password, user.user_password);
 

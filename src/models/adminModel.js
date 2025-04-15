@@ -334,11 +334,13 @@ const displayRequest = async () => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        `select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
+        `select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status,do.name 
       from appointments a join personal_info p 
       on(a.patient_id=p.patient_id)
       join disease d
       on(d.patient_id=p.patient_id)
+      join doctors do 
+      on(a.doctor_id=do.doctor_id)
       where p.is_deleted=false and a.status='Pending'`,
         (error, result) => {
           if (error) return reject(error);
