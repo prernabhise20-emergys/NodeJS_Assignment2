@@ -378,7 +378,7 @@ const getPatientData = async (appointment_id) => {
   }
 };
 
-const  getAllAppointmentInformation=async(doctor_id)=>{
+const getAllAppointmentInformation = async (doctor_id) => {
   return new Promise((resolve, reject) => {
     db.query(
       `
@@ -388,7 +388,38 @@ const  getAllAppointmentInformation=async(doctor_id)=>{
       join disease d
       on(d.patient_id=p.patient_id)
       where p.is_deleted=false and doctor_id=? order by appointment_id;
-      `,doctor_id,
+      `, doctor_id,
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+}
+
+const getAllPatientAppointment = async () => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `
+    SELECT 
+    a.appointment_id, 
+    p.patient_name, 
+    p.gender, 
+    p.age, 
+    d.disease_type, 
+    a.appointment_date, 
+    a.appointment_time, 
+    a.status, 
+    do.name 
+FROM appointments a 
+JOIN personal_info p ON a.patient_id = p.patient_id 
+JOIN disease d ON d.patient_id = p.patient_id 
+JOIN doctors do ON a.doctor_id = do.doctor_id 
+WHERE p.is_deleted = FALSE 
+ORDER BY a.appointment_id
+      `,
       (error, results) => {
         if (error) {
           return reject(error);
@@ -399,6 +430,7 @@ const  getAllAppointmentInformation=async(doctor_id)=>{
   });
 }
 export {
+  getAllPatientAppointment,
   getAllAppointmentInformation,
   getPatientData,
   displayRequest,

@@ -27,14 +27,6 @@ const authenticateUser = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY, { alg });
 
-    // jwt.verify(token, process.env.SECRET_KEY,(error, decoded) => {
-    //   if (error) {
-    //     console.error('Token verification failed:', error);
-    //   } else {
-    // console.log('Token successfully verified:', decoded);
-    //   }
-    // });
-
     console.log("decoded", decoded)
 
     if (!decoded) {
@@ -45,7 +37,7 @@ const authenticateUser = (req, res, next) => {
     }
 
     req.user = decoded;
-    console.log(req.user);
+    // console.log(req.user);
 
     next();
   } catch (error) {

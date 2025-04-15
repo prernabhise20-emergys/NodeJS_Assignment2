@@ -24,7 +24,8 @@ import {
   checkAdminCount,
   removeAdminAuthority,
   displayAdmin,
-  displayRequest
+  displayRequest,
+  getAllPatientAppointment
 } from "../models/adminModel.js";
 const { UNAUTHORIZED_ACCESS, NOT_DELETED } = AUTH_RESPONSES;
 
@@ -194,7 +195,7 @@ const addDoctor = async (req, res, next) => {
       email,
       user_id,
       doctorInTime,
-        doctorOutTime
+      doctorOutTime
     };
     console.log(data);
 
@@ -264,7 +265,7 @@ const approveAppointment = async (req, res, next) => {
     }
     if (is_admin) {
       const result = await scheduleAppointment(appointment_id);
-      const data = await getPatientData(appointment_id); 
+      const data = await getPatientData(appointment_id);
 
       if (!data || data.length === 0) {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -276,10 +277,10 @@ const approveAppointment = async (req, res, next) => {
       const appointmentDate = data[0].appointment_date;
       const appointmentTime = data[0].appointment_time;
       const doctorName = data[0].name;
-console.log(patientName, appointmentDate, appointmentTime, doctorName);
-console.log(result);
+      console.log(patientName, appointmentDate, appointmentTime, doctorName);
+      console.log(result);
 
-      if (result.affectedRows==1) {
+      if (result.affectedRows == 1) {
         await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -316,25 +317,43 @@ const displayAppointmentRequest = async (req, res, next) => {
 
 const getAllAppointments = async (req, res, next) => {
   try {
-const {admin,doctor}=req.user;
-const{doctor_id}=req.query;
-if(admin || doctor){
-  const appointments = await getAllAppointmentInformation(doctor_id);
+    const { admin, doctor } = req.user;
+    const { doctor_id } = req.query;
+    if (admin || doctor) {
+      const appointments = await getAllAppointmentInformation(doctor_id);
 
-console.log(appointments);
+      console.log(appointments);
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
-       appointments
-      })
-    );
-  }
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
+          appointments
+        })
+      );
+    }
   } catch (error) {
     next(error);
   }
 };
+const getPatientsAppointments = async (req, res, next) => {
+  try {
+    const { admin, doctor } = req.user;
+    if (admin || doctor) {
+      const appointments = await getAllPatientAppointment();
 
+      console.log(appointments);
+
+      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
+          appointments
+        })
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 export default {
+  getPatientsAppointments,
   getAllAppointments,
   displayAppointmentRequest,
   approveAppointment,

@@ -77,7 +77,7 @@ const login = async (req, res, next) => {
 
   try {
     const { email, user_password } = req.body;
-console.log(user_password);
+// console.log(user_password);
 
     const check1 = await checkUserDeleteOrNot(email);
 
@@ -92,12 +92,12 @@ console.log(user_password);
     }
 console.log('user',user.user_password);
 
-    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
-
+    const passwordMatch = await bcrypt.compare(user_password,user.user_password);
+console.log(passwordMatch)
     if (!passwordMatch) {
       throw INVALID_USER;
     }
-    console.log('id', user.id);
+    // console.log('id', user.id);
 
     const token = jwt.sign(
       {
@@ -114,8 +114,8 @@ console.log('user',user.user_password);
       }
     );
 
-    if (user.is_admin) {
-      res.json({
+    if (user) {
+    return res.status(200).send({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
         admin_message: user.is_admin,
         token,
@@ -123,7 +123,7 @@ console.log('user',user.user_password);
     }
 
     if (user.is_doctor) {
-      res.json({
+      return res.status(200).json({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
         doctor_message: user.is_doctor,
         token,
