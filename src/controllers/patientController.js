@@ -130,7 +130,9 @@ const updatePersonalInfo = async (req, res, next) => {
       },
     } = req;
 
-    // Ensure values are properly formatted
+    // Ensure boolean values are correctly converted
+    const convertToBooleanFlag = (value) => (value === true || value === 1 ? 1 : 0);
+
     const data = {
       patient_name,
       date_of_birth,
@@ -138,16 +140,16 @@ const updatePersonalInfo = async (req, res, next) => {
       weight: Number(weight),
       height: Number(height),
       country_of_origin,
-      is_diabetic: is_diabetic === true ? 1 : Number(is_diabetic),
-      cardiac_issue: cardiac_issue === true ? 1 : Number(cardiac_issue),
-      blood_pressure: blood_pressure === true ? 1 : Number(blood_pressure),
+      is_diabetic: convertToBooleanFlag(is_diabetic),
+      cardiac_issue: convertToBooleanFlag(cardiac_issue),
+      blood_pressure: convertToBooleanFlag(blood_pressure),
       age: Number(age),
       bmi: Number(bmi),
     };
 
     const { userid: id, admin: is_admin } = req.user;
 
-    // Verify user has access rights
+    // Verify user access rights
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
 
     if (isValidPatient || is_admin) {
@@ -163,7 +165,6 @@ const updatePersonalInfo = async (req, res, next) => {
     next(error);
   }
 };
-
 
 // const updatePersonalInfo = async (req, res, next) => {
 //   try {
