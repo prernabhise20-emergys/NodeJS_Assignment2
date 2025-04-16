@@ -109,7 +109,6 @@ const login = async (req, res, next) => {
       { expiresIn: "3h", algorithm: "HS256" }
     );
 
-   
     if (user.is_admin) {
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
@@ -135,7 +134,6 @@ const login = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const updateUser = async (req, res, next) => {
   try {
