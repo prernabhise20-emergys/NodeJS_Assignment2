@@ -103,16 +103,18 @@ const login = async (req, res, next) => {
         doctor: user.is_doctor,
         first_name:user.first_name,
         last_name:user.last_name,
-        mobile_number:user.mobile_number
+        mobile_number:user.mobile_number,
+        superAdmin:user.is_superadmin
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h", algorithm: "HS256" }
     );
 
-    if (user.is_admin) {
+    if (user.is_admin|| user.is_superadmin) {
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
         admin_message: user.is_admin,
+        superAdmin_message: user.is_superadmin,
         token,
       });
     }

@@ -225,7 +225,6 @@ const checkAdminCount = async () => {
   }
 };
 
-
 const checkSuperAdmin = async (email) => {
   try {
     const data = await new Promise((resolve, reject) => {
