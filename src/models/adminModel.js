@@ -246,7 +246,6 @@ const checkSuperAdmin = async (email) => {
   }
 };
 
-
 const displayAdmin = async () => {
   try {
     const data = await new Promise((resolve, reject) => {
