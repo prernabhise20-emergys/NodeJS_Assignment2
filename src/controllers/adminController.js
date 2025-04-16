@@ -183,13 +183,12 @@ const getAdmin = async (req, res, next) => {
 
 const addDoctor = async (req, res, next) => {
   try {
-
-    const { admin: is_admin = false } = req.user || {};
+    const { userId } = req.query;
+    const { admin: is_admin = false ,email} = req.user || {};
 
     const {
       body: {
         specialization,
-        email,
         doctorInTime,
         doctorOutTime
       },
@@ -209,7 +208,7 @@ const addDoctor = async (req, res, next) => {
       name: checkUser[0].first_name + ' ' + checkUser[0].last_name,
       specialization,
       contact_number: checkUser[0].mobile_number,
-      email,
+      email:email,
       user_id,
       doctorInTime,
       doctorOutTime
@@ -219,7 +218,7 @@ const addDoctor = async (req, res, next) => {
       const result = await createDoctorData(data);
 
       if (result) {
-        await setIsDoctor(email);
+        await setIsDoctor(userId);
       }
       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })

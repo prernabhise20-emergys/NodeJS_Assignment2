@@ -488,13 +488,13 @@ const getAllEmailForAddDoctor = async () => {
   });
 };
 
-const setIsDoctor = async (email) => {
+const setIsDoctor = async (user_id) => {
   try {
    
       return new Promise((resolve, reject) => {
         db.query(
-          "update user_register set is_doctor=true where email=?",
-          email,
+          "update user_register set is_doctor=true where id=?",
+          user_id,
           (error, results) => {
             if (error) {
               reject(error);
