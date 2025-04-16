@@ -64,7 +64,7 @@ const showAppointments = async (user_id) => {
           a.appointment_time,
           a.status,
           COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types,
-          pr.prescription_id
+          MAX(pr.prescription_id) AS prescription_id -- Using MAX to ensure we show only one prescription_id
         FROM 
           user_register u
         JOIN 
@@ -82,7 +82,7 @@ const showAppointments = async (user_id) => {
           AND a.status = 'Scheduled'
           AND u.id = ?
         GROUP BY 
-          p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status, pr.prescription_id
+          p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status
         ORDER BY 
           a.appointment_id;
       `, [user_id], (error, result) => { 
@@ -98,6 +98,7 @@ const showAppointments = async (user_id) => {
     throw error;
   }
 };
+
 
 
 // const showAppointments = async (user_id) => {
