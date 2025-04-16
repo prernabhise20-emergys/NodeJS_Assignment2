@@ -76,4 +76,23 @@ const approveRequestMailBody =( patientName, appointmentDate, appointmentTime, d
         `
    
 };
-export {otpMailBody,verificationEmail,prescriptionBody,approveRequestMailBody}
+const updatedPrescriptionBody = () => {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <h4>Hello,</h4>
+          <p>We wanted to inform you that your prescription has been updated successfully. You can download the updated prescription.:</p>
+          <p>If you have any issues or concerns, please feel free to reach out to us.</p>
+          <p>Thank you for trusting us with your healthcare needs!</p>
+          <br>
+          <p>Best regards,</p>
+          <p><strong>Your Healthcare Team</strong></p>
+          <p><em>Your Clinic / Hospital Name</em></p>
+        </div>
+      </body>
+    </html>
+  `;
+};
+
+export {otpMailBody,verificationEmail,prescriptionBody,approveRequestMailBody,updatedPrescriptionBody}

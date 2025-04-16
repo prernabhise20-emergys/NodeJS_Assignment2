@@ -183,8 +183,8 @@ const getAdmin = async (req, res, next) => {
 
 const addDoctor = async (req, res, next) => {
   try {
-    const { userId } = req.query;
-    const { admin: is_admin = false ,email} = req.user || {};
+    const { id } = req.query;
+    const { admin: is_admin = false ,email,first_name,last_name,mobile_number} = req.user || {};
 
     const {
       body: {
@@ -195,21 +195,12 @@ const addDoctor = async (req, res, next) => {
     } = req;
 
 
-    const checkUser = await getUserByEmail(email);
-
-
-    if (checkUser.length > 0) {
-      var user_id = checkUser[0].id;
-    } else {
-      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(new ResponseHandler(ERROR_MESSAGE.CANNOT_ADD_DOCTOR));
-    }
-
     const data = {
-      name: checkUser[0].first_name + ' ' + checkUser[0].last_name,
+      name: first_name + ' ' +last_name,
       specialization,
-      contact_number: checkUser[0].mobile_number,
+      contact_number: mobile_number,
       email:email,
-      user_id,
+      user_id:id,
       doctorInTime,
       doctorOutTime
     };
@@ -218,7 +209,7 @@ const addDoctor = async (req, res, next) => {
       const result = await createDoctorData(data);
 
       if (result) {
-        await setIsDoctor(userId);
+        await setIsDoctor(id);
       }
       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })

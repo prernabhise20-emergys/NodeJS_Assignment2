@@ -264,9 +264,10 @@ const displayAdmin = async () => {
 const createDoctorData = async (data) => {
   try {
     let doctorData = { ...data };
+console.log('doctor data',doctorData);
 
     return new Promise((resolve, reject) => {
-      db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
+      db.query("INSERT INTO doctors SET?", doctorData, (error, result) => {
         if (error) {
           return reject(error);
         }

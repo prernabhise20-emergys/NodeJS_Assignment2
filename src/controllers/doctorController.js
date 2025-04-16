@@ -7,10 +7,13 @@ import {
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
+import sendUpdatePrescriptionEmail from "../common/utility/sendUpdatePrescriptionEmail.js"
 // import xlsx from 'xlsx';
 // import puppeteer from "puppeteer";
 // import { createPrescription } from '../common/utility/createPrescription.js'
 import {
+    updatePrescription,
+    getPrescriptionByAppointmentId,
     getAppointmentData,
     savePrescription,
     showAppointments,
@@ -178,7 +181,6 @@ const uploadPrescription = async (req, res, next) => {
         const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
         await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
         
-        // await savePrescription(appointment_id, cloudinaryUniquePath);
         await sendPrescription(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -191,6 +193,48 @@ const uploadPrescription = async (req, res, next) => {
 
 
 
+const updateExistsPrescription = async (req, res, next) => {
+    try {
+        const { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } = req.body;
+        const { email } = req.user;
+
+        const patientData = await getAppointmentData(appointment_id);
+        const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
+
+        const formattedAppointmentDate = formatDate(appointmentDate);
+        const formattedBirthDate = formatDate(date_of_birth);
+
+        const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
+
+        const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
+
+        const result = await uploadFile({
+            buffer: pdfBuffer,
+            originalname: "prescription.pdf",
+        });
+
+        const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
+
+        const existingPrescription = await getPrescriptionByAppointmentId(appointment_id);
+
+        const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+        if (existingPrescription) {
+            await updatePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
+        } else {
+            await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
+        }
+
+        await sendUpdatePrescriptionEmail(email, result.secure_url);
+
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+        );
+    } catch (error) {
+        next(error);
+    }
+};
+
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
@@ -199,7 +243,9 @@ const formatDate = (dateString) => {
     return `${day} ${month} ${year}`;
 };
 
+
 export default {
+    updateExistsPrescription,
     getDoctorProfile,
     uploadPrescription,
     updateDoctor,

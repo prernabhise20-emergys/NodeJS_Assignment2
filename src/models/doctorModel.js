@@ -135,7 +135,38 @@ const getAppointmentData = async (appointment_id) => {
   }
 };
 
+const getPrescriptionByAppointmentId = async (appointment_id) => {
+  return new Promise((resolve, reject) => {
+      db.query(`SELECT * FROM prescriptions WHERE appointment_id = ?`, [appointment_id], (error, result) => {
+          if (error) {
+              return reject(error);
+          }
+          resolve(result.length > 0 ? result[0] : null); 
+      });
+  });
+};
+
+const updatePrescription = async (appointment_id, url, dateIssued) => {
+  try {
+      return new Promise((resolve, reject) => {
+          db.query(
+              `UPDATE prescriptions SET file_url = ?, dateIssued = ? WHERE appointment_id = ?`,
+              [url, dateIssued, appointment_id],
+              (error, result) => {
+                  if (error) {
+                      return reject(error);
+                  }
+                  resolve(result);
+              }
+          );
+      });
+  } catch (error) {
+      throw error;
+  }
+};
 export {
+  getPrescriptionByAppointmentId,
+  updatePrescription,
   getDoctor,
   getAppointmentData,
   savePrescription,

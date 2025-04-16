@@ -8,6 +8,7 @@ import {
 const router = express.Router();
 
 const {
+  UPDATE_PRISCRIPTION,
   ADD_PRISCRIPTION,
   DISPLAY_APPOINTMENTS,
   UPDATE_DOCTOR,
@@ -36,4 +37,12 @@ router.post(
   doctorController.uploadPrescription
 )
 
+
+
+router.put(
+  UPDATE_PRISCRIPTION,
+  authenticateUser,
+  upload.single('file'),
+  doctorController.updateExistsPrescription
+)
 export default router;
