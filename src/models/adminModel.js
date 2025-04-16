@@ -249,16 +249,12 @@ const checkSuperAdmin = async (email) => {
 
 const displayAdmin = async () => {
   try {
-    const excludedEmail = "prerna.bhise@gmail.com";
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT email FROM user_register WHERE is_admin = true AND is_deleted = false",
+        "SELECT email FROM user_register WHERE is_admin = true AND is_superadmin=false and is_deleted = false",
         (error, result) => {
           if (error) return reject(error);
-          const filteredAdmins = result.filter(
-            (admin) => admin.email !== excludedEmail
-          );
-          return resolve(filteredAdmins);
+          return resolve(result);
         }
       );
     });

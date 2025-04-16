@@ -72,7 +72,6 @@ const updateDoctor = async (req, res, next) => {
     }
 };
 
-
 const displayAppointments = async (req, res, next) => {
     try {
 

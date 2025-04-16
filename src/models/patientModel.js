@@ -20,7 +20,7 @@ const getPatientInfo = async (id) => {
         JOIN documents do ON do.patient_id = p.patient_id 
 		JOIN appointments a ON a.patient_id = p.patient_id 
         WHERE p.is_deleted = false 
-          AND r.id = ?`,
+          AND r.id = ?`, 
         id,
         (error, result) => {
           if (error) {
