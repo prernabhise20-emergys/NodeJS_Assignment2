@@ -111,59 +111,6 @@ const createPersonalInfo = async (req, res, next) => {
     next(error)
   }
 };
-//   try {
-//     const {
-//       body: {
-//         patient_name,
-//         date_of_birth,
-//         gender,
-//         weight,
-//         height,
-//         country_of_origin,
-//         is_diabetic,
-//         cardiac_issue,
-//         blood_pressure,
-//         patient_id,
-//         age,
-//         bmi,
-//       },
-//     } = req;
-
-//     // Ensure boolean values are correctly converted
-//     const convertToBooleanFlag = (value) => (value === true || value === 1 ? 1 : 0);
-
-//     const data = {
-//       patient_name,
-//       date_of_birth,
-//       gender,
-//       weight: Number(weight),
-//       height: Number(height),
-//       country_of_origin,
-//       is_diabetic: convertToBooleanFlag(is_diabetic),
-//       cardiac_issue: convertToBooleanFlag(cardiac_issue),
-//       blood_pressure: convertToBooleanFlag(blood_pressure),
-//       age: Number(age),
-//       bmi: Number(bmi),
-//     };
-
-//     const { userid: id, admin: is_admin } = req.user;
-
-//     // Verify user access rights
-//     const isValidPatient = await checkUserWithPatientID(id, patient_id);
-
-//     if (isValidPatient || is_admin) {
-//       await updatePersonalDetails(data, patient_id);
-
-//       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//         new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
-//       );
-//     } else {
-//       res.status(403).send(new ResponseHandler(ERROR_MESSAGE.UNAUTHORIZED_ACCESS));
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 const updatePersonalInfo = async (req, res, next) => {
   try {
