@@ -90,7 +90,6 @@ const login = async (req, res, next) => {
 
     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
     const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
-    console.log('passwordMatch', passwordMatch);
 
     if (!passwordMatch) {
       throw INVALID_USER;
@@ -185,7 +184,6 @@ const getUser = async (req, res, next) => {
   try {
     const { userid: id, email: emailID } = req.user;
     const checkExists = await checkAlreadyExist(emailID);
-    console.log("req.user:", req.user);
 
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);

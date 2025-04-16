@@ -74,7 +74,6 @@ const adminDeletePatientData = async (req, res, next) => {
   try {
     const { admin: is_admin } = req.user;
     const { patient_id } = req.query;
-    console.log(patient_id);
 
     if (is_admin) {
       await deletePatientDetails(patient_id);
@@ -176,12 +175,8 @@ const getAdmin = async (req, res, next) => {
 };
 const addDoctor = async (req, res, next) => {
   try {
-    // Log req.user to see if it's populated correctly
-    console.log('req.user:', req.user);
 
     const { admin: is_admin = false } = req.user || {};
-
-    console.log('Is Admin:', is_admin);
 
     const {
       body: {
@@ -192,11 +187,9 @@ const addDoctor = async (req, res, next) => {
       },
     } = req;
 
-    console.log(req.body);
 
     const checkUser = await getUserByEmail(email);
 
-    console.log('checkUser:', checkUser);
 
     if (checkUser.length > 0) {
       var user_id = checkUser[0].id;
@@ -213,9 +206,6 @@ const addDoctor = async (req, res, next) => {
       doctorInTime,
       doctorOutTime
     };
-
-    console.log(data);
-    console.log('admin', is_admin);
 
     if (is_admin) {
       const result = await createDoctorData(data);
@@ -236,122 +226,6 @@ const addDoctor = async (req, res, next) => {
     next(error);
   }
 };
-
-
-// const addDoctor = async (req, res, next) => {
-//   try {
-//     const {
-//       body: {
-//         specialization,
-//         email,
-//         doctorInTime,
-//         doctorOutTime
-//       },
-//     } = req;
-
-//     const { admin: is_admin } = req.user;
-
-//     console.log(req.body);
-
-//     const checkDoctor1 = await checkDoctor(email);
-//     console.log('checkdoctor',checkDoctor1);
-
-//     if (checkDoctor1.length > 0) {
-//       var user_id = checkDoctor1[0].id; 
-//     } else {
-//       return res.status(400).send(new ResponseHandler("User not found"));
-//     }
-
-//     const data = {
-//       name:checkDoctor1[0].first_name +' '+ checkDoctor1[0].last_name,
-//       specialization,
-//       contact_number:checkDoctor1[0].mobile_number,
-//       email,
-//       user_id,
-//       doctorInTime,
-//       doctorOutTime
-//     };
-
-//     console.log(data);
-
-//     if (is_admin) {
-//       const result = await createDoctorData(data);
-//       if(result){
-//       await setIsDoctor(email)
-//       }
-//       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-//         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
-//       );
-//     }
-
-//     return res
-//       .status(SUCCESS_STATUS_CODE.SUCCESS)
-//       .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-
-// const addDoctor = async (req, res, next) => {
-//   try {
-//     const {
-//       body: {
-//         specialization,
-//         email,
-//         doctorInTime,
-//         doctorOutTime
-//       },
-//     } = req;
-
-//     const { admin: is_admin } = req.user;
-
-//     console.log(req.body);
-
-//     const checkUser = await getUserByEmail(email);
-
-//     console.log('checkUser', checkUser);
-
-//     if (checkUser.length > 0) {
-//       var user_id = checkUser[0].id;
-//     } else {
-//       return res.status(400).send(new ResponseHandler("User not found. Please register the user before adding as a doctor."));
-//     }
-
-//     const data = {
-//       name: checkUser[0].first_name + ' ' + checkUser[0].last_name,
-//       specialization,
-//       contact_number: checkUser[0].mobile_number,
-//       email,
-//       user_id,
-//       doctorInTime,
-//       doctorOutTime
-//     };
-
-//     console.log(data);
-
-//     if (is_admin) {
-//       const result = await createDoctorData(data);
-
-//       if (result) {
-//         await setIsDoctor(email);
-//       }
-
-//       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-//         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
-//       );
-//     }
-
-//     return res
-//       .status(SUCCESS_STATUS_CODE.UNAUTHORIZED)
-//       .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
-//   } catch (error) {
-//     console.error('Error in addDoctor:', error);
-//     next(error); 
-//   }
-// };
-
-
 
 
 
@@ -419,8 +293,7 @@ const approveAppointment = async (req, res, next) => {
       const appointmentDate = data[0].appointment_date;
       const appointmentTime = data[0].appointment_time;
       const doctorName = data[0].name;
-      console.log(patientName, appointmentDate, appointmentTime, doctorName);
-      console.log(result);
+  
 
       if (result.affectedRows == 1) {
         await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName);
@@ -464,7 +337,6 @@ const getAllAppointments = async (req, res, next) => {
     if (admin || doctor) {
       const appointments = await getAllAppointmentInformation(doctor_id);
 
-      console.log(appointments);
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
@@ -483,7 +355,6 @@ const getPatientsAppointments = async (req, res, next) => {
 
     if (admin || doctor) {
       const appointments = await getAllPatientAppointment();
-      console.log(appointments);
 
       const formattedAppointments = appointments.map(appointment => ({
         ...appointment,
@@ -506,9 +377,6 @@ const getAllEmail = async (req, res, next) => {
 
     if (admin || doctor) {
       const emails = await getAllEmailForAddAdmin();
-      console.log(emails);
-
-
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
@@ -526,9 +394,6 @@ const getAllEmailForDoctor = async (req, res, next) => {
 
     if (admin || doctor) {
       const emails = await getAllEmailForAddDoctor();
-      console.log(emails);
-
-
 
       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)

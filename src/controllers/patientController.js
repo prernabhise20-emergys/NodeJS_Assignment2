@@ -479,21 +479,17 @@ const downloadDocument = async (req, res, next) => {
       throw MISSING_REQUIRED;
     }
 
-    console.log(patient_id, document_type);
-
     const document = await getDocumentByPatientIdAndType(
       patient_id,
       document_type
     );
 
-    console.log('doc', document);
 
     if (!document) {
       throw DOCUMENT_NOT_FOUND;
     }
 
     const documentUrl = cloudinaryBaseUrl + document.document_url;
-    console.log('url', documentUrl);
 
     return res.redirect(documentUrl);
 

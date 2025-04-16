@@ -33,7 +33,6 @@ const updateDoctorData = async (data,user_id) => {
       ...data,
     };
 
-    console.log('userid:', user_id);
 
     return new Promise((resolve, reject) => {
       db.query("UPDATE doctors SET ? WHERE user_id = ?",
@@ -53,7 +52,6 @@ const updateDoctorData = async (data,user_id) => {
 
 const showAppointments = async (user_id) => {
   try {
-      console.log("Fetching appointments for User ID:", user_id);
 
       return new Promise((resolve, reject) => {
           db.query(`

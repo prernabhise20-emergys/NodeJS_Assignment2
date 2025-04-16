@@ -261,7 +261,6 @@ const deletePersonalDetails = async (patient_id) => {
 const deletePatientDetails = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      console.log(patient_id);
 
       db.query(
         `          

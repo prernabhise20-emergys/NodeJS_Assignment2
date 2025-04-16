@@ -101,7 +101,6 @@ const getTotalCount = async (is_admin) => {
 const deletePatientDetails = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
-      console.log(patient_id);
 
       db.query(
         `          
@@ -249,8 +248,6 @@ const createDoctorData = async (data) => {
   try {
     let doctorData = { ...data };
 
-    console.log('doctordata', doctorData);
-
     return new Promise((resolve, reject) => {
       db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
         if (error) {
@@ -263,27 +260,6 @@ const createDoctorData = async (data) => {
     throw error;
   }
 };
-
-// const createDoctorData = async (data) => {
-//   try {
-//     let doctorData = {
-//       ...data
-//     };
-
-//     console.log('doctordata', doctorData);
-
-//     return new Promise((resolve, reject) => {
-//       db.query("INSERT INTO doctors SET ?", doctorData, (error, result) => {
-//         if (error) {
-//           return reject(error);
-//         }
-//         return resolve(result);
-//       });
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 
 const deleteDoctorData = async (doctor_id) => {

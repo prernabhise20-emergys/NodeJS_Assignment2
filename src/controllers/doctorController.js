@@ -54,9 +54,7 @@ const updateDoctor = async (req, res, next) => {
             doctorInTime,
             doctorOutTime
         };
-console.log(userid);
 
-        console.log('data',data);
 
         if (is_doctor) {
             await updateDoctorData(data,userid);
@@ -77,11 +75,8 @@ console.log(userid);
 
 const displayAppointments = async (req, res, next) => {
     try {
-        console.log("req.user:", req.user); 
 
         const { doctor: is_doctor, admin: is_admin ,userid:user_id} = req.user;
-
-        console.log("User ID being passed:", user_id); 
 
         if (is_doctor || is_admin) {
             const appointments = await showAppointments(user_id);

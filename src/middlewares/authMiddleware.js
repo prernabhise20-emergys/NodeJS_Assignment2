@@ -10,7 +10,6 @@ import {
 const authenticateUser = (req, res, next) => {
   try {
     let token = req.header("Authorization");
-    console.log(token)
 
     token = token.split("Bearer ")[1];
 
@@ -27,7 +26,6 @@ const authenticateUser = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY, { alg });
 
-    console.log("decoded", decoded)
 
     if (!decoded) {
       return res.status(ERROR_STATUS_CODE.FORBIDDEN).json({
@@ -37,12 +35,9 @@ const authenticateUser = (req, res, next) => {
     }
 
     req.user = decoded;
-    console.log(req.user);
 
     next();
   } catch (error) {
-    console.log("Decoded error:", error);
-
     res.status(ERROR_STATUS_CODE.INVALID).json({
       status: ERROR_STATUS_CODE.INVALID,
       message: ERROR_MESSAGE.INVALID_TOKEN_MESSAGE,
