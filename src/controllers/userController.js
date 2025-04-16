@@ -111,7 +111,7 @@ const login = async (req, res, next) => {
 
    
     if (user.is_admin) {
-    return res.status(200).send({
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
         admin_message: user.is_admin,
         token,
@@ -119,14 +119,14 @@ const login = async (req, res, next) => {
     }
 
     if (user.is_doctor) {
-      return res.status(200).send({
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
         doctor_message: user.is_doctor,
         token,
       });
     }
     else {
-      return res.status(200).send({
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
         token,
       });

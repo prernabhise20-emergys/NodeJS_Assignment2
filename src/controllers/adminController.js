@@ -230,7 +230,6 @@ const addDoctor = async (req, res, next) => {
       .status(SUCCESS_STATUS_CODE.UNAUTHORIZED)
       .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
-    console.error('Error in addDoctor:', error);
     next(error);
   }
 };
@@ -395,7 +394,6 @@ const getAllEmail = async (req, res, next) => {
   }
 };
 
-
 const getAllEmailForDoctor = async (req, res, next) => {
   try {
     const { admin, doctor } = req.user;
@@ -411,6 +409,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
     next(error);
   }
 };
+
 export default {
   getAllEmailForDoctor,
   getAllEmail,
