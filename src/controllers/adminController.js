@@ -9,6 +9,7 @@ import { ResponseHandler } from "../common/utility/handlers.js";
 import approveRequest from "../common/utility/approveAppointment.js"
 
 import {
+  getUserRegisterDetails,
   setIsDoctor,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
@@ -180,30 +181,33 @@ const getAdmin = async (req, res, next) => {
     next(error);
   }
 };
-
 const addDoctor = async (req, res, next) => {
   try {
     const { id } = req.query;
-    const { admin: is_admin = false ,email,first_name,last_name,mobile_number} = req.user || {};
+    const { admin: is_admin = false } = req.user || {};
 
-    const {
-      body: {
-        specialization,
-        doctorInTime,
-        doctorOutTime
-      },
-    } = req;
+    const userDetails = await getUserRegisterDetails(id);
 
+    if (!userDetails) {
+      return res.status(SUCCESS_STATUS_CODE.NOT_FOUND).send(
+        new ResponseHandler(ERROR_MESSAGE.USER_NOT_FOUND)
+      );
+    }
+
+    const { email, first_name, last_name, mobile_number } = userDetails;
+
+    const { body: { specialization, doctorInTime, doctorOutTime } } = req;
 
     const data = {
-      name: first_name + ' ' +last_name,
+      name: first_name + ' ' + last_name,
       specialization,
       contact_number: mobile_number,
-      email:email,
-      user_id:id,
+      email,
+      user_id: id,
       doctorInTime,
-      doctorOutTime
+      doctorOutTime,
     };
+
 
     if (is_admin) {
       const result = await createDoctorData(data);
@@ -211,6 +215,7 @@ const addDoctor = async (req, res, next) => {
       if (result) {
         await setIsDoctor(id);
       }
+
       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
       );
@@ -223,6 +228,7 @@ const addDoctor = async (req, res, next) => {
     next(error);
   }
 };
+
 
 
 

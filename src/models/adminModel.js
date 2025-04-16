@@ -527,7 +527,31 @@ const getUserByEmail = async (email) => {
   });
 };
 
+const getUserRegisterDetails = async (userId) => {
+  return new Promise((resolve, reject) => {
+    try {
+      db.query(
+        'SELECT id, first_name, last_name, mobile_number, email FROM user_register WHERE id = ?',
+        [userId], 
+        (error, result) => {
+          if (error) {
+            console.error('Error fetching user details:', error);
+            return reject(error);
+          }
+          resolve(result[0]);
+        }
+      );
+    } catch (error) {
+      console.error('Error in getUserRegisterDetails:', error);
+      reject(error);
+    }
+  });
+};
+
+
+
 export {
+  getUserRegisterDetails,
   checkSuperAdmin,
   getUserByEmail,
   setIsDoctor,
