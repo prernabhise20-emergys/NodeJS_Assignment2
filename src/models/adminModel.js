@@ -205,11 +205,12 @@ const removeAdminAuthority = async (isAdmin, email) => {
   }
 };
 
+
 const checkAdminCount = async () => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = true and is_deleted=false",
+        "SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = true AND is_deleted = false",
         (error, results) => {
           if (error) {
             return reject(error);
@@ -223,6 +224,28 @@ const checkAdminCount = async () => {
     throw error;
   }
 };
+
+
+const checkSuperAdmin = async (email) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT is_superadmin FROM user_register WHERE email = ?",
+        email, 
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results[0]?.is_superadmin); 
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const displayAdmin = async () => {
   try {
@@ -492,6 +515,7 @@ const setIsDoctor = async (email) => {
     throw error;
   }
 };
+
 const getUserByEmail = async (email) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -509,6 +533,7 @@ const getUserByEmail = async (email) => {
 };
 
 export {
+  checkSuperAdmin,
   getUserByEmail,
   setIsDoctor,
   getAllEmailForAddDoctor,

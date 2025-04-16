@@ -13,8 +13,8 @@ import {
   setIsDoctor,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
-  checkDoctor,
-  getAllAppointmentInformation,
+  checkSuperAdmin,
+    getAllAppointmentInformation,
   getPatientData,
   scheduleAppointment,
   changeStatus,
@@ -32,7 +32,7 @@ import {
   getAllPatientAppointment,
   getUserByEmail
 } from "../models/adminModel.js";
-const { UNAUTHORIZED_ACCESS, NOT_DELETED } = AUTH_RESPONSES;
+const { UNAUTHORIZED_ACCESS, NOT_DELETED,CANNOT_DELETE_SUPERADMIN,CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 const getAllInfo = async (req, res, next) => {
   try {
@@ -44,7 +44,6 @@ const getAllInfo = async (req, res, next) => {
     let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
-    // documentSize = parseInt(documentSize || 4);
 
     limit = limit * 4;
 
@@ -131,16 +130,55 @@ const addAdmin = async (req, res, next) => {
   }
 };
 
+// const removeAdmin = async (req, res, next) => {
+//   try {
+//     const { admin: is_admin} = req.user;
+//     const { email } = req.body;
+// console.log(email);
+
+//     const isSuperAdmin = await checkSuperAdmin(email);
+//     console.log('superadmin',isSuperAdmin);
+    
+//     if (isSuperAdmin) {
+//       throw CANNOT_DELETE_SUPERADMIN;
+//     }
+
+//     if (is_admin) {
+//       const adminCount = await checkAdminCount();
+
+//       if (adminCount <= 1) {
+//         throw CANNOT_DELETE_USER;
+//       }
+//     }
+
+//     await removeAdminAuthority(is_admin, email);
+
+//     res
+//       .status(SUCCESS_STATUS_CODE.SUCCESS)
+//       .send(new ResponseHandler(SUCCESS_MESSAGE.REMOVE_ADMIN));
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 const removeAdmin = async (req, res, next) => {
   try {
     const { admin: is_admin } = req.user;
     const { email } = req.body;
 
+    console.log(email);
+
+    const isSuperAdmin = await checkSuperAdmin(email);
+    console.log('superadmin', isSuperAdmin);
+
+    if (isSuperAdmin) {
+      throw CANNOT_DELETE_SUPERADMIN; 
+    }
+
     if (is_admin) {
       const adminCount = await checkAdminCount();
 
       if (adminCount <= 1) {
-        throw CANNOT_DELETE_USER;
+        throw CANNOT_DELETE_USER; 
       }
     }
 
@@ -173,6 +211,7 @@ const getAdmin = async (req, res, next) => {
     next(error);
   }
 };
+
 const addDoctor = async (req, res, next) => {
   try {
 
@@ -194,7 +233,7 @@ const addDoctor = async (req, res, next) => {
     if (checkUser.length > 0) {
       var user_id = checkUser[0].id;
     } else {
-      return res.status(400).send(new ResponseHandler("User not found. Please register the user before adding as a doctor."));
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(new ResponseHandler(ERROR_MESSAGE.CANNOT_ADD_DOCTOR));
     }
 
     const data = {

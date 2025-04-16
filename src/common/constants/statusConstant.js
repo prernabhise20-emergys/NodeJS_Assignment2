@@ -41,8 +41,9 @@ const ERROR_MESSAGE = {
   INVALID_INPUT: "Invalid Input",
   NOT_AVAILABLE: "Time slot is not available",
   LOGIN_FAILED: "Failed to login",
-  FAILED_TO_RETRIVE: "Failed to retrieve data"
-
+  FAILED_TO_RETRIVE: "Failed to retrieve data",
+  CANNOT_DELETE_SUPERADMIN:"Cannot delete the superadmin",
+  CANNOT_ADD_DOCTOR:"User not found. Please register the user before adding as a doctor."
 };
 
 const SUCCESS_MESSAGE = {
