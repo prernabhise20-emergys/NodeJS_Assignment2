@@ -12,7 +12,6 @@ const getPatientInfo = async (id) => {
                 f.father_diabetic, f.father_cardiac_issue, f.father_bp,f.mother_diabetic,
                  f.mother_cardiac_issue, f.mother_bp, d.disease_type, 
                 d.disease_description, do.document_type, do.document_url, 
-       a.doctor_id AS doctor_id
         FROM personal_info p 
         JOIN user_register r ON p.user_id = r.id 
         JOIN family_info f ON f.patient_id = p.patient_id 
