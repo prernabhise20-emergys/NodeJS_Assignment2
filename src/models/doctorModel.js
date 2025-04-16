@@ -48,49 +48,112 @@ const updateDoctorData = async (data,user_id) => {
   }
 };
 
-  
-
 const showAppointments = async (user_id) => {
   try {
-
-      return new Promise((resolve, reject) => {
-          db.query(`
-              SELECT 
-                  p.patient_name,
-                  u.id AS user_id,
-                  p.age,
-                  u.email,
-                  d.name AS doctor_name,
-                  d.specialization,
-                  a.appointment_id,
-                  a.appointment_date,
-                  a.appointment_time,
-                  a.status,
-                  COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types
-              FROM user_register u
-              JOIN doctors d ON u.id = d.user_id
-              JOIN appointments a ON d.doctor_id = a.doctor_id
-              JOIN personal_info p ON a.patient_id = p.patient_id
-              LEFT JOIN disease ds ON ds.patient_id = p.patient_id  
-              WHERE u.is_deleted = FALSE 
-              AND a.status = 'Scheduled'
-              AND u.id = ?
-              GROUP BY p.patient_name,p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status
-              ORDER BY a.appointment_id;
-          `, [user_id], (error, result) => { 
-              if (error) {
-                  console.error("SQL Query Error:", error);
-                  return reject(error);
-              }
-              return resolve(result);
-          });
+    return new Promise((resolve, reject) => {
+      db.query(`
+        SELECT 
+          p.patient_name,
+          u.id AS user_id,
+          p.age,
+          u.email,
+          d.name AS doctor_name,
+          d.specialization,
+          a.appointment_id,
+          a.appointment_date,
+          a.appointment_time,
+          a.status,
+          COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types,
+          pr.prescription_id
+        FROM 
+          user_register u
+        JOIN 
+          doctors d ON u.id = d.user_id
+        JOIN 
+          appointments a ON d.doctor_id = a.doctor_id
+        JOIN 
+          personal_info p ON a.patient_id = p.patient_id
+        LEFT JOIN 
+          disease ds ON ds.patient_id = p.patient_id
+        LEFT JOIN 
+          prescriptions pr ON pr.appointment_id = a.appointment_id  
+        WHERE 
+          u.is_deleted = FALSE 
+          AND a.status = 'Scheduled'
+          AND u.id = ?
+        GROUP BY 
+          p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status, pr.prescription_id
+        ORDER BY 
+          a.appointment_id;
+      `, [user_id], (error, result) => { 
+        if (error) {
+          console.error("SQL Query Error:", error);
+          return reject(error);
+        }
+        return resolve(result);
       });
-
+    });
   } catch (error) {
-      console.error("Error in showAppointments:", error);
-      throw error;
+    console.error("Error in showAppointments:", error);
+    throw error;
   }
 };
+
+
+// const showAppointments = async (user_id) => {
+//   try {
+
+//       return new Promise((resolve, reject) => {
+//           db.query(`
+             
+//           SELECT 
+//     p.patient_name,
+//     u.id AS user_id,
+//     p.age,
+//     u.email,
+//     d.name AS doctor_name,
+//     d.specialization,
+//     a.appointment_id,
+//     a.appointment_date,
+//     a.appointment_time,
+//     a.status,
+//     COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types,
+//     pr.appointment_id AS prescription_id
+// FROM 
+//     user_register u
+// JOIN 
+//     doctors d ON u.id = d.user_id
+// JOIN 
+//     appointments a ON d.doctor_id = a.doctor_id
+// JOIN 
+//     personal_info p ON a.patient_id = p.patient_id
+// LEFT JOIN 
+//     disease ds ON ds.patient_id = p.patient_id
+// LEFT JOIN 
+//     prescriptions pr ON pr.appointment_id = a.appointment_id  
+// WHERE 
+//     u.is_deleted = FALSE 
+//     AND a.status = 'Scheduled'
+//     AND u.id = ?
+// GROUP BY 
+//     p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status, pr.prescription_id
+// ORDER BY 
+//     a.appointment_id;,
+                  
+//           `, [user_id], (error, result) => { 
+//               if (error) {
+//                   console.error("SQL Query Error:", error);
+//                   return reject(error);
+//               }
+//               return resolve(result);
+//           });
+//       });
+
+//   } catch (error) {
+//       console.error("Error in showAppointments:", error);
+//       throw error;
+//   }
+// };
 
 
 const savePrescription = async (appointment_id, url,dateIssued) => {

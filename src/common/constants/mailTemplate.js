@@ -87,8 +87,7 @@ const updatedPrescriptionBody = () => {
           <p>Thank you for trusting us with your healthcare needs!</p>
           <br>
           <p>Best regards,</p>
-          <p><strong>Your Healthcare Team</strong></p>
-          <p><em>Your Clinic / Hospital Name</em></p>
+          <p><strong>City Care Medical Center</strong></p>
         </div>
       </body>
     </html>
