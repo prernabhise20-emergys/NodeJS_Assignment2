@@ -447,10 +447,11 @@ const updateDocument = async (req, res, next) => {
       const result = await uploadFile(req.file);
       documentUrl = result.secure_url;
     }
+    const documentPath = documentUrl.split("raw/upload/")[1];
 
     const data = {
       document_type,
-      document_url: documentUrl,
+      document_url: documentPath,
       patient_id,
     };
     const { userid: id, admin: is_admin } = req.user;
