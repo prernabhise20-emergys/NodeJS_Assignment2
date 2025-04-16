@@ -8,13 +8,12 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import approveRequest from "../common/utility/approveAppointment.js"
 
-
 import {
   setIsDoctor,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
   checkSuperAdmin,
-    getAllAppointmentInformation,
+  getAllAppointmentInformation,
   getPatientData,
   scheduleAppointment,
   changeStatus,
@@ -32,7 +31,7 @@ import {
   getAllPatientAppointment,
   getUserByEmail
 } from "../models/adminModel.js";
-const { UNAUTHORIZED_ACCESS, NOT_DELETED,CANNOT_DELETE_SUPERADMIN,CANNOT_DELETE_USER } = AUTH_RESPONSES;
+const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 const getAllInfo = async (req, res, next) => {
   try {
@@ -130,36 +129,6 @@ const addAdmin = async (req, res, next) => {
   }
 };
 
-// const removeAdmin = async (req, res, next) => {
-//   try {
-//     const { admin: is_admin} = req.user;
-//     const { email } = req.body;
-// console.log(email);
-
-//     const isSuperAdmin = await checkSuperAdmin(email);
-//     console.log('superadmin',isSuperAdmin);
-    
-//     if (isSuperAdmin) {
-//       throw CANNOT_DELETE_SUPERADMIN;
-//     }
-
-//     if (is_admin) {
-//       const adminCount = await checkAdminCount();
-
-//       if (adminCount <= 1) {
-//         throw CANNOT_DELETE_USER;
-//       }
-//     }
-
-//     await removeAdminAuthority(is_admin, email);
-
-//     res
-//       .status(SUCCESS_STATUS_CODE.SUCCESS)
-//       .send(new ResponseHandler(SUCCESS_MESSAGE.REMOVE_ADMIN));
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 const removeAdmin = async (req, res, next) => {
   try {
     const { admin: is_admin } = req.user;
@@ -171,14 +140,14 @@ const removeAdmin = async (req, res, next) => {
     console.log('superadmin', isSuperAdmin);
 
     if (isSuperAdmin) {
-      throw CANNOT_DELETE_SUPERADMIN; 
+      throw CANNOT_DELETE_SUPERADMIN;
     }
 
     if (is_admin) {
       const adminCount = await checkAdminCount();
 
       if (adminCount <= 1) {
-        throw CANNOT_DELETE_USER; 
+        throw CANNOT_DELETE_USER;
       }
     }
 
@@ -332,7 +301,7 @@ const approveAppointment = async (req, res, next) => {
       const appointmentDate = data[0].appointment_date;
       const appointmentTime = data[0].appointment_time;
       const doctorName = data[0].name;
-  
+
 
       if (result.affectedRows == 1) {
         await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName);
