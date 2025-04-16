@@ -188,11 +188,11 @@ const getFamilyDetails = async (req, res, next) => {
   try {
     const { patient_id } = req.params;
     const familyInfo = await getFamilyInfo(patient_id);
+console.log(familyInfo);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
-    throw FAILED_TO_RETRIVE;
   } catch (error) {
     next(error)
   }
