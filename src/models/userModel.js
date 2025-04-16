@@ -95,6 +95,7 @@ const createUserData = async (
       last_name,
       mobile_number,
     };
+    
     return await new Promise((resolve, reject) => {
       db.query("insert into user_register set ?", user, (error, result) => {
         if (error) {

@@ -5,7 +5,6 @@ import sendVerificationEmail from "../common/utility/sendVerificationEmail.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
-import { Buffer } from "buffer";
 import {
   checkDoctorAvailability,
   checkDoctor,
@@ -48,10 +47,11 @@ const register = async (req, res, next) => {
       throw USER_EXISTS;
     }
 
+    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
 
     await createUserData(
       email,
-      user_password,
+      decodedPassword,
       first_name,
       last_name,
       mobile_number
@@ -88,8 +88,8 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
+    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
     console.log('passwordMatch', passwordMatch);
 
     if (!passwordMatch) {
