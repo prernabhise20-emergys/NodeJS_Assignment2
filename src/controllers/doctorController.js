@@ -181,7 +181,10 @@ const uploadPrescription = async (req, res, next) => {
 
         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
 
-        await savePrescription(appointment_id, cloudinaryUniquePath);
+        const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
+        await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
+        
+        // await savePrescription(appointment_id, cloudinaryUniquePath);
         await sendPrescription(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(

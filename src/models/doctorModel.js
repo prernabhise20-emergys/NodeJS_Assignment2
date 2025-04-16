@@ -95,10 +95,10 @@ const showAppointments = async (user_id) => {
 };
 
 
-const savePrescription = async (appointment_id, url) => {
+const savePrescription = async (appointment_id, url,dateIssued) => {
   try {
     return new Promise((resolve, reject) => {
-      db.query(`INSERT INTO prescriptions (appointment_id, file_url) VALUES (?, ?)`, [appointment_id, url], (error, result) => {
+      db.query(`INSERT INTO prescriptions (appointment_id, file_url,dateIssued) VALUES (?, ?,?)`, [appointment_id, url,dateIssued], (error, result) => {
         if (error) {
           return reject(error);
         }
