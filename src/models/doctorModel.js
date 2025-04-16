@@ -64,7 +64,7 @@ const showAppointments = async (user_id) => {
           a.appointment_time,
           a.status,
           COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types,
-          MAX(pr.prescription_id) AS prescription_id -- Using MAX to ensure we show only one prescription_id
+          MAX(pr.appointment_id) AS prescription_id 
         FROM 
           user_register u
         JOIN 
