@@ -5,21 +5,24 @@ const getPatientInfo = async (id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT p.patient_id, p.patient_name, r.first_name, r.last_name,p.gender, r.mobile_number, 
-                p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
-                p.is_diabetic, p.cardiac_issue, p.blood_pressure, f.father_name, f.father_age, 
-                f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
-                f.father_diabetic, f.father_cardiac_issue, f.father_bp,f.mother_diabetic,
-                 f.mother_cardiac_issue, f.mother_bp, d.disease_type, 
-                d.disease_description, do.document_type, do.document_url ,a.status,a.doctor_id
-        FROM personal_info p 
-        JOIN user_register r ON p.user_id = r.id 
-        JOIN family_info f ON f.patient_id = p.patient_id 
-        JOIN disease d ON d.patient_id = p.patient_id 
-        JOIN documents do ON do.patient_id = p.patient_id 
-        join appointments a on a.patient_id=do.patient_id
-        WHERE p.is_deleted = false 
-          AND r.id = ?`,
+        `      SELECT p.patient_id, p.patient_name, r.first_name, r.last_name, p.gender, r.mobile_number, 
+       p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
+       p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
+       f.father_name, f.father_age, f.mother_name, f.mother_age, 
+       f.father_country_origin, f.mother_country_origin, 
+       f.father_diabetic, f.father_cardiac_issue, f.father_bp, f.mother_diabetic,
+       f.mother_cardiac_issue, f.mother_bp, 
+       d.disease_type, d.disease_description, 
+       do.document_type, do.document_url, 
+       a.status, a.doctor_id
+FROM personal_info p
+LEFT JOIN user_register r ON p.user_id = r.id 
+LEFT JOIN family_info f ON f.patient_id = p.patient_id 
+LEFT JOIN disease d ON d.patient_id = p.patient_id 
+LEFT JOIN documents do ON do.patient_id = p.patient_id 
+LEFT JOIN appointments a ON a.patient_id = do.patient_id
+WHERE p.is_deleted = false 
+AND r.id = 1`,
         id,
         (error, result) => {
           if (error) {
