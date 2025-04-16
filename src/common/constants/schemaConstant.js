@@ -154,15 +154,15 @@ const user_schemas = {
       .optional()
       .error(new Error("country_of_origin is required")),
 
-    is_diabetic: Joi.valid(1,0)
+    is_diabetic: Joi.valid(1,0,true,false)
       .optional()
       .error(new Error("is_diabetic must be a boolean")),
 
-    cardiac_issue: Joi.valid(1,0)
+    cardiac_issue: Joi.valid(1,0,true,false)
       .optional()
       .error(new Error("cardiac_issue must be a boolean")),
 
-    blood_pressure: Joi.valid(1,0)
+    blood_pressure: Joi.valid(1,0,true,false)
       .optional()
       .error(new Error("blood_pressure must be a boolean")),
    }),
@@ -197,12 +197,12 @@ const user_schemas = {
     mother_name: Joi.string().min(3).max(100).error(new Error("mother_name is string format and must be at least 3 characters")),
     mother_age: Joi.number().min(18).error(new Error("father_age is min 18")),
     mother_country_origin: Joi.string().min(3).max(25).error(new Error("father_country_origin is minimum 3 character")),
-    mother_diabetic: Joi.boolean().valid(1,0).optional().error(new Error("mother_diabetic is required")),
-    mother_cardiac_issue: Joi.boolean().valid(1,0).optional().error(new Error("mother_cardiac_issue is required")),
-    mother_bp: Joi.boolean().valid(1,0).error(new Error("mother_bp is required field")),
-    father_diabetic: Joi.boolean().valid(1,0).optional().error(new Error("father_diabetic is required")),
-    father_cardiac_issue: Joi.boolean().valid(1,0).optional().error(new Error("father_cardiac_issue is required")),
-    father_bp: Joi.boolean().valid(1,0).error(new Error("father_bp is required field")),
+    mother_diabetic: Joi.boolean().valid(1,0,true,false).optional().error(new Error("mother_diabetic is required")),
+    mother_cardiac_issue: Joi.boolean().valid(1,0,true,false).optional().error(new Error("mother_cardiac_issue is required")),
+    mother_bp: Joi.boolean().valid(1,0,true,false).error(new Error("mother_bp is required field")),
+    father_diabetic: Joi.boolean().valid(1,0,true,false).optional().error(new Error("father_diabetic is required")),
+    father_cardiac_issue: Joi.boolean().valid(1,0,true,false).optional().error(new Error("father_cardiac_issue is required")),
+    father_bp: Joi.boolean().valid(1,0,true,false).error(new Error("father_bp is required field")),
   }),
   createDiseaseInfo : Joi.object({
     diseaseDetails: Joi.object({

@@ -111,7 +111,6 @@ const createPersonalInfo = async (req, res, next) => {
     next(error)
   }
 };
-// const updatePersonalInfo = async (req, res, next) => {
 //   try {
 //     const {
 //       body: {
@@ -187,6 +186,8 @@ const updatePersonalInfo = async (req, res, next) => {
     const cardiac_issue = cardiac === true || cardiac === 1;
     const blood_pressure = pressure === true || pressure === 1;
 
+    console.log(is_diabetic,cardiac_issue,blood_pressure);
+    
     const data = {
       patient_name,
       date_of_birth,
