@@ -306,18 +306,24 @@ const insertFamilyInfo = async (data) => {
     throw error;
   }
 };
-
 const getFamilyInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT father_name, father_age,father_country_origin,mother_name,
-        mother_age,mother_country_origin,mother_diabetic,mother_cardiac_issue,mother_bp 
-        ,father_diabetic,father_cardiac_issue,father_bp 
+        `SELECT father_name, father_age, father_country_origin, mother_name,
+        mother_age, mother_country_origin, mother_diabetic, mother_cardiac_issue, mother_bp,
+        father_diabetic, father_cardiac_issue, father_bp 
         FROM family_info WHERE is_deleted=false and patient_id = ?`,
         patient_id,
         (error, result) => {
           if (error) return reject(error);
+
+          if (result.length > 0) {
+            result[0].mother_cardiac_issue = result[0].mother_cardiac_issue === 'true' ? 1 : Number(result[0].mother_cardiac_issue);
+            result[0].mother_cardiac_issue = result[0].mother_cardiac_issue === 'false' ? 0 : Number(result[0].mother_cardiac_issue);
+
+          }
+
           return resolve(result);
         }
       );
@@ -326,6 +332,26 @@ const getFamilyInfo = async (patient_id) => {
     throw error;
   }
 };
+
+// const getFamilyInfo = async (patient_id) => {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         `SELECT father_name, father_age,father_country_origin,mother_name,
+//         mother_age,mother_country_origin,mother_diabetic,mother_cardiac_issue,mother_bp 
+//         ,father_diabetic,father_cardiac_issue,father_bp 
+//         FROM family_info WHERE is_deleted=false and patient_id = ?`,
+//         patient_id,
+//         (error, result) => {
+//           if (error) return reject(error);
+//           return resolve(result);
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 const updateFamilyInfo = async (data, patient_id) => {
   try {
     const values = [
