@@ -13,14 +13,13 @@ const getPatientInfo = async (id) => {
                 f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
                 f.father_diabetic, f.father_cardiac_issue, f.father_bp,f.mother_diabetic,
                  f.mother_cardiac_issue, f.mother_bp, d.disease_type, 
-                d.disease_description, do.document_type, do.document_url, a.status AS appointment_status, 
+                d.disease_description, do.document_type, do.document_url 
        a.doctor_id AS doctor_id
         FROM personal_info p 
         JOIN user_register r ON p.user_id = r.id 
         JOIN family_info f ON f.patient_id = p.patient_id 
         JOIN disease d ON d.patient_id = p.patient_id 
         JOIN documents do ON do.patient_id = p.patient_id 
-		JOIN appointments a ON a.patient_id = p.patient_id 
         WHERE p.is_deleted = false 
           AND r.id = ?`, 
         id,
