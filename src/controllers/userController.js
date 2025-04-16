@@ -110,28 +110,28 @@ const login = async (req, res, next) => {
       { expiresIn: "3h", algorithm: "HS256" }
     );
 
-    // if (user.is_admin|| user.is_superadmin) {
-    // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-    //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-    //     admin_message: user.is_admin,
-    //     superAdmin_message: user.is_superadmin,
-    //     token,
-    //   });
-    // }
+    if (user.is_admin|| user.is_superadmin) {
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        admin_message: user.is_admin,
+        superAdmin_message: user.is_superadmin,
+        token,
+      });
+    }
 
-    // if (user.is_doctor) {
-    //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-    //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-    //     doctor_message: user.is_doctor,
-    //     token,
-    //   });
-    // }
-    // else {
+    if (user.is_doctor) {
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+        doctor_message: user.is_doctor,
+        token,
+      });
+    }
+    else {
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
         message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
         token,
       });
-    // }
+    }
   } catch (error) {
     next(error);
   }
