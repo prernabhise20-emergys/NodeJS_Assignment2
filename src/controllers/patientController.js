@@ -111,7 +111,6 @@ const createPersonalInfo = async (req, res, next) => {
     next(error)
   }
 };
-
 const updatePersonalInfo = async (req, res, next) => {
   try {
     const {
@@ -122,31 +121,33 @@ const updatePersonalInfo = async (req, res, next) => {
         weight,
         height,
         country_of_origin,
-        is_diabetic: diabetic,
-        cardiac_issue: cardiac,
-        blood_pressure: pressure,
+        is_diabetic,
+        cardiac_issue,
+        blood_pressure,
         patient_id,
+        age,
+        bmi,
       },
     } = req;
 
-    const is_diabetic = diabetic === true || diabetic === 1;
-    const cardiac_issue = cardiac === true || cardiac === 1;
-    const blood_pressure = pressure === true || pressure === 1;
-
+    // Ensure values are properly formatted
     const data = {
       patient_name,
       date_of_birth,
       gender,
-      weight,
-      height,
+      weight: Number(weight),
+      height: Number(height),
       country_of_origin,
-      is_diabetic,
-      cardiac_issue,
-      blood_pressure,
+      is_diabetic: is_diabetic === true ? 1 : Number(is_diabetic),
+      cardiac_issue: cardiac_issue === true ? 1 : Number(cardiac_issue),
+      blood_pressure: blood_pressure === true ? 1 : Number(blood_pressure),
+      age: Number(age),
+      bmi: Number(bmi),
     };
 
     const { userid: id, admin: is_admin } = req.user;
 
+    // Verify user has access rights
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
 
     if (isValidPatient || is_admin) {
@@ -156,12 +157,64 @@ const updatePersonalInfo = async (req, res, next) => {
         new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
       );
     } else {
-      throw UNAUTHORIZED_ACCESS;
+      res.status(403).send(new ResponseHandler(ERROR_MESSAGE.UNAUTHORIZED_ACCESS));
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
+
+
+// const updatePersonalInfo = async (req, res, next) => {
+//   try {
+//     const {
+//       body: {
+//         patient_name,
+//         date_of_birth,
+//         gender,
+//         weight,
+//         height,
+//         country_of_origin,
+//         is_diabetic: diabetic,
+//         cardiac_issue: cardiac,
+//         blood_pressure: pressure,
+//         patient_id,
+//       },
+//     } = req;
+
+//     const is_diabetic = diabetic === true || diabetic === 1;
+//     const cardiac_issue = cardiac === true || cardiac === 1;
+//     const blood_pressure = pressure === true || pressure === 1;
+
+//     const data = {
+//       patient_name,
+//       date_of_birth,
+//       gender,
+//       weight,
+//       height,
+//       country_of_origin,
+//       is_diabetic,
+//       cardiac_issue,
+//       blood_pressure,
+//     };
+
+//     const { userid: id, admin: is_admin } = req.user;
+
+//     const isValidPatient = await checkUserWithPatientID(id, patient_id);
+
+//     if (isValidPatient || is_admin) {
+//       await updatePersonalDetails(data, patient_id);
+
+//       res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//         new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+//       );
+//     } else {
+//       throw UNAUTHORIZED_ACCESS;
+//     }
+//   } catch (error) {
+//     next(error)
+//   }
+// };
 
 const deletePersonalInfo = async (req, res, next) => {
   try {
