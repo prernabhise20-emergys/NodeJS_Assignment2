@@ -481,8 +481,8 @@ const getAllEmailForAddAdmin = async () => {
 const getAllEmailForAddDoctor = async () => {
   return new Promise((resolve, reject) => {
     db.query(
-      `select
-        email from user_Register 
+      `select id,
+        email,first_name,last_name from user_Register 
         where is_doctor=false`,
       (error, results) => {
         if (error) {

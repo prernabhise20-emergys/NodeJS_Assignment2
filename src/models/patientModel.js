@@ -11,12 +11,13 @@ const getPatientInfo = async (id) => {
                 f.mother_name, f.mother_age, f.father_country_origin, f.mother_country_origin, 
                 f.father_diabetic, f.father_cardiac_issue, f.father_bp,f.mother_diabetic,
                  f.mother_cardiac_issue, f.mother_bp, d.disease_type, 
-                d.disease_description, do.document_type, do.document_url 
+                d.disease_description, do.document_type, do.document_url ,a.status,a.doctor_id
         FROM personal_info p 
         JOIN user_register r ON p.user_id = r.id 
         JOIN family_info f ON f.patient_id = p.patient_id 
         JOIN disease d ON d.patient_id = p.patient_id 
         JOIN documents do ON do.patient_id = p.patient_id 
+        join appointments a on a.patient_id=do.patient_id
         WHERE p.is_deleted = false 
           AND r.id = ?`,
         id,
@@ -162,8 +163,8 @@ const createPersonalDetails = async (data, userId, email) => {
       blood_pressure: blood_pressure,
       country_of_origin: country_of_origin,
       created_by: email,
-      updated_by: email,  
-      user_id:userId,  
+      updated_by: email,
+      user_id: userId,
     };
 
     return new Promise((resolve, reject) => {
@@ -334,11 +335,11 @@ const updateFamilyInfo = async (data, patient_id) => {
       data.mother_age,
       data.mother_country_origin,
       data.mother_diabetic,
-       data. mother_cardiac_issue,
-        data.mother_bp,
-        data.father_diabetic,
-        data.father_cardiac_issue,
-        data.father_bp,
+      data.mother_cardiac_issue,
+      data.mother_bp,
+      data.father_diabetic,
+      data.father_cardiac_issue,
+      data.father_bp,
       patient_id,
     ];
 
@@ -572,12 +573,12 @@ const modifyDocument = (documentData) => {
   });
 };
 
-const getDocumentByPatientIdAndType=async(patient_id,document_type)=>{
+const getDocumentByPatientIdAndType = async (patient_id, document_type) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
         "SELECT document_type,document_url FROM documents WHERE is_deleted = false and patient_id = ? and document_type=?",
-        [patient_id,document_type],
+        [patient_id, document_type],
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
