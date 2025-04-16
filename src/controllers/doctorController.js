@@ -18,7 +18,7 @@ import {
     getDoctor
 } from "../models/doctorModel.js";
 
-
+import Buffer from "Buffer";
 
 const getDoctorProfile = async (req, res, next) => {
     try {
