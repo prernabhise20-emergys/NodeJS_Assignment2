@@ -22,7 +22,7 @@ LEFT JOIN disease d ON d.patient_id = p.patient_id
 LEFT JOIN documents do ON do.patient_id = p.patient_id 
 LEFT JOIN appointments a ON a.patient_id = do.patient_id
 WHERE p.is_deleted = false 
-AND r.id = 1`,
+AND r.id = ?`,
         id,
         (error, result) => {
           if (error) {
