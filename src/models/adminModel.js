@@ -134,7 +134,7 @@ const ageGroupWiseData = (is_admin) => {
     if (is_admin) {
       db.query(
         `
-     SELECT 
+    SELECT 
     COUNT(age) AS count,
     CASE 
         WHEN age BETWEEN 0 AND 12 THEN 'child'
@@ -143,15 +143,18 @@ const ageGroupWiseData = (is_admin) => {
         WHEN age > 60 THEN 'older'
     END AS ageGroup
 FROM personal_info p 
- JOIN 
-          user_register u ON p.user_id = u.id 
-        JOIN 
-          family_info f ON f.patient_id = p.patient_id 
-        JOIN 
-          disease d ON d.patient_id = p.patient_id 
-where p.is_deleted=false and f.is_deleted=false
-and u.is_deleted=false and d.is_deleted=false 
+JOIN user_register u ON p.user_id = u.id 
+JOIN family_info f ON f.patient_id = p.patient_id 
+JOIN disease d ON d.patient_id = p.patient_id 
+JOIN documents do ON do.patient_id = p.patient_id 
+WHERE 
+    p.is_deleted = false 
+    AND f.is_deleted = false 
+    AND u.is_deleted = false 
+    AND d.is_deleted = false 
+    AND do.is_deleted = false
 GROUP BY ageGroup;
+
     `,
         (error, result) => {
           if (error) {
