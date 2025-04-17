@@ -5,7 +5,7 @@ const getPatientInfo = async (id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-`                
+        `                
 SELECT p.patient_id, p.patient_name, r.first_name, r.last_name, p.gender, r.mobile_number, 
        p.date_of_birth, p.age, p.weight, p.height, p.bmi, p.country_of_origin, 
        p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
@@ -27,7 +27,7 @@ LEFT JOIN appointments a ON a.patient_id = p.patient_id
 WHERE p.is_deleted = FALSE 
 AND r.id = ?;
 
-`, 
+`,
         id,
         (error, result) => {
           if (error) {
@@ -161,18 +161,18 @@ const createPersonalDetails = async (data, userId, email) => {
       blood_pressure,
       country_of_origin,
     } = data;
-const heightreal = height;
-const birthdate= date_of_birth;
+    const patientHeight = height;
+    const birthDate = date_of_birth;
     height = height * 0.3048;
     const userAge = today.getFullYear() - new Date(date_of_birth).getFullYear();
     let userBMI = weight / (height * height);
 
     data = {
       patient_name: patient_name,
-      date_of_birth: birthdate,
+      date_of_birth: birthDate,
       age: userAge,
       gender: gender,
-      height: heightreal,
+      height: patientHeight,
       weight: weight,
       bmi: userBMI,
       is_diabetic: is_diabetic,

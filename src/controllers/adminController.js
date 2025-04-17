@@ -34,14 +34,15 @@ import {
 const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 
+
 const getAllInfo = async (req, res, next) => {
   try {
-    const {user:{ admin: is_admin }} = req;
+    const { admin: is_admin } = req.user;
 
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
-    let {query:{ page, limit }} = req;
+    let { page, limit } = req.query;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
 
@@ -68,6 +69,7 @@ const getAllInfo = async (req, res, next) => {
     next(error);
   }
 };
+
 
 const adminDeletePatientData = async (req, res, next) => {
   try {

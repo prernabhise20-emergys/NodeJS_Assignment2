@@ -2,9 +2,9 @@ import db from "../db/connection.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 const { UNAUTHORIZED_ACCESS } = AUTH_RESPONSES;
 
+
 const getInfo = async (is_admin, limit, offset) => {
   try {
-
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
@@ -12,7 +12,7 @@ const getInfo = async (is_admin, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
         `
-          SELECT 
+ SELECT 
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
@@ -24,20 +24,19 @@ const getInfo = async (is_admin, limit, offset) => {
           do.document_type, do.document_url  
         FROM 
           personal_info p 
-        LEFT JOIN 
+        JOIN 
           user_register u ON p.user_id = u.id 
-        LEFT JOIN 
+        JOIN 
           family_info f ON f.patient_id = p.patient_id 
-        LEFT JOIN 
+        JOIN 
           disease d ON d.patient_id = p.patient_id 
-        LEFT JOIN 
+        JOIN 
           documents do ON do.patient_id = p.patient_id 
         WHERE 
           p.is_deleted = FALSE 
         ORDER BY 
           p.patient_id 
         LIMIT ? OFFSET ?`,
-
         [limit, offset],
         (error, result) => {
           if (error) {
@@ -75,19 +74,17 @@ const getInfo = async (is_admin, limit, offset) => {
 
 const getTotalCount = async (is_admin) => {
   try {
-
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
 
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT COUNT(*) AS total FROM personal_info p
-         JOIN family_info f ON f.patient_id = p.patient_id
-         JOIN disease d ON d.patient_id = p.patient_id
-         WHERE p.is_deleted = FALSE 
-         AND f.is_deleted = FALSE 
-         AND d.is_deleted = FALSE `,
+        `
+          SELECT COUNT(*) AS total 
+          FROM personal_info 
+          WHERE is_deleted = FALSE
+        `,
         (error, result) => {
           if (error) {
             return reject(error);
@@ -100,7 +97,6 @@ const getTotalCount = async (is_admin) => {
     throw error;
   }
 };
-
 const deletePatientDetails = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {

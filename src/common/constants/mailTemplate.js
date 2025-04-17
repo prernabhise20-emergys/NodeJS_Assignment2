@@ -82,7 +82,7 @@ const updatedPrescriptionBody = () => {
       <body>
         <div style="font-family: Arial, sans-serif; line-height: 1.6;">
           <h4>Hello,</h4>
-          <p>We wanted to inform you that your prescription has been updated successfully. You can download the updated prescription.:</p>
+          <p>We wanted to inform you that your prescription has been updated successfully. You can download the updated prescription.</p>
           <p>If you have any issues or concerns, please feel free to reach out to us.</p>
           <p>Thank you for trusting us with your healthcare needs!</p>
           <br>
