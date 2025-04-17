@@ -141,8 +141,15 @@ const ageGroupWiseData = (is_admin) => {
         WHEN age BETWEEN 19 AND 60 THEN 'adult'
         WHEN age > 60 THEN 'older'
         END AS ageGroup
-        FROM personal_info p 
-        where is_deleted=false 
+        FROM personal_info p join
+        user_register u ON p.user_id = u.id 
+        JOIN 
+          family_info f ON f.patient_id = p.patient_id 
+        JOIN 
+          disease d ON d.patient_id = p.patient_id 
+     
+        WHERE 
+        p.is_deleted=false and u.is_deleted=false and f.is_deleted=false and d.is_deleted=false 
         GROUP BY ageGroup;
     `,
         (error, result) => {
