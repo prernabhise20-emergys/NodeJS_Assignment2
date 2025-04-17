@@ -145,8 +145,7 @@ const user_schemas = {
       .optional()
       .error(new Error("weight must be a positive number")),
 
-    height: Joi.string()
-      .pattern(/^\d+(\.\d{1,2})?$/)
+    height: Joi.string().number()
       .optional()
       .error(new Error("height must be a valid number, e.g., 5.2")),
 
