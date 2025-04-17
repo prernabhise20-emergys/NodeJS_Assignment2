@@ -21,10 +21,10 @@ SELECT p.patient_id, p.patient_name, r.first_name, r.last_name, p.gender, r.mobi
        a.doctor_id AS doctor_id
 FROM personal_info p
 JOIN user_register r ON p.user_id = r.id 
-LEFT JOIN family_info f ON f.patient_id = p.patient_id 
-LEFT JOIN disease d ON d.patient_id = p.patient_id 
-LEFT JOIN documents do ON do.patient_id = p.patient_id 
-LEFT JOIN appointments a ON a.patient_id = p.patient_id 
+ JOIN family_info f ON f.patient_id = p.patient_id 
+ JOIN disease d ON d.patient_id = p.patient_id 
+ JOIN documents do ON do.patient_id = p.patient_id 
+ JOIN appointments a ON a.patient_id = p.patient_id 
 WHERE p.is_deleted = false and (a.status='Pending' or a.status='Scheduled')
 AND r.id = ?;
 `, 
