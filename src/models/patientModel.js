@@ -161,17 +161,18 @@ const createPersonalDetails = async (data, userId, email) => {
       blood_pressure,
       country_of_origin,
     } = data;
-
+const heightreal = height;
+const birthdate= date_of_birth;
     height = height * 0.3048;
     const userAge = today.getFullYear() - new Date(date_of_birth).getFullYear();
     let userBMI = weight / (height * height);
 
     data = {
       patient_name: patient_name,
-      date_of_birth: date_of_birth,
+      date_of_birth: birthdate,
       age: userAge,
       gender: gender,
-      height: height,
+      height: heightreal,
       weight: weight,
       bmi: userBMI,
       is_diabetic: is_diabetic,
