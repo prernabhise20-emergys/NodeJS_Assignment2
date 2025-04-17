@@ -39,15 +39,15 @@ router.delete(
 router.get(GET_AGE_GROUP, authenticateUser, adminController.ageGroupData);
 router.put(ADD_ADMIN, authenticateUser, adminController.addAdmin);
 router.put(REMOVE_ADMIN, authenticateUser, adminController.removeAdmin);
-router.get(GET_ADMIN,authenticateUser, adminController.getAdmin);
-router.post(ADD_DOCTOR,authenticateUser,adminController.addDoctor)
-router.delete(DELETE_DOCTOR,authenticateUser,adminController.deleteDoctor);
-router.put(CHANGE_STATUS,authenticateUser,schemaValidator(user_schemas.changeStatus),adminController.changeAppointmentsStatus)
-router.put(APPROVE_APPOINTMENT,authenticateUser,schemaValidator(user_schemas.changeStatus),adminController.approveAppointment)
+router.get(GET_ADMIN, authenticateUser, adminController.getAdmin);
+router.post(ADD_DOCTOR, authenticateUser, adminController.addDoctor)
+router.delete(DELETE_DOCTOR, authenticateUser, adminController.deleteDoctor);
+router.put(CHANGE_STATUS, authenticateUser, schemaValidator(user_schemas.changeStatus), adminController.changeAppointmentsStatus)
+router.put(APPROVE_APPOINTMENT, authenticateUser, schemaValidator(user_schemas.changeStatus), adminController.approveAppointment)
 router.get(APPOINTMENT_REQUEST, authenticateUser, adminController.displayAppointmentRequest);
-router.get(ALL_APPOINTMENTS,authenticateUser,adminController.getAllAppointments)
-router.get(APPOINTMENTS,authenticateUser,adminController.getPatientsAppointments)
-router.get(ALL_EMAIL_ADMIN,authenticateUser,adminController.getAllEmail)
-router.get(ALL_EMAIL_DOCTOR,authenticateUser,adminController.getAllEmailForDoctor)
+router.get(ALL_APPOINTMENTS, authenticateUser, adminController.getAllAppointments)
+router.get(APPOINTMENTS, authenticateUser, adminController.getPatientsAppointments)
+router.get(ALL_EMAIL_ADMIN, authenticateUser, adminController.getAllEmail)
+router.get(ALL_EMAIL_DOCTOR, authenticateUser, adminController.getAllEmailForDoctor)
 
 export default router;

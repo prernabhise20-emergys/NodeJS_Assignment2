@@ -30,9 +30,9 @@ import {
   displayAdmin,
   displayRequest,
   getAllPatientAppointment,
-  getUserByEmail
 } from "../models/adminModel.js";
 const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
+
 
 const getAllInfo = async (req, res, next) => {
   try {
