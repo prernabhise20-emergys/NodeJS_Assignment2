@@ -32,7 +32,8 @@ const getInfo = async (is_admin, limit, offset) => {
         JOIN 
           documents do ON do.patient_id = p.patient_id 
         WHERE 
-          p.is_deleted = FALSE 
+          p.is_deleted = FALSE and u.is_deleted=false and f.is_deleted=false
+and d.is_deleted=false
         ORDER BY 
           p.patient_id 
         LIMIT ? OFFSET ?`,
