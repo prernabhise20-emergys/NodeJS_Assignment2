@@ -136,24 +136,19 @@ const ageGroupWiseData = (is_admin) => {
       db.query(
         `
     SELECT 
-    COUNT(age) AS count,
+    COUNT(p.age) AS total_count,
     CASE 
-        WHEN age BETWEEN 0 AND 12 THEN 'child'
-        WHEN age BETWEEN 13 AND 18 THEN 'teen'
-        WHEN age BETWEEN 19 AND 60 THEN 'adult'
-        WHEN age > 60 THEN 'older'
+        WHEN p.age BETWEEN 0 AND 12 THEN 'child'
+        WHEN p.age BETWEEN 13 AND 18 THEN 'teen'
+        WHEN p.age BETWEEN 19 AND 60 THEN 'adult'
+        WHEN p.age > 60 THEN 'older'
     END AS ageGroup
 FROM personal_info p 
-JOIN user_register u ON p.user_id = u.id 
-JOIN family_info f ON f.patient_id = p.patient_id 
-JOIN disease d ON d.patient_id = p.patient_id 
-JOIN documents do ON do.patient_id = p.patient_id 
+LEFT JOIN user_register u ON p.user_id = u.id AND u.is_deleted = FALSE
+LEFT JOIN family_info f ON f.patient_id = p.patient_id AND f.is_deleted = FALSE
+LEFT JOIN disease d ON d.patient_id = p.patient_id AND d.is_deleted = FALSE
 WHERE 
-    p.is_deleted = false 
-    AND f.is_deleted = false 
-    AND u.is_deleted = false 
-    AND d.is_deleted = false 
-    AND do.is_deleted = false
+    p.is_deleted = FALSE
 GROUP BY ageGroup;
 
     `,
