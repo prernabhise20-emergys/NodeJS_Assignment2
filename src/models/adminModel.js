@@ -149,10 +149,8 @@ FROM personal_info p
           family_info f ON f.patient_id = p.patient_id 
         JOIN 
           disease d ON d.patient_id = p.patient_id 
-        JOIN 
-          documents do ON do.patient_id = p.patient_id 
 where p.is_deleted=false and u.is_deleted=false and f.is_deleted=false
-and d.is_deleted=false and do.is_deleted=false
+and d.is_deleted=false
 GROUP BY ageGroup;
     `,
         (error, result) => {
