@@ -151,7 +151,7 @@ FROM personal_info p
         JOIN 
           disease d ON d.patient_id = p.patient_id 
 where p.is_deleted=false and u.is_deleted=false and f.is_deleted=false
-and d.is_deleted=false
+
 GROUP BY ageGroup;
     `,
         (error, result) => {
