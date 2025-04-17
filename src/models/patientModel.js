@@ -126,15 +126,17 @@ const getPersonalInfo = async (patient_id) => {
       db.query(
         `SELECT patient_name, date_of_birth, gender, age, 
         weight, 
-        CASE 
-          WHEN height LIKE '%.%' THEN CAST(height AS DECIMAL(10,2)) 
-          ELSE CAST(height AS UNSIGNED) 
-        END AS height, 
+        CAST(height AS DECIMAL(10,2)) AS height, 
         bmi, country_of_origin, is_diabetic, cardiac_issue, blood_pressure 
         FROM personal_info WHERE is_deleted = FALSE AND patient_id = ?`,
         [patient_id],
         (error, result) => {
           if (error) return reject(error);
+
+          if (result.length > 0 && result[0].height) {
+            result[0].height = Number(result[0].height);
+          }
+
           return resolve(result);
         }
       );
@@ -143,6 +145,7 @@ const getPersonalInfo = async (patient_id) => {
     throw error;
   }
 };
+
 
 // const getPersonalInfo = async (patient_id) => {
 //   try {
