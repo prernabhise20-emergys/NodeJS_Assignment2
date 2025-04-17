@@ -145,9 +145,10 @@ const user_schemas = {
       .optional()
       .error(new Error("weight must be a positive number")),
 
-    height: Joi.string()
+      height: Joi.number()
+      .positive()
       .optional()
-      .error(new Error("height must be a valid number, e.g., 5.2")),
+      .messages({ "number.positive": "Height must be a valid number, e.g., 5.2" }),  
 
     country_of_origin: Joi.string()
       .optional()
