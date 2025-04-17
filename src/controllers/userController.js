@@ -39,8 +39,8 @@ const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER } =
 
 const register = async (req, res, next) => {
   try {
-    const { email, user_password, first_name, last_name, mobile_number } =
-      req.body;
+    const {body:{ email, user_password, first_name, last_name, mobile_number }} =
+      req;
 
     const userExists = await checkIfUserExists(email);
     if (userExists) {
@@ -76,7 +76,7 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const { email, user_password } = req.body;
+    const {body:{ email, user_password } }= req;
 
     const isDeleted = await checkUserDeleteOrNot(email);
     if (isDeleted) {
@@ -142,7 +142,7 @@ const updateUser = async (req, res, next) => {
     const {
       body: { first_name, last_name, mobile_number },
     } = req;
-    const { userid: id } = req.user;
+    const {user:{ userid: id } }= req;
 
     const formData = {
       first_name,
@@ -161,7 +161,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    const { userid: id, admin } = req.user;
+    const {user:{ userid: id, admin }} = req;
 
     if (admin) {
       const adminCount = await checkAdminCount();
@@ -182,7 +182,7 @@ const deleteUser = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   try {
-    const { userid: id, email: emailID } = req.user;
+    const {user:{ userid: id, email: emailID }} = req;
     const checkExists = await checkAlreadyExist(emailID);
 
     if (checkExists) {
@@ -215,7 +215,7 @@ const getUser = async (req, res, next) => {
 
 const forgotPassword = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const {body:{ email }} = req;
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -242,7 +242,7 @@ const forgotPassword = async (req, res, next) => {
 
 const resetPassword = async (req, res, next) => {
   try {
-    const { email, newPassword } = req.body;
+    const {body:{ email, newPassword } }= req;
     await updatePassword(email, newPassword);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -266,8 +266,7 @@ const getDoctors = async (req, res, next) => {
 
 
 const createAppointment = async (req, res, next) => {
-  const { patient_id, doctor_id, date, time } = req.body;
-  const { email } = req.user;
+  const {body:{ patient_id, doctor_id, date, time }} = req;
   try {
     const isAvailable = await isDoctorAvailable(doctor_id, date, time);
 
@@ -289,8 +288,8 @@ const createAppointment = async (req, res, next) => {
 };
 const getDoctorAvailability = async (req, res, next) => {
   try {
-    const { doctor_id } = req.query;
-    const { date } = req.body;
+    const {query:{ doctor_id }} = req;
+    const {body:{ date } }= req;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 

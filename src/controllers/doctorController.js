@@ -21,11 +21,9 @@ import {
     getDoctor
 } from "../models/doctorModel.js";
 
-import Buffer from "Buffer";
-
 const getDoctorProfile = async (req, res, next) => {
     try {
-      const { userid } = req.user;
+      const {user:{ userid } }= req;
       
       const doctorData = await getDoctor(userid);
   
@@ -48,7 +46,7 @@ const updateDoctor = async (req, res, next) => {
             },
         } = req;
 
-        const { doctor: is_doctor ,userid} = req.user;
+        const {user:{ doctor: is_doctor ,userid} }= req;
 
         const data = {
             name,
@@ -78,7 +76,7 @@ const updateDoctor = async (req, res, next) => {
 const displayAppointments = async (req, res, next) => {
     try {
 
-        const { doctor: is_doctor, admin: is_admin ,userid:user_id} = req.user;
+        const {user:{ doctor: is_doctor, admin: is_admin ,userid:user_id}} = req;
 
         if (is_doctor || is_admin) {
             const appointments = await showAppointments(user_id);
@@ -158,8 +156,8 @@ import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
 const uploadPrescription = async (req, res, next) => {
     try {
-        const { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } = req.body;
-        const { email } = req.user;
+        const {body:{ appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } }= req;
+        const {user:{ email } }= req;
 
         const patientData = await getAppointmentData(appointment_id);
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
@@ -195,8 +193,8 @@ const uploadPrescription = async (req, res, next) => {
 
 const updateExistsPrescription = async (req, res, next) => {
     try {
-        const { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } = req.body;
-        const { email } = req.user;
+        const {body:{ appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration }} = req;
+        const {user:{ email } }= req;
 
         const patientData = await getAppointmentData(appointment_id);
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;

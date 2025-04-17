@@ -32,7 +32,6 @@ import {
 
 } from "../models/patientModel.js";
 const {
-  MORE_THAN_LIMIT,
   DOCUMENT_NOT_FOUND,
   UNAUTHORIZED_ACCESS,
   NOT_DELETED,
@@ -46,7 +45,7 @@ const {
 
 const showPatientDetails = async (req, res, next) => {
   try {
-    const { userid: id } = req.user;
+    const {user:{ userid: id }} = req;
 
     const patientInfo = await getPatientInfo(id);
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -60,7 +59,7 @@ const showPatientDetails = async (req, res, next) => {
 // *********************************************************************
 const getPersonalDetails = async (req, res, next) => {
   try {
-    const { patient_id } = req.params;
+    const {params:{ patient_id }} = req;
     const familyInfo = await getPersonalInfo(patient_id);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -88,7 +87,7 @@ const createPersonalInfo = async (req, res, next) => {
       },
     } = req;
 
-    const { userid: id, email } = req.user;
+    const {user:{ userid: id, email }} = req;
     const data = {
       patient_name,
       date_of_birth,
@@ -147,7 +146,7 @@ const updatePersonalInfo = async (req, res, next) => {
       blood_pressure,
     };
 
-    const { userid: id, admin: is_admin } = req.user;
+    const {user:{ userid: id, admin: is_admin }} = req;
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
 
@@ -167,8 +166,8 @@ const updatePersonalInfo = async (req, res, next) => {
 
 const deletePersonalInfo = async (req, res, next) => {
   try {
-    const { userid: id, admin: is_admin } = req.user;
-    const { patient_id } = req.params;
+    const {user:{ userid: id, admin: is_admin }} = req;
+    const {params:{ patient_id } }= req;
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
@@ -186,9 +185,8 @@ const deletePersonalInfo = async (req, res, next) => {
 // *************************************************************************
 const getFamilyDetails = async (req, res, next) => {
   try {
-    const { patient_id } = req.params;
+    const {params:{ patient_id }} = req;
     const familyInfo = await getFamilyInfo(patient_id);
-console.log(familyInfo);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
@@ -197,10 +195,10 @@ console.log(familyInfo);
     next(error)
   }
 };
+
 const addFamilyInfo = async (req, res, next) => {
   try {
-    const { familyDetails } = req.body;
-    const { patient_id } = familyDetails;
+    const {body:{ familyDetails } }= req;
 
     await insertFamilyInfo(familyDetails);
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -270,8 +268,8 @@ const updateFamilyInfoDetails = async (req, res, next) => {
 
 const deleteFamilyInfoDetails = async (req, res, next) => {
   try {
-    const { patient_id } = req.params;
-    const { userid: id, admin: is_admin } = req.user;
+    const {params:{ patient_id } }= req;
+    const {user:{ userid: id, admin: is_admin }} = req;
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
@@ -290,7 +288,7 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
 
 const getDiseaseDetails = async (req, res, next) => {
   try {
-    const { patient_id } = req.params;
+    const {params:{ patient_id }} = req;
     const personalInfo = await getDiseaseInfo(patient_id);
 
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -303,7 +301,7 @@ const getDiseaseDetails = async (req, res, next) => {
 
 const addDiseaseInfo = async (req, res, next) => {
   try {
-    const { diseaseDetails } = req.body;
+    const {body:{ diseaseDetails }} = req;
 
     await addDiseaseData(diseaseDetails);
 
@@ -321,7 +319,7 @@ const updateDiseaseInfo = async (req, res, next) => {
     const {
       body: { disease_type, disease_description, patient_id },
     } = req;
-    const { userid: id, admin: is_admin } = req.user;
+    const {user:{ userid: id, admin: is_admin }} = req;
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
 
     const formData = { disease_type, disease_description };
@@ -341,8 +339,8 @@ const updateDiseaseInfo = async (req, res, next) => {
 
 const deleteDiseaseInfo = async (req, res, next) => {
   try {
-    const { patient_id } = req.params;
-    const { userid: id, admin: is_admin } = req.user;
+    const {params:{ patient_id }} = req;
+    const {user:{ userid: id, admin: is_admin }} = req;
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
@@ -361,7 +359,7 @@ const deleteDiseaseInfo = async (req, res, next) => {
 // **************************************************************************
 const getUploadDocument = async (req, res, next) => {
   try {
-    const { patient_id } = req.params;
+    const {params:{ patient_id }} = req;
 
     const personalInfo = await getUploadInfo(patient_id);
     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -381,7 +379,7 @@ const uploadDocument = async (req, res, next) => {
       throw NO_FILE_FOUND;
     }
 
-    const { document_type, patient_id } = req.body;
+    const {body:{ document_type, patient_id }} = req;
 
     if (!document_type || !patient_id) {
       throw MISSING_REQUIRED;
@@ -432,7 +430,7 @@ const updateDocument = async (req, res, next) => {
     if (!req.file) {
       throw NO_FILE_FOUND;
     }
-    const { document_type, patient_id } = req.body;
+    const {body:{ document_type, patient_id }} = req;
     if (!document_type || !patient_id) {
       throw MISSING_REQUIRED;
     }
@@ -454,7 +452,7 @@ const updateDocument = async (req, res, next) => {
       document_url: documentPath,
       patient_id,
     };
-    const { userid: id, admin: is_admin } = req.user;
+    const {user:{ userid: id, admin: is_admin }} = req;
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
@@ -475,8 +473,8 @@ import cloudinaryBaseUrl from '../common/constants/pathConstant.js'
 const downloadDocument = async (req, res, next) => {
   try {
 
-    const { patient_id } = req.query;
-    const { document_type } = req.body;
+    const {query:{ patient_id }} = req;
+    const {body:{ document_type }} = req;
 
     if (!patient_id || !document_type) {
       throw MISSING_REQUIRED;

@@ -4,6 +4,7 @@ const { UNAUTHORIZED_ACCESS } = AUTH_RESPONSES;
 
 const getInfo = async (is_admin, limit, offset) => {
   try {
+
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
@@ -11,7 +12,7 @@ const getInfo = async (is_admin, limit, offset) => {
     return new Promise((resolve, reject) => {
       db.query(
         `
- SELECT 
+          SELECT 
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
@@ -36,6 +37,7 @@ const getInfo = async (is_admin, limit, offset) => {
         ORDER BY 
           p.patient_id 
         LIMIT ? OFFSET ?`,
+
         [limit, offset],
         (error, result) => {
           if (error) {
@@ -73,6 +75,7 @@ const getInfo = async (is_admin, limit, offset) => {
 
 const getTotalCount = async (is_admin) => {
   try {
+
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
@@ -134,17 +137,17 @@ const ageGroupWiseData = (is_admin) => {
     if (is_admin) {
       db.query(
         `
-     SELECT 
-    COUNT(age) AS count,
-    CASE 
+        SELECT 
+        COUNT(age) AS count,
+        CASE 
         WHEN age BETWEEN 0 AND 12 THEN 'child'
         WHEN age BETWEEN 13 AND 18 THEN 'teen'
         WHEN age BETWEEN 19 AND 60 THEN 'adult'
         WHEN age > 60 THEN 'older'
-    END AS ageGroup
-FROM personal_info p 
-where is_deleted=false 
-GROUP BY ageGroup;
+        END AS ageGroup
+        FROM personal_info p 
+        where is_deleted=false 
+        GROUP BY ageGroup;
     `,
         (error, result) => {
           if (error) {
@@ -230,12 +233,12 @@ const checkSuperAdmin = async (email) => {
     const data = await new Promise((resolve, reject) => {
       db.query(
         "SELECT is_superadmin FROM user_register WHERE email = ?",
-        email, 
+        email,
         (error, results) => {
           if (error) {
             return reject(error);
           }
-          resolve(results[0]?.is_superadmin); 
+          resolve(results[0]?.is_superadmin);
         }
       );
     });
@@ -264,7 +267,6 @@ const displayAdmin = async () => {
 const createDoctorData = async (data) => {
   try {
     let doctorData = { ...data };
-console.log('doctor data',doctorData);
 
     return new Promise((resolve, reject) => {
       db.query("INSERT INTO doctors SET?", doctorData, (error, result) => {
@@ -394,7 +396,7 @@ const getAllAppointmentInformation = async (doctor_id) => {
   return new Promise((resolve, reject) => {
     db.query(
       `
-    select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
+      select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
       from appointments a join personal_info p 
       on(a.patient_id=p.patient_id)
       join disease d
@@ -415,7 +417,7 @@ const getAllAppointmentInformation = async (doctor_id) => {
 const getAllPatientAppointment = async () => {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT 
+      ` SELECT 
         a.appointment_id, 
         p.patient_name, 
         p.gender, 
@@ -455,8 +457,8 @@ const checkDoctor = async (email) => {
   });
 };
 
- 
- 
+
+
 const getAllEmailForAddAdmin = async () => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -472,7 +474,7 @@ const getAllEmailForAddAdmin = async () => {
     );
   });
 };
- 
+
 const getAllEmailForAddDoctor = async () => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -491,21 +493,21 @@ const getAllEmailForAddDoctor = async () => {
 
 const setIsDoctor = async (user_id) => {
   try {
-   
-      return new Promise((resolve, reject) => {
-        db.query(
-          "update user_register set is_doctor=true where id=?",
-          user_id,
-          (error, results) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(results);
-            }
+
+    return new Promise((resolve, reject) => {
+      db.query(
+        "update user_register set is_doctor=true where id=?",
+        user_id,
+        (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
           }
-        );
-      });
-    
+        }
+      );
+    });
+
   } catch (error) {
     throw error;
   }
@@ -532,17 +534,15 @@ const getUserRegisterDetails = async (userId) => {
     try {
       db.query(
         'SELECT id, first_name, last_name, mobile_number, email FROM user_register WHERE id = ?',
-        [userId], 
+        [userId],
         (error, result) => {
           if (error) {
-            console.error('Error fetching user details:', error);
             return reject(error);
           }
           resolve(result[0]);
         }
       );
     } catch (error) {
-      console.error('Error in getUserRegisterDetails:', error);
       reject(error);
     }
   });

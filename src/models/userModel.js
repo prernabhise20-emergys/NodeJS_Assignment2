@@ -13,8 +13,8 @@ const getUserData = async (userid) => {
     last_name, 
     mobile_number
     from user_register
-WHERE is_deleted = FALSE 
-AND id = ?`,
+    WHERE is_deleted = FALSE 
+    AND id = ?`,
         userid,
         (error, result) => {
           if (error) return reject(error);
@@ -226,14 +226,12 @@ const checkIfUserExists = async (email) => {
 
 const displayAdmin = async () => {
   try {
-    const excludedEmail = 'prerna.bhise@gmail.com';
     const data = await new Promise((resolve, reject) => {
       db.query(
         "SELECT email FROM user_register WHERE is_admin = true AND is_deleted = false",
         (error, result) => {
           if (error) return reject(error);
-          const filteredAdmins = result.filter(admin => admin.email !== excludedEmail);
-          return resolve(filteredAdmins);
+          return resolve(result);
         }
       );
     });
@@ -408,7 +406,7 @@ UNION ALL
 SELECT 
     d.doctorInTime, 
     d.doctorOutTime, 
-    '2025-04-03' AS appointment_date,  
+    NULL AS appointment_date,  
     NULL AS appointment_time
 FROM doctors d
 WHERE d.doctor_id = ?
@@ -432,7 +430,7 @@ AND NOT EXISTS (
 
     return results;
   } catch (error) {
-    throw new Error('Error checking doctor availability: ' + error.message);
+    throw(error);
   }
 };
 

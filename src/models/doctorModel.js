@@ -7,13 +7,13 @@ const getDoctor = async (userid) => {
     const data = await new Promise((resolve, reject) => {
       db.query(
         `  SELECT name as doctorName,     
-    specialization, 
-    contact_number, 
-    doctorInTime,
-    doctorOutTime
-    from doctors
-WHERE is_deleted = FALSE 
-AND user_id = ?`,
+           specialization, 
+           contact_number, 
+           doctorInTime,
+           doctorOutTime
+           from doctors
+           WHERE is_deleted = FALSE 
+           AND user_id = ?`,
         userid,
         (error, result) => {
           if (error) return reject(error);
@@ -33,7 +33,6 @@ const updateDoctorData = async (data,user_id) => {
       ...data,
     };
 
-
     return new Promise((resolve, reject) => {
       db.query("UPDATE doctors SET ? WHERE user_id = ?",
         [updateData, user_id], (error, result) => {
@@ -52,7 +51,7 @@ const showAppointments = async (user_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(`
-        SELECT 
+          SELECT 
           p.patient_name,
           u.id AS user_id,
           p.age,
@@ -87,80 +86,23 @@ const showAppointments = async (user_id) => {
           a.appointment_id;
       `, [user_id], (error, result) => { 
         if (error) {
-          console.error("SQL Query Error:", error);
           return reject(error);
         }
         return resolve(result);
       });
     });
   } catch (error) {
-    console.error("Error in showAppointments:", error);
     throw error;
   }
 };
 
 
-
-// const showAppointments = async (user_id) => {
-//   try {
-
-//       return new Promise((resolve, reject) => {
-//           db.query(`
-             
-//           SELECT 
-//     p.patient_name,
-//     u.id AS user_id,
-//     p.age,
-//     u.email,
-//     d.name AS doctor_name,
-//     d.specialization,
-//     a.appointment_id,
-//     a.appointment_date,
-//     a.appointment_time,
-//     a.status,
-//     COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types,
-//     pr.appointment_id AS prescription_id
-// FROM 
-//     user_register u
-// JOIN 
-//     doctors d ON u.id = d.user_id
-// JOIN 
-//     appointments a ON d.doctor_id = a.doctor_id
-// JOIN 
-//     personal_info p ON a.patient_id = p.patient_id
-// LEFT JOIN 
-//     disease ds ON ds.patient_id = p.patient_id
-// LEFT JOIN 
-//     prescriptions pr ON pr.appointment_id = a.appointment_id  
-// WHERE 
-//     u.is_deleted = FALSE 
-//     AND a.status = 'Scheduled'
-//     AND u.id = ?
-// GROUP BY 
-//     p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status, pr.prescription_id
-// ORDER BY 
-//     a.appointment_id;,
-                  
-//           `, [user_id], (error, result) => { 
-//               if (error) {
-//                   console.error("SQL Query Error:", error);
-//                   return reject(error);
-//               }
-//               return resolve(result);
-//           });
-//       });
-
-//   } catch (error) {
-//       console.error("Error in showAppointments:", error);
-//       throw error;
-//   }
-// };
-
-
 const savePrescription = async (appointment_id, url,dateIssued) => {
   try {
     return new Promise((resolve, reject) => {
-      db.query(`INSERT INTO prescriptions (appointment_id, file_url,dateIssued) VALUES (?, ?,?)`, [appointment_id, url,dateIssued], (error, result) => {
+      db.query(`INSERT INTO prescriptions (appointment_id, file_url,dateIssued) VALUES (?, ?,?)`,
+         [appointment_id, url,dateIssued],
+          (error, result) => {
         if (error) {
           return reject(error);
         }
@@ -187,9 +129,6 @@ const getAppointmentData = async (appointment_id) => {
           if (error) {
             return reject(error);
           }
-          if (!result || result.length === 0) {
-            return reject(new Error(`No data found for appointment_id: ${appointment_id}`));
-          }
           return resolve(result[0]); 
         }
       );
@@ -201,7 +140,9 @@ const getAppointmentData = async (appointment_id) => {
 
 const getPrescriptionByAppointmentId = async (appointment_id) => {
   return new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM prescriptions WHERE appointment_id = ?`, [appointment_id], (error, result) => {
+      db.query(`SELECT * FROM prescriptions WHERE appointment_id = ?`,
+         [appointment_id],
+          (error, result) => {
           if (error) {
               return reject(error);
           }

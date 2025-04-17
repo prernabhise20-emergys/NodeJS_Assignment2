@@ -36,12 +36,12 @@ const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELET
 
 const getAllInfo = async (req, res, next) => {
   try {
-    const { admin: is_admin } = req.user;
+    const {user:{ admin: is_admin }} = req;
 
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
-    let { page, limit } = req.query;
+    let {query:{ page, limit }} = req;
     page = parseInt(page || 1);
     limit = parseInt(limit || 10);
 
@@ -71,8 +71,8 @@ const getAllInfo = async (req, res, next) => {
 
 const adminDeletePatientData = async (req, res, next) => {
   try {
-    const { admin: is_admin } = req.user;
-    const { patient_id } = req.query;
+    const {user:{ admin: is_admin } }= req;
+    const {query:{ patient_id } }= req;
 
     if (is_admin) {
       await deletePatientDetails(patient_id);
@@ -91,7 +91,7 @@ const adminDeletePatientData = async (req, res, next) => {
 
 const ageGroupData = async (req, res, next) => {
   try {
-    const { admin: is_admin } = req.user;
+    const {user:{ admin: is_admin }} = req;
 
     const ageGroup = await ageGroupWiseData(is_admin);
 
@@ -117,8 +117,8 @@ const ageGroupData = async (req, res, next) => {
 
 const addAdmin = async (req, res, next) => {
   try {
-    const { admin: is_admin } = req.user;
-    const { email } = req.body;
+    const {user:{ admin: is_admin }} = req;
+    const {req:{ email }} = req;
 
     await addAsAdmin(is_admin, email);
 
@@ -132,13 +132,10 @@ const addAdmin = async (req, res, next) => {
 
 const removeAdmin = async (req, res, next) => {
   try {
-    const { admin: is_admin } = req.user;
-    const { email } = req.body;
-
-    console.log(email);
+    const {user:{ admin: is_admin } }= req;
+    const {body:{ email }} = req;
 
     const isSuperAdmin = await checkSuperAdmin(email);
-    console.log('superadmin', isSuperAdmin);
 
     if (isSuperAdmin) {
       throw CANNOT_DELETE_SUPERADMIN;
@@ -166,7 +163,7 @@ const removeAdmin = async (req, res, next) => {
 
 const getAdmin = async (req, res, next) => {
   try {
-    const { admin: is_admin } = req.user;
+    const {user:{ admin: is_admin }} = req;
     if (is_admin) {
       const user = await displayAdmin();
 
@@ -181,10 +178,11 @@ const getAdmin = async (req, res, next) => {
     next(error);
   }
 };
+
 const addDoctor = async (req, res, next) => {
   try {
-    const { id } = req.query;
-    const { admin: is_admin = false } = req.user || {};
+    const {query:{ id } }= req;
+    const {user:{ admin: is_admin }} = req;
 
     const userDetails = await getUserRegisterDetails(id);
 
@@ -234,7 +232,7 @@ const addDoctor = async (req, res, next) => {
 
 const deleteDoctor = async (req, res, next) => {
   try {
-    const { doctor_id } = req.query;
+    const {query:{ doctor_id }} = req;
 
     await deleteDoctorData(doctor_id);
     res
@@ -247,8 +245,8 @@ const deleteDoctor = async (req, res, next) => {
 
 const changeAppointmentsStatus = async (req, res, next) => {
   try {
-    const { status, appointment_id } = req.query;
-    const { admin: is_admin } = req.user;
+    const {query:{ status, appointment_id } }= req;
+    const {user:{ admin: is_admin } }= req;
     if (!status || !appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
@@ -274,8 +272,8 @@ const changeAppointmentsStatus = async (req, res, next) => {
 
 const approveAppointment = async (req, res, next) => {
   try {
-    const { appointment_id } = req.query;
-    const { admin: is_admin, email } = req.user;
+    const {query:{ appointment_id }} = req;
+    const {user:{ admin: is_admin, email }} = req;
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -317,7 +315,7 @@ const approveAppointment = async (req, res, next) => {
 
 const displayAppointmentRequest = async (req, res, next) => {
   try {
-    const { admin: is_admin } = req.user;
+    const {user:{ admin: is_admin } }= req;
     if (is_admin) {
       const user = await displayRequest();
 
@@ -335,8 +333,8 @@ const displayAppointmentRequest = async (req, res, next) => {
 
 const getAllAppointments = async (req, res, next) => {
   try {
-    const { admin, doctor } = req.user;
-    const { doctor_id } = req.query;
+    const {user:{ admin, doctor } }= req;
+    const {query:{ doctor_id }} = req;
     if (admin || doctor) {
       const appointments = await getAllAppointmentInformation(doctor_id);
 
@@ -354,7 +352,7 @@ const getAllAppointments = async (req, res, next) => {
 
 const getPatientsAppointments = async (req, res, next) => {
   try {
-    const { admin, doctor } = req.user;
+    const {user:{ admin, doctor }} = req;
 
     if (admin || doctor) {
       const appointments = await getAllPatientAppointment();
@@ -376,7 +374,7 @@ const getPatientsAppointments = async (req, res, next) => {
 
 const getAllEmail = async (req, res, next) => {
   try {
-    const { admin, doctor } = req.user;
+    const {user:{ admin, doctor } }= req;
 
     if (admin || doctor) {
       const emails = await getAllEmailForAddAdmin();
@@ -392,7 +390,7 @@ const getAllEmail = async (req, res, next) => {
 
 const getAllEmailForDoctor = async (req, res, next) => {
   try {
-    const { admin, doctor } = req.user;
+    const {user:{ admin, doctor } }= req;
 
     if (admin || doctor) {
       const emails = await getAllEmailForAddDoctor();
