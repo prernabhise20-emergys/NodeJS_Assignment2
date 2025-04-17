@@ -25,7 +25,7 @@ JOIN user_register r ON p.user_id = r.id
  JOIN disease d ON d.patient_id = p.patient_id 
  JOIN documents do ON do.patient_id = p.patient_id 
  JOIN appointments a ON a.patient_id = p.patient_id 
-WHERE p.is_deleted = false and (a.status='Pending' or a.status='Scheduled')
+WHERE p.is_deleted = false or (a.status='Pending' or a.status='Scheduled')
 AND r.id = ?;
 `, 
         id,
