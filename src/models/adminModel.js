@@ -12,31 +12,30 @@ const getInfo = async (is_admin, limit, offset) => {
       db.query(
         `
  SELECT 
-    p.patient_id, p.patient_name, p.gender, u.mobile_number, 
-    p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
-    p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
-    f.father_name, f.father_age, f.mother_name, f.mother_age, 
-    f.father_country_origin, f.mother_country_origin, 
-    f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
-    f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-    d.disease_type, d.disease_description, 
-    do.document_type, do.document_url  
-FROM 
-    personal_info p 
-JOIN 
-    user_register u ON p.user_id = u.id AND u.is_deleted = FALSE
-JOIN 
-    family_info f ON f.patient_id = p.patient_id AND f.is_deleted = FALSE
-JOIN 
-    disease d ON d.patient_id = p.patient_id AND d.is_deleted = FALSE
-JOIN 
-    documents do ON do.patient_id = p.patient_id AND do.is_deleted = FALSE
-WHERE 
-    p.is_deleted = FALSE
-ORDER BY 
-    p.patient_id 
-LIMIT ? OFFSET ?;
-`,
+          p.patient_id, p.patient_name, p.gender, u.mobile_number, 
+          p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
+          p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
+          f.father_name, f.father_age, f.mother_name, f.mother_age, 
+          f.father_country_origin, f.mother_country_origin, 
+          f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
+          f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
+          d.disease_type, d.disease_description, 
+          do.document_type, do.document_url  
+        FROM 
+          personal_info p 
+        LEFT JOIN 
+          user_register u ON p.user_id = u.id 
+        LEFT JOIN 
+          family_info f ON f.patient_id = p.patient_id 
+        LEFT JOIN 
+          disease d ON d.patient_id = p.patient_id 
+        LEFT JOIN 
+          documents do ON do.patient_id = p.patient_id 
+        WHERE 
+          p.is_deleted = FALSE 
+        ORDER BY 
+          p.patient_id 
+        LIMIT ? OFFSET ?`,
         [limit, offset],
         (error, result) => {
           if (error) {
@@ -135,22 +134,17 @@ const ageGroupWiseData = (is_admin) => {
     if (is_admin) {
       db.query(
         `
-    SELECT 
-    COUNT(p.age) AS total_count,
+     SELECT 
+    COUNT(age) AS count,
     CASE 
-        WHEN p.age BETWEEN 0 AND 12 THEN 'child'
-        WHEN p.age BETWEEN 13 AND 18 THEN 'teen'
-        WHEN p.age BETWEEN 19 AND 60 THEN 'adult'
-        WHEN p.age > 60 THEN 'older'
+        WHEN age BETWEEN 0 AND 12 THEN 'child'
+        WHEN age BETWEEN 13 AND 18 THEN 'teen'
+        WHEN age BETWEEN 19 AND 60 THEN 'adult'
+        WHEN age > 60 THEN 'older'
     END AS ageGroup
 FROM personal_info p 
-LEFT JOIN user_register u ON p.user_id = u.id AND u.is_deleted = FALSE
-LEFT JOIN family_info f ON f.patient_id = p.patient_id AND f.is_deleted = FALSE
-LEFT JOIN disease d ON d.patient_id = p.patient_id AND d.is_deleted = FALSE
-WHERE 
-    p.is_deleted = FALSE
+where is_deleted=false 
 GROUP BY ageGroup;
-
     `,
         (error, result) => {
           if (error) {
