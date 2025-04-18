@@ -324,7 +324,7 @@ const isDoctorAvailable = (doctor_id, date, time) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT COUNT(*) AS count
     FROM appointments
-    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ? and status='Pending' and status='Scheduled'`,
+    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ? and status='Pending' or status='Scheduled'`,
       [doctor_id, date, time], (error, results) => {
         if (error) {
           return reject(error);
