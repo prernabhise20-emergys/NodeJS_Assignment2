@@ -93,7 +93,7 @@ const updatedPrescriptionBody = () => {
     </html>
   `;
 };
-const cancelAppointmentMailBody = (patientName,feedback, appointmentDate, appointmentTime, doctorName) => {
+const cancelAppointmentMailBody = (patientName,reason, appointmentDate, appointmentTime, doctorName) => {
   return `
         <html>
   <body>
@@ -105,7 +105,7 @@ const cancelAppointmentMailBody = (patientName,feedback, appointmentDate, appoin
         <li><strong>Date:</strong> ${appointmentDate}</li>
         <li><strong>Time:</strong> ${appointmentTime}</li>
         <li><strong>Doctor Name:</strong> ${doctorName}</li>
-        <li><strong>Reason: </strong>${feedback}</li>
+        <li><strong>Reason for cancellation: </strong>${reason}</li>
       </ul>
       <p>We apologize for any inconvenience this may cause. Please feel free to contact us for rescheduling or further assistance.</p>
       <p>Thank you for your understanding.</p>

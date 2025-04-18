@@ -369,12 +369,12 @@ const changeStatus = async (status, appointment_id) => {
     throw error;
   }
 };
-const cancelStatus = async (appointment_id, feedback) => {
+const cancelStatus = async (appointment_id, reason) => {
   try {
       return new Promise((resolve, reject) => {
           db.query(
-              `UPDATE appointments SET status = 'Cancelled', feedback = ? WHERE appointment_id = ?`,
-              [feedback, appointment_id], 
+              `UPDATE appointments SET status = 'Cancelled', reason = ? WHERE appointment_id = ?`,
+              [reason, appointment_id], 
               (error, result) => {
                   if (error) {
                       return reject(error);
@@ -388,25 +388,6 @@ const cancelStatus = async (appointment_id, feedback) => {
   }
 };
 
-
-// const cancelStatus = async (appointment_id,feedback) => {
-//   try {
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `UPDATE appointments SET status ='Cancelled'and feedback=? WHERE appointment_id = ?`,
-//         [appointment_id,feedback],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           resolve(result);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 const scheduleAppointment = async (appointment_id) => {
   try {
     return new Promise((resolve, reject) => {
@@ -454,7 +435,7 @@ const getPatientData = async (appointment_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name,a.feedback
+        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name,a.reason
          FROM personal_info p 
          JOIN appointments a ON (p.patient_id = a.patient_id)
          JOIN doctors d ON (a.doctor_id = d.doctor_id)

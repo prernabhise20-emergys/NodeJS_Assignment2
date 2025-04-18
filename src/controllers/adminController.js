@@ -285,7 +285,7 @@ const setAppointmentCancelled = async (req, res, next) => {
   try {
     const { query: {appointment_id } } = req;
     const { user: { admin: is_admin, email } } = req;
-    const{body:{feedback}}=req
+    const{body:{reason}}=req
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -294,15 +294,14 @@ const setAppointmentCancelled = async (req, res, next) => {
     }
     if (is_admin) {
       
-      const result = await cancelStatus( appointment_id,feedback);
+      const result = await cancelStatus( appointment_id,reason);
 
       if (result.affectedRows) {
       
           const data = await getPatientData(appointment_id);
-          console.log(data[0].feedback);
-        const {patient_name,appointment_date,appointment_time,name,feedback}=data[0]
+        const {patient_name,appointment_date,appointment_time,name,reason}=data[0]
 
-          await sendCancelledAppointmentEmail(email,feedback,patient_name,appointment_date,appointment_time,name)
+          await sendCancelledAppointmentEmail(email,reason,patient_name,appointment_date,appointment_time,name)
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
           new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_CANCELLED)
         );

@@ -239,7 +239,7 @@ const user_schemas = {
   }),
 
  cancelledAppointmentSchema: Joi.object({
-  feedback: Joi.string().required().error(new Error("feedback is required"))
+  reason: Joi.string().required().error(new Error("reason is required"))
 })
 
 };

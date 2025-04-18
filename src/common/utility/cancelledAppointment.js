@@ -1,14 +1,13 @@
 import transporter from '../../config/emailConfig.js';
 import { cancelAppointmentMailBody } from '../constants/mailTemplate.js';
-const cancelledAppointment = async (email,feedback, patientName, appointmentDate, appointmentTime, doctorName) => {
-  console.log(feedback);
+const cancelledAppointment = async (email,reason, patientName, appointmentDate, appointmentTime, doctorName) => {
   
   try {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: 'Your Appointment Has Been Cancelled',
-      html: cancelAppointmentMailBody( patientName,feedback, appointmentDate, appointmentTime, doctorName),
+      html: cancelAppointmentMailBody( patientName,reason, appointmentDate, appointmentTime, doctorName),
     };
 
     await transporter.sendMail(mailOptions);
