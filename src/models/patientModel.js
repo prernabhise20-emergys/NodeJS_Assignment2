@@ -252,29 +252,69 @@ const checkUserWithPatientID = async (userId, patientId) => {
   }
 };
 
-const deletePersonalDetails = async (patient_id) => {
+const checkPatientExists = async (patient_id) => {
   try {
-    const data = await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       db.query(
-        "UPDATE personal_info SET IS_DELETED = TRUE WHERE patient_id = ?",
-        patient_id,
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          if (result.affectedRows === 0) {
-            return reject(error);
-          }
-          return resolve(result);
+        "SELECT COUNT(*) AS count FROM personal_info WHERE patient_id = ? AND IS_DELETED = FALSE",
+        [patient_id],
+        (error, results) => {
+          if (error) return reject(error);
+          resolve(results[0].count > 0);
         }
       );
     });
-
-    return data;
   } catch (error) {
     throw error;
   }
 };
+
+const deletePersonalDetails = async (patient_id) => {
+  try {
+    const exists = await checkPatientExists(patient_id);
+
+    if (!exists) {
+      throw new Error("Patient ID does not exist or is already deleted.");
+    }
+
+    return await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE personal_info SET IS_DELETED = TRUE WHERE patient_id = ?",
+        [patient_id],
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+// const deletePersonalDetails = async (patient_id) => {
+//   try {
+//     const data = await new Promise((resolve, reject) => {
+//       db.query(
+//         "UPDATE personal_info SET IS_DELETED = TRUE WHERE patient_id = ?",
+//         patient_id,
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           if (result.affectedRows === 0) {
+//             return reject(error);
+//           }
+//           return resolve(result);
+//         }
+//       );
+//     });
+
+//     return data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const deletePatientDetails = async (patient_id) => {
   try {
