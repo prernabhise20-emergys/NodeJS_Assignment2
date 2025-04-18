@@ -293,7 +293,7 @@ const getDoctorAvailability = async (req, res, next) => {
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
-    if (!availableTimes || availableTimes.length === 0) {
+    if (!availableTimes) {
       return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
         new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE)
       );
