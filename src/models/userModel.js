@@ -393,18 +393,34 @@ SELECT
     d.doctorOutTime, 
     a.appointment_date, 
     a.appointment_time,
-    a.status  -- Include status column
-FROM appointments a
-JOIN doctors d
-    ON a.doctor_id = d.doctor_id
+    a.status
+FROM doctors d
+LEFT JOIN appointments a 
+    ON d.doctor_id = a.doctor_id
+    AND a.appointment_date = ?
+    AND a.status IN ('Scheduled', 'Pending')
 WHERE 
     d.is_deleted = false
-    AND a.status IN ('Scheduled', 'Pending')  
     AND d.doctor_id = ?
-    AND a.appointment_date = ?
 
+UNION ALL
+
+SELECT 
+    d.doctorInTime, 
+    d.doctorOutTime, 
+    NULL AS appointment_date,  
+    NULL AS appointment_time,
+    NULL AS status
+FROM doctors d
+WHERE d.doctor_id = ?
+AND NOT EXISTS (
+    SELECT 1 
+    FROM appointments a
+    WHERE a.doctor_id = d.doctor_id 
+    AND a.appointment_date = ?
+);
         `,
-        [doctor_id, date, doctor_id, doctor_id, date],
+        [date, doctor_id, doctor_id, date],
         (error, results) => {
           if (error) {
             return reject(error);
