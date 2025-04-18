@@ -88,8 +88,8 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
 
     if (!passwordMatch) {
       throw INVALID_USER;
@@ -264,7 +264,6 @@ const getDoctors = async (req, res, next) => {
   }
 };
 
-
 const createAppointment = async (req, res, next) => {
   const {body:{ patient_id, doctor_id, date, time }} = req;
   try {
@@ -286,10 +285,11 @@ const createAppointment = async (req, res, next) => {
     next(error);
   }
 };
+
 const getDoctorAvailability = async (req, res, next) => {
   try {
-    const {query:{ doctor_id }} = req;
-    const {body:{ date } }= req;
+    const { query: { doctor_id } } = req;
+    const { body: { date } } = req;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
@@ -302,19 +302,24 @@ const getDoctorAvailability = async (req, res, next) => {
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
 
-    const timeSlot = availableTimes
-      .filter(row => row.appointment_time !== null) 
-      .map(row => row.appointment_time); 
+    const scheduleSlot = availableTimes
+      .filter(row => row.appointment_time !== null && row.status === 'Scheduled')
+      .map(row => row.appointment_time);
+
+    const pendingSlot = availableTimes
+      .filter(row => row.appointment_time !== null && row.status === 'Pending')
+      .map(row => row.appointment_time);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
-        timeSlot,
+        scheduleSlot,
+        pendingSlot, 
       })
     );
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };
 

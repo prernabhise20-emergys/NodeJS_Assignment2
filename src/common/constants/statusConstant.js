@@ -11,7 +11,7 @@ const SUCCESS_STATUS_CODE = {
   SUCCESS: 200,
 };
 const ERROR_MESSAGE = {
-  DOCTOR_NOT_AVAILABLE: "Doctor not available for the selected doctor and date.",
+  DOCTOR_NOT_AVAILABLE: "Doctor not available for the selected date or time.",
   BOOK_SLOT: "The selected time slot is already booked. Please choose another time.",
   EMAIL_NOT_EXISTS: "Email is not found",
   MORE_THAN_LIMIT: "Only 4 documents allow to upload",

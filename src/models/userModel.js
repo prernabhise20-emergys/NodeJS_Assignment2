@@ -382,6 +382,7 @@ const checkDoctor = async (email) => {
   }
 };
 
+
 const checkDoctorAvailability = async (doctor_id, date) => {
   try {
     const results = await new Promise((resolve, reject) => {
@@ -391,32 +392,17 @@ SELECT
     d.doctorInTime, 
     d.doctorOutTime, 
     a.appointment_date, 
-    a.appointment_time 
+    a.appointment_time,
+    a.status  -- Include status column
 FROM appointments a
 JOIN doctors d
     ON a.doctor_id = d.doctor_id
 WHERE 
     d.is_deleted = false
-    AND a.status IN ('Scheduled')  
+    AND a.status IN ('Scheduled', 'Pending')  
     AND d.doctor_id = ?
     AND a.appointment_date = ?
 
-UNION ALL
-
-SELECT 
-    d.doctorInTime, 
-    d.doctorOutTime, 
-    NULL AS appointment_date,  
-    NULL AS appointment_time
-FROM doctors d
-WHERE d.doctor_id = ?
-AND NOT EXISTS (
-    SELECT 1 
-    FROM appointments a
-    WHERE 
-        a.doctor_id = ?
-        AND a.appointment_date = ?
-);
         `,
         [doctor_id, date, doctor_id, doctor_id, date],
         (error, results) => {
@@ -430,10 +416,9 @@ AND NOT EXISTS (
 
     return results;
   } catch (error) {
-    throw(error);
+    throw error;
   }
 };
-
 
 
 

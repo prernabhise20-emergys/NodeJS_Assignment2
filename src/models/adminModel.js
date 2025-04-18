@@ -97,27 +97,71 @@ const getTotalCount = async (is_admin) => {
     throw error;
   }
 };
+// const deletePatientDetails = async (patient_id) => {
+//   try {
+//     const data = await new Promise((resolve, reject) => {
+
+//       db.query(
+//         `          
+//   UPDATE personal_info p
+//   JOIN family_info f 
+//   ON p.patient_id = f.patient_id
+//   JOIN disease d 
+//   ON p.patient_id = d.patient_id
+//   JOIN documents doc 
+//   ON p.patient_id = doc.patient_id
+//   SET p.is_deleted = TRUE, f.is_deleted = TRUE, d.is_deleted = TRUE, doc.is_deleted = TRUE
+//   WHERE p.patient_id =?  and f.patient_id=? and d.patient_id=? and doc.patient_id=?;`,
+//         [patient_id, patient_id, patient_id, patient_id],
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           return resolve(result);
+//         }
+//       );
+//     });
+
+//     return data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
 const deletePatientDetails = async (patient_id) => {
   try {
-    const data = await new Promise((resolve, reject) => {
+    const exists = await new Promise((resolve, reject) => {
+      db.query(
+        `SELECT COUNT(*) AS count FROM personal_info WHERE patient_id = ? AND is_deleted = FALSE;`,
+        [patient_id],
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results[0].count > 0);
+        }
+      );
+    });
 
+    if (!exists) {
+      throw new Error("Patient ID does not exist or is already deleted.");
+    }
+
+    const data = await new Promise((resolve, reject) => {
       db.query(
         `          
-  UPDATE personal_info p
-  JOIN family_info f 
-  ON p.patient_id = f.patient_id
-  JOIN disease d 
-  ON p.patient_id = d.patient_id
-  JOIN documents doc 
-  ON p.patient_id = doc.patient_id
-  SET p.is_deleted = TRUE, f.is_deleted = TRUE, d.is_deleted = TRUE, doc.is_deleted = TRUE
-  WHERE p.patient_id =?  and f.patient_id=? and d.patient_id=? and doc.patient_id=?;`,
-        [patient_id, patient_id, patient_id, patient_id],
+        UPDATE personal_info p
+        JOIN family_info f ON p.patient_id = f.patient_id
+        JOIN disease d ON p.patient_id = d.patient_id
+        JOIN documents doc ON p.patient_id = doc.patient_id
+        SET p.is_deleted = TRUE, f.is_deleted = TRUE, d.is_deleted = TRUE, doc.is_deleted = TRUE
+        WHERE p.patient_id =?;`,
+        [patient_id],
         (error, result) => {
           if (error) {
             return reject(error);
           }
-          return resolve(result);
+          resolve(result);
         }
       );
     });
@@ -127,7 +171,6 @@ const deletePatientDetails = async (patient_id) => {
     throw error;
   }
 };
-
 const ageGroupWiseData = (is_admin) => {
   return new Promise((resolve, reject) => {
     if (is_admin) {
