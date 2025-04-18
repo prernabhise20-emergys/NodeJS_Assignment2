@@ -79,7 +79,7 @@ const adminDeletePatientData = async (req, res, next) => {
     if (is_admin) {
       await deletePatientDetails(patient_id);
 
-      res
+      return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
     }
@@ -341,7 +341,7 @@ const getAllAppointments = async (req, res, next) => {
       const appointments = await getAllAppointmentInformation(doctor_id);
 
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
           appointments
         })
@@ -364,7 +364,7 @@ const getPatientsAppointments = async (req, res, next) => {
         appointment_date: new Date(appointment.appointment_date).toISOString().split('T')[0]
       }));
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, { appointments: formattedAppointments })
       );
     }
@@ -381,7 +381,7 @@ const getAllEmail = async (req, res, next) => {
     if (admin || doctor) {
       const emails = await getAllEmailForAddAdmin();
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }
@@ -397,7 +397,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
     if (admin || doctor) {
       const emails = await getAllEmailForAddDoctor();
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }

@@ -27,7 +27,7 @@ const getDoctorProfile = async (req, res, next) => {
       
       const doctorData = await getDoctor(userid);
   
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.DOCTOR_PROFILE, doctorData)
       );
     } catch (error) {

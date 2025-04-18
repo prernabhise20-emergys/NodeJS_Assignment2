@@ -48,7 +48,7 @@ const showPatientDetails = async (req, res, next) => {
     const {user:{ userid: id }} = req;
 
     const patientInfo = await getPatientInfo(id);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, patientInfo)
     );
   } catch (error) {
@@ -62,7 +62,7 @@ const getPersonalDetails = async (req, res, next) => {
     const {params:{ patient_id }} = req;
     const familyInfo = await getPersonalInfo(patient_id);
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
   } catch (error) {
@@ -102,7 +102,7 @@ const createPersonalInfo = async (req, res, next) => {
 
     const result = await createPersonalDetails(data, id, email);
 
-    res.status(SUCCESS_STATUS_CODE.CREATED).send(
+    return res.status(SUCCESS_STATUS_CODE.CREATED).send(
       new ResponseHandler(SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE, { patient_id: result.insertId })
     );
 
@@ -153,7 +153,7 @@ const updatePersonalInfo = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await updatePersonalDetails(data, patient_id);
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
       );
     } else {
@@ -173,7 +173,7 @@ const deletePersonalInfo = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await deletePersonalDetails(patient_id);
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
       );
     }
@@ -188,7 +188,7 @@ const getFamilyDetails = async (req, res, next) => {
     const {params:{ patient_id }} = req;
     const familyInfo = await getFamilyInfo(patient_id);
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
   } catch (error) {
@@ -201,7 +201,7 @@ const addFamilyInfo = async (req, res, next) => {
     const {body:{ familyDetails } }= req;
 
     await insertFamilyInfo(familyDetails);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.ADDED_FAMILY_MESSAGE)
     );
   } catch (error) {
@@ -256,7 +256,7 @@ const updateFamilyInfoDetails = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await updateFamilyInfo(familyData, patient_id);
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.FAMILY_UPDATE_SUCCESSFULLY)
       );
     }
@@ -274,7 +274,7 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteFamilyInfo(patient_id);
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.FAMILY_DELETE_SUCCESSFULLY)
       );
     }
@@ -291,7 +291,7 @@ const getDiseaseDetails = async (req, res, next) => {
     const {params:{ patient_id }} = req;
     const personalInfo = await getDiseaseInfo(patient_id);
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DETAILS, personalInfo)
     );
   } catch (error) {
@@ -305,7 +305,7 @@ const addDiseaseInfo = async (req, res, next) => {
 
     await addDiseaseData(diseaseDetails);
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.CREATED_DISEASE_INFO_MESSAGE)
     );
 
@@ -326,7 +326,7 @@ const updateDiseaseInfo = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await updateDiseaseDetails(formData, patient_id);
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.DISEASE_UPDATE_SUCCESSFULLY)
       );
 
@@ -346,7 +346,7 @@ const deleteDiseaseInfo = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await deleteDiseaseDetails(patient_id);
 
-      res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DELETE_SUCCESSFULLY)
       );
     }
@@ -362,7 +362,7 @@ const getUploadDocument = async (req, res, next) => {
     const {params:{ patient_id }} = req;
 
     const personalInfo = await getUploadInfo(patient_id);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
     throw FAILED_TO_RETRIVE;
@@ -417,7 +417,7 @@ const uploadDocument = async (req, res, next) => {
     // }
     await saveDocument(documentData);
 
-    res.status(SUCCESS_STATUS_CODE.CREATED).send(
+    return res.status(SUCCESS_STATUS_CODE.CREATED).send(
       new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPLOAD, documentPath)
     );
   } catch (error) {
@@ -458,7 +458,7 @@ const updateDocument = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await modifyDocument(data);
 
-      res.status(SUCCESS_STATUS_CODE.CREATED).send(
+      return res.status(SUCCESS_STATUS_CODE.CREATED).send(
         new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPDATE_SUCCESSFULLY)
       );
     }

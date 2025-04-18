@@ -256,7 +256,7 @@ const getDoctors = async (req, res, next) => {
   try {
 
     const personalInfo = await getDoctorInfo();
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
   } catch (error) {
@@ -278,7 +278,7 @@ const createAppointment = async (req, res, next) => {
     }
 
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
     );
 
@@ -306,7 +306,7 @@ const getDoctorAvailability = async (req, res, next) => {
       .filter(row => row.appointment_time !== null) 
       .map(row => row.appointment_time); 
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,

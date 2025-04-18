@@ -397,7 +397,7 @@ JOIN doctors d
     ON a.doctor_id = d.doctor_id
 WHERE 
     d.is_deleted = false
-    AND a.status IN ('Scheduled', 'Cancelled')  
+    AND a.status IN ('Scheduled')  
     AND d.doctor_id = ?
     AND a.appointment_date = ?
 
