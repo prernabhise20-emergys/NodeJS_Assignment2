@@ -82,7 +82,7 @@ const adminDeletePatientData = async (req, res, next) => {
 
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -105,10 +105,11 @@ const ageGroupData = async (req, res, next) => {
       Older: ageGroup.find((group) => group.ageGroup === "older")?.count || 0,
     };
 
-    res
+    return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(
         new ResponseHandler(
+          SUCCESS_STATUS_CODE.SUCCESS,
           SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
           ageData
         )
@@ -125,9 +126,9 @@ const addAdmin = async (req, res, next) => {
 
     await addAsAdmin(is_admin, email);
 
-    res
+    return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.ADD_ADMIN));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.ADD_ADMIN));
   } catch (error) {
     next(error);
   }
@@ -154,9 +155,9 @@ const removeAdmin = async (req, res, next) => {
 
     await removeAdminAuthority(is_admin, email);
 
-    res
+    return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.REMOVE_ADMIN));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REMOVE_ADMIN));
   } catch (error) {
     next(error);
   }
@@ -170,13 +171,13 @@ const getAdmin = async (req, res, next) => {
     if (is_admin) {
       const user = await displayAdmin();
 
-      res
+      return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_MESSAGE.GET_ADMIN, user));
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.GET_ADMIN, user));
     }
-    res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
+    return res
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
     next(error);
   }
@@ -190,8 +191,8 @@ const addDoctor = async (req, res, next) => {
     const userDetails = await getUserRegisterDetails(id);
 
     if (!userDetails) {
-      return res.status(SUCCESS_STATUS_CODE.NOT_FOUND).send(
-        new ResponseHandler(ERROR_MESSAGE.USER_NOT_FOUND)
+      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
+        new ResponseHandler(ERROR_STATUS_CODE.NOT_FOUND,ERROR_MESSAGE.USER_NOT_FOUND)
       );
     }
 
@@ -218,13 +219,13 @@ const addDoctor = async (req, res, next) => {
       }
 
       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-        new ResponseHandler(SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
+        new ResponseHandler(SUCCESS_STATUS_CODE.CREATED,SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
       );
     }
 
     return res
-      .status(SUCCESS_STATUS_CODE.UNAUTHORIZED)
-      .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,SUCCESS_STATUS_CODE.UNAUTHORIZED,ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
     next(error);
   }
@@ -238,9 +239,9 @@ const deleteDoctor = async (req, res, next) => {
     const { query: { doctor_id } } = req;
 
     await deleteDoctorData(doctor_id);
-    res
+    return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
     next(error);
   }
@@ -268,11 +269,11 @@ const changeAppointmentsStatus = async (req, res, next) => {
           await sendCancelledAppointmentEmail(email,patientName,appointmentDate,appointmentTime,doctorName)
         }
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-          new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.CHANGE_STATUS)
         );
       } else {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
     }
@@ -289,7 +290,7 @@ const setAppointmentCancelled = async (req, res, next) => {
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.INVALID_INPUT)
       );
     }
     if (is_admin) {
@@ -303,11 +304,11 @@ const setAppointmentCancelled = async (req, res, next) => {
 
           await sendCancelledAppointmentEmail(email,reason,patient_name,appointment_date,appointment_time,name)
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-          new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_CANCELLED)
+          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.APPOINTMENT_CANCELLED)
         );
       } else {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_MESSAGE.FAILED_TO_CANCEL)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.FAILED_TO_CANCEL)
         );
       }
     }
@@ -327,7 +328,7 @@ const approveAppointment = async (req, res, next) => {
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.INVALID_INPUT)
       );
     }
     if (is_admin) {
@@ -336,25 +337,20 @@ const approveAppointment = async (req, res, next) => {
 
       if (!data || data.length === 0) {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
-
-      const patientName = data[0].patient_name;
-      const appointmentDate = data[0].appointment_date;
-      const appointmentTime = data[0].appointment_time;
-      const doctorName = data[0].name;
-
+const {patient_name,appointment_date,appointment_time,name}=data[0];
 
       if (result.affectedRows == 1) {
-        await approveRequest(email, patientName, appointmentDate, appointmentTime, doctorName);
+        await approveRequest(email, patient_name, appointment_date, appointment_time,name);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-          new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
+          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.CHANGE_STATUS)
         );
       } else {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_MESSAGE.NOT_CHANGE_STATUS)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
     }
@@ -369,13 +365,13 @@ const displayAppointmentRequest = async (req, res, next) => {
     if (is_admin) {
       const user = await displayRequest();
 
-      res
+      return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_MESSAGE.REQUESTED_APPOINTMENT, user));
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REQUESTED_APPOINTMENT, user));
     }
-    res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS));
+    return res
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
     next(error);
   }
@@ -390,7 +386,7 @@ const getAllAppointments = async (req, res, next) => {
 
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
           appointments
         })
       );
@@ -413,7 +409,7 @@ const getPatientsAppointments = async (req, res, next) => {
       }));
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.ALL_APPOINTMENTS, { appointments: formattedAppointments })
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.ALL_APPOINTMENTS, { appointments: formattedAppointments })
       );
     }
   } catch (error) {
@@ -430,7 +426,7 @@ const getAllEmail = async (req, res, next) => {
       const emails = await getAllEmailForAddAdmin();
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }
   } catch (error) {
@@ -446,7 +442,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
       const emails = await getAllEmailForAddDoctor();
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }
   } catch (error) {

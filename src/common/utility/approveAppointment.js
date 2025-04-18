@@ -1,12 +1,12 @@
 import transporter from '../../config/emailConfig.js';
 import { approveRequestMailBody } from '../constants/mailTemplate.js';
-const approveRequest = async (email, patientName, appointmentDate, appointmentTime, doctorName) => {
+const approveRequest = async (email, patient_name, appointment_date, appointment_time, doctorName) => {
   try {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: 'Appointment Confirmation',
-      html: approveRequestMailBody( patientName, appointmentDate, appointmentTime, doctorName),
+      html: approveRequestMailBody( patient_name, appointment_date, appointment_time, doctorName),
     };
 
     await transporter.sendMail(mailOptions);
