@@ -292,22 +292,22 @@ const getDoctorAvailability = async (req, res, next) => {
     const { body: { date } } = req;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
-    console.log(availableTimes);
+    // console.log(availableTimes);
 
-    if (!availableTimes || availableTimes.length === 0) {
-      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
-        new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE)
-      );
-    }
+    // if (!availableTimes || availableTimes.length === 0) {
+    //   return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
+    //     new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE)
+    //   );
+    // }
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
 
-    const scheduleSlot = availableTimes
+    const scheduleSlots = availableTimes
       .filter(row => row.appointment_time !== null && row.status === 'Scheduled')
       .map(row => row.appointment_time);
 
-    const pendingSlot = availableTimes
+    const pendingSlots = availableTimes
       .filter(row => row.appointment_time !== null && row.status === 'Pending')
       .map(row => row.appointment_time);
 
@@ -315,8 +315,8 @@ const getDoctorAvailability = async (req, res, next) => {
       new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
-        scheduleSlot,
-        pendingSlot,
+        scheduleSlots,
+        pendingSlots,
       })
     );
   } catch (error) {
