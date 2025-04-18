@@ -7,7 +7,7 @@ import {
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import approveRequest from "../common/utility/approveAppointment.js"
-
+import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js"
 import {
   getUserRegisterDetails,
   setIsDoctor,
@@ -30,6 +30,7 @@ import {
   displayAdmin,
   displayRequest,
   getAllPatientAppointment,
+  cancelStatus
 } from "../models/adminModel.js";
 const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
@@ -73,8 +74,8 @@ const getAllInfo = async (req, res, next) => {
 
 const adminDeletePatientData = async (req, res, next) => {
   try {
-    const {user:{ admin: is_admin } }= req;
-    const {query:{ patient_id } }= req;
+    const { user: { admin: is_admin } } = req;
+    const { query: { patient_id } } = req;
 
     if (is_admin) {
       await deletePatientDetails(patient_id);
@@ -93,7 +94,7 @@ const adminDeletePatientData = async (req, res, next) => {
 
 const ageGroupData = async (req, res, next) => {
   try {
-    const {user:{ admin: is_admin }} = req;
+    const { user: { admin: is_admin } } = req;
 
     const ageGroup = await ageGroupWiseData(is_admin);
 
@@ -119,8 +120,8 @@ const ageGroupData = async (req, res, next) => {
 
 const addAdmin = async (req, res, next) => {
   try {
-    const {user:{ admin: is_admin }} = req;
-    const {req:{ email }} = req;
+    const { user: { admin: is_admin } } = req;
+    const { req: { email } } = req;
 
     await addAsAdmin(is_admin, email);
 
@@ -134,8 +135,8 @@ const addAdmin = async (req, res, next) => {
 
 const removeAdmin = async (req, res, next) => {
   try {
-    const {user:{ admin: is_admin } }= req;
-    const {body:{ email }} = req;
+    const { user: { admin: is_admin } } = req;
+    const { body: { email } } = req;
 
     const isSuperAdmin = await checkSuperAdmin(email);
 
@@ -165,7 +166,7 @@ const removeAdmin = async (req, res, next) => {
 
 const getAdmin = async (req, res, next) => {
   try {
-    const {user:{ admin: is_admin }} = req;
+    const { user: { admin: is_admin } } = req;
     if (is_admin) {
       const user = await displayAdmin();
 
@@ -183,8 +184,8 @@ const getAdmin = async (req, res, next) => {
 
 const addDoctor = async (req, res, next) => {
   try {
-    const {query:{ id } }= req;
-    const {user:{ admin: is_admin }} = req;
+    const { query: { id } } = req;
+    const { user: { admin: is_admin } } = req;
 
     const userDetails = await getUserRegisterDetails(id);
 
@@ -234,7 +235,7 @@ const addDoctor = async (req, res, next) => {
 
 const deleteDoctor = async (req, res, next) => {
   try {
-    const {query:{ doctor_id }} = req;
+    const { query: { doctor_id } } = req;
 
     await deleteDoctorData(doctor_id);
     res
@@ -247,8 +248,8 @@ const deleteDoctor = async (req, res, next) => {
 
 const changeAppointmentsStatus = async (req, res, next) => {
   try {
-    const {query:{ status, appointment_id } }= req;
-    const {user:{ admin: is_admin } }= req;
+    const { query: { status, appointment_id } } = req;
+    const { user: { admin: is_admin, email } } = req;
     if (!status || !appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
@@ -258,6 +259,14 @@ const changeAppointmentsStatus = async (req, res, next) => {
       const result = await changeStatus(status, appointment_id);
 
       if (result.affectedRows > 0) {
+        if (status == 'Cancelled') {
+          const data = await getPatientData(appointment_id);
+          const patientName = data[0].patient_name;
+          const appointmentDate = data[0].appointment_date;
+          const appointmentTime = data[0].appointment_time;
+          const doctorName = data[0].name;
+          await sendCancelledAppointmentEmail(email,patientName,appointmentDate,appointmentTime,doctorName)
+        }
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
           new ResponseHandler(SUCCESS_MESSAGE.CHANGE_STATUS)
         );
@@ -272,10 +281,50 @@ const changeAppointmentsStatus = async (req, res, next) => {
   }
 };
 
+const setAppointmentCancelled = async (req, res, next) => {
+  try {
+    const { query: {appointment_id } } = req;
+    const { user: { admin: is_admin, email } } = req;
+    const{body:{feedback}}=req
+
+    if (!appointment_id) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_MESSAGE.INVALID_INPUT)
+      );
+    }
+    if (is_admin) {
+      
+      const result = await cancelStatus( appointment_id,feedback);
+
+      if (result.affectedRows) {
+      
+          const data = await getPatientData(appointment_id);
+          console.log(data[0].feedback);
+        const {patient_name,appointment_date,appointment_time,name,feedback}=data[0]
+
+          await sendCancelledAppointmentEmail(email,feedback,patient_name,appointment_date,appointment_time,name)
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+          new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_CANCELLED)
+        );
+      } else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_MESSAGE.FAILED_TO_CANCEL)
+        );
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
+
 const approveAppointment = async (req, res, next) => {
   try {
-    const {query:{ appointment_id }} = req;
-    const {user:{ admin: is_admin, email }} = req;
+    const { query: { appointment_id } } = req;
+    const { user: { admin: is_admin, email } } = req;
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -317,7 +366,7 @@ const approveAppointment = async (req, res, next) => {
 
 const displayAppointmentRequest = async (req, res, next) => {
   try {
-    const {user:{ admin: is_admin } }= req;
+    const { user: { admin: is_admin } } = req;
     if (is_admin) {
       const user = await displayRequest();
 
@@ -335,8 +384,8 @@ const displayAppointmentRequest = async (req, res, next) => {
 
 const getAllAppointments = async (req, res, next) => {
   try {
-    const {user:{ admin, doctor } }= req;
-    const {query:{ doctor_id }} = req;
+    const { user: { admin, doctor } } = req;
+    const { query: { doctor_id } } = req;
     if (admin || doctor) {
       const appointments = await getAllAppointmentInformation(doctor_id);
 
@@ -354,7 +403,7 @@ const getAllAppointments = async (req, res, next) => {
 
 const getPatientsAppointments = async (req, res, next) => {
   try {
-    const {user:{ admin, doctor }} = req;
+    const { user: { admin, doctor } } = req;
 
     if (admin || doctor) {
       const appointments = await getAllPatientAppointment();
@@ -376,7 +425,7 @@ const getPatientsAppointments = async (req, res, next) => {
 
 const getAllEmail = async (req, res, next) => {
   try {
-    const {user:{ admin, doctor } }= req;
+    const { user: { admin, doctor } } = req;
 
     if (admin || doctor) {
       const emails = await getAllEmailForAddAdmin();
@@ -392,7 +441,7 @@ const getAllEmail = async (req, res, next) => {
 
 const getAllEmailForDoctor = async (req, res, next) => {
   try {
-    const {user:{ admin, doctor } }= req;
+    const { user: { admin, doctor } } = req;
 
     if (admin || doctor) {
       const emails = await getAllEmailForAddDoctor();
@@ -407,6 +456,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
 };
 
 export default {
+  setAppointmentCancelled,
   getAllEmailForDoctor,
   getAllEmail,
   getPatientsAppointments,

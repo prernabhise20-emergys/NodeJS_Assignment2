@@ -52,7 +52,8 @@ const ROUTE_CONSTANTS = {
   ALL_EMAIL_ADMIN:"/getEmailsForAdmin",
   ALL_EMAIL_DOCTOR:"/getEmailsForDoctor",
   GET_DOCTOR_PROFILE:"/getDoctorProfile",
-  UPDATE_PRISCRIPTION:"/updatePrescription"
+  UPDATE_PRISCRIPTION:"/updatePrescription",
+  CANCELLED_APPOINTMENT:"/cancelledAppointment"
 };
 
 export default ROUTE_CONSTANTS;

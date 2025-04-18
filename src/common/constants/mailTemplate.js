@@ -93,5 +93,27 @@ const updatedPrescriptionBody = () => {
     </html>
   `;
 };
+const cancelAppointmentMailBody = (patientName,feedback, appointmentDate, appointmentTime, doctorName) => {
+  return `
+        <html>
+  <body>
+    <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+      <p>Dear ${patientName},</p>
+      <p>We regret to inform you that your scheduled appointment has been cancelled. Here are the details of the cancelled appointment:</p>
+      <ul>
+        <li><strong>Patient Name:</strong> ${patientName}</li>
+        <li><strong>Date:</strong> ${appointmentDate}</li>
+        <li><strong>Time:</strong> ${appointmentTime}</li>
+        <li><strong>Doctor Name:</strong> ${doctorName}</li>
+        <li><strong>Reason: </strong>${feedback}</li>
+      </ul>
+      <p>We apologize for any inconvenience this may cause. Please feel free to contact us for rescheduling or further assistance.</p>
+      <p>Thank you for your understanding.</p>
+      <p>City Care Medical Center</p>
+    </div>
+  </body>
+</html>
+        `
+};
 
-export {otpMailBody,verificationEmail,prescriptionBody,approveRequestMailBody,updatedPrescriptionBody}
+export {otpMailBody,verificationEmail,prescriptionBody,approveRequestMailBody,updatedPrescriptionBody,cancelAppointmentMailBody}

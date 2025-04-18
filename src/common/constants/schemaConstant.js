@@ -1,6 +1,5 @@
 import Joi from "joi";
 
-
 const user_schemas = {
   createUserSchema: Joi.object({
     email: Joi.string()
@@ -237,9 +236,14 @@ const user_schemas = {
     status: Joi.string().valid('Scheduled', 'Completed', 'Cancelled', 'Pending').default('Pending').error(
       new Error("Status are allowed only'Scheduled', 'Completed', 'Cancelled','Pending")
     ),
-  })
+  }),
 
+ cancelledAppointmentSchema: Joi.object({
+  feedback: Joi.string().required().error(new Error("feedback is required"))
+})
 
 };
 
-export { user_schemas };
+
+
+export { user_schemas};

@@ -43,10 +43,12 @@ const ERROR_MESSAGE = {
   LOGIN_FAILED: "Failed to login",
   FAILED_TO_RETRIVE: "Failed to retrieve data",
   CANNOT_DELETE_SUPERADMIN:"Cannot delete the superadmin",
-  CANNOT_ADD_DOCTOR:"User not found. Please register the user before adding as a doctor."
+  CANNOT_ADD_DOCTOR:"User not found. Please register the user before adding as a doctor.",
+  FAILED_TO_CANCEL:"Failed to cancelled appointment"
 };
 
 const SUCCESS_MESSAGE = {
+  APPOINTMENT_CANCELLED:"Appointment is cancelled successfully",
   DOCTOR_PROFILE:"Doctor profile retrived successfully",
   EMAIL_RETRIVE:"Retrieve all emails successfully",
   ALL_APPOINTMENTS: "Retrive all appointments information successfully",
