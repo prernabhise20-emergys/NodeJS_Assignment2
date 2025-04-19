@@ -8,6 +8,7 @@ import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 const router = express.Router();
 
 const {
+  SEARCH_DOCTOR,
   SHOW_AVAILABILITY,
   CREATE_APPOINTMENT,
   GET_DOCTORS,
@@ -74,5 +75,5 @@ router.post(
   userController.createAppointment
 )
 router.post(SHOW_AVAILABILITY,authenticateUser,userController.getDoctorAvailability)
-
+router.get(SEARCH_DOCTOR,authenticateUser,userController.searchDoctor)
 export default router;

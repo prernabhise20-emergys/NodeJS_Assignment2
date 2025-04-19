@@ -436,9 +436,31 @@ AND NOT EXISTS (
   }
 };
 
+const getSearchedDoctor = async (keyword) => {
+  try {
+      const searchQuery = `%${keyword}%`;
+      const data = await new Promise((resolve, reject) => {
+          db.query(
+              `SELECT name, specialization FROM doctors WHERE name LIKE ?`,
+              searchQuery,
+              (error, results) => {
+                  if (error) {
+                      return reject(error);
+                  }
 
+                  resolve(results);
+              }
+          );
+
+      });
+      return data;
+  } catch (error) {
+      throw error;
+  }
+};
 
 export {
+  getSearchedDoctor,
   checkDoctorAvailability,
   checkDoctor,
   doctorFlag,

@@ -6,6 +6,7 @@ import { ResponseHandler } from "../common/utility/handlers.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 import {
+  getSearchedDoctor,
   checkDoctorAvailability,
   checkDoctor,
   doctorFlag,
@@ -72,6 +73,43 @@ const register = async (req, res, next) => {
     next(error);
   }
 };
+
+// const register = async (req, res, next) => {
+//   try {
+//     const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
+
+//     const userExists = await checkIfUserExists(email);
+//     if (userExists) {
+//       throw USER_EXISTS;
+//     }
+
+//     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+
+//     const verificationToken = generateVerificationToken(); 
+
+//     await createUserData(
+//       email,
+//       decodedPassword,
+//       first_name,
+//       last_name,
+//       mobile_number,
+//       verificationToken
+//     );
+
+//     await sendVerificationEmail(email, verificationToken);
+
+//     const result = await checkDoctor(email);
+//     if (result) {
+//       await doctorFlag(email);
+//     }
+
+//     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REGISTER_SUCCESS)
+//     );
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 
 const login = async (req, res, next) => {
@@ -326,8 +364,35 @@ const getDoctorAvailability = async (req, res, next) => {
   }
 };
 
+const searchDoctor = async (req, res,next) => {
+  try {
+      const {keyword } = req.query;
+    
+      if (!keyword) {
+          return res.status(400).send({
+              status: ERROR_STATUS_CODE.BAD_REQUEST,
+              message: "Keyword is required for searching"
+          });
+      }
+      const doctor = await getSearchedDoctor( keyword);
+      if (doctor.length === 0) {
+          return res.status(404).send({
+              message: ERROR_MESSAGE.USER_NOT_FOUND
+          })
+      }
+      else {
+          return res.status(200).send({
+              message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+              data: doctor
+          })
+      }
+  } catch (error) {
+      next(error);
+  }
+};
 
 export default {
+  searchDoctor,
   getDoctorAvailability,
   createAppointment,
   getDoctors,
