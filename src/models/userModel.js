@@ -440,7 +440,7 @@ const getSearchedDoctor = async (keyword) => {
   try {
       const searchQuery = `%${keyword}%`;
       return await new Promise((resolve, reject) => {
-          db.query(` SELECT name, specialization, doctorInTime, doctorOutTime 
+          db.query(` SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime 
           FROM doctors 
           WHERE is_deleted = false 
           AND (name LIKE ? OR specialization LIKE ?)`, [searchQuery, searchQuery], (error, results) => {
