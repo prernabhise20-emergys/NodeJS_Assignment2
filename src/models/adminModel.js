@@ -459,12 +459,23 @@ const getAllAppointmentInformation = async (doctor_id) => {
   return new Promise((resolve, reject) => {
     db.query(
       `
-      select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status 
-      from appointments a join personal_info p 
-      on(a.patient_id=p.patient_id)
-      join disease d
-      on(d.patient_id=p.patient_id)
-      where p.is_deleted=false and doctor_id=? order by appointment_id;
+     
+SELECT 
+    a.appointment_id, 
+    p.patient_name, 
+    p.gender, 
+    p.age, 
+    d.disease_type, 
+    a.appointment_date, 
+    a.appointment_time, 
+    a.status 
+FROM appointments AS a 
+JOIN personal_info AS p ON a.patient_id = p.patient_id 
+JOIN disease AS d ON d.patient_id = p.patient_id 
+WHERE p.is_deleted = FALSE 
+AND a.doctor_id = ?
+AND a.status IN ('Pending', 'Scheduled') 
+ORDER BY a.appointment_id
       `, doctor_id,
       (error, results) => {
         if (error) {
@@ -495,6 +506,7 @@ const getAllPatientAppointment = async () => {
       JOIN disease d ON d.patient_id = p.patient_id 
       JOIN doctors do ON a.doctor_id = do.doctor_id 
       WHERE p.is_deleted = FALSE 
+      AND a.status IN ('Pending', 'Scheduled') 
       ORDER BY a.appointment_id`,
       (error, results) => {
         if (error) {
