@@ -527,7 +527,7 @@ const getAllEmailForAddAdmin = async () => {
     db.query(
       `select id,
         email,first_name,last_name from user_Register 
-        where is_admin=false`,
+        where is_admin=false order by email asc`,
       (error, results) => {
         if (error) {
           return reject(error);
