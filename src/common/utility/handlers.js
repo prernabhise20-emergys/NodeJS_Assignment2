@@ -12,7 +12,8 @@ export class MessageHandler {
   }
 }
 export class ResponseHandler {
-  constructor( message,data ,error=null) {
+  constructor( status,message,data ,error=null) {
+    this.status = status;
     this.message = message;
     this.data = data;
     this.error=error;

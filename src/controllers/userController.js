@@ -38,87 +38,42 @@ dotenv.config();
 const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER } =
   AUTH_RESPONSES;
 
+
 const register = async (req, res, next) => {
   try {
-    const {body:{ email, user_password, first_name, last_name, mobile_number }} =
-      req;
+    const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
 
     const userExists = await checkIfUserExists(email);
     if (userExists) {
       throw USER_EXISTS;
     }
 
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-
     await createUserData(
       email,
-      decodedPassword,
+      user_password,
       first_name,
       last_name,
-      mobile_number
+      mobile_number,
     );
 
-    await sendVerificationEmail(email);
+    const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+    const loginToken = `http://localhost:5173/account/user/login?token=${token}`
 
-    const result = await checkDoctor(email);
-    if (result) {
-      await doctorFlag(email);
+    await sendVerificationEmail(email, loginToken);
 
-    }
-
-    res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REGISTER_SUCCESS));
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REGISTER_SUCCESS)
+    );
   } catch (error) {
     next(error);
   }
 };
 
-// const register = async (req, res, next) => {
-//   try {
-//     const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
-
-//     const userExists = await checkIfUserExists(email);
-//     if (userExists) {
-//       throw USER_EXISTS;
-//     }
-
-//     // const verificationToken = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
-//     // console.log(verificationToken);
-
-//     await createUserData(
-//       email,
-//       user_password,
-//       first_name,
-//       last_name,
-//       mobile_number,
-//       verificationToken
-//     );
-
-//     const loginToken = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '1h' });
-
-//     // await sendVerificationEmail(email, verificationToken);
-
-//     await sendVerificationEmail(email, `Bearer ${loginToken}`);
-
-//     const result = await checkDoctor(email);
-//     if (result) {
-//       await doctorFlag(email);
-//     }
-
-//     res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REGISTER_SUCCESS)
-//     );
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 
 
 const login = async (req, res, next) => {
   try {
-    const {body:{ email, user_password } }= req;
+    const { body: { email, user_password } } = req;
 
     const isDeleted = await checkUserDeleteOrNot(email);
     if (isDeleted) {
@@ -143,10 +98,10 @@ const login = async (req, res, next) => {
         email: user.email,
         admin: user.is_admin,
         doctor: user.is_doctor,
-        first_name:user.first_name,
-        last_name:user.last_name,
-        mobile_number:user.mobile_number,
-        superAdmin:user.is_superadmin
+        first_name: user.first_name,
+        last_name: user.last_name,
+        mobile_number: user.mobile_number,
+        superAdmin: user.is_superadmin
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h", algorithm: "HS256" }
@@ -169,11 +124,11 @@ const login = async (req, res, next) => {
     //   });
     // }
     // else {
-      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-        status:SUCCESS_STATUS_CODE.SUCCESS,
-        message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-        token,
-      });
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status: SUCCESS_STATUS_CODE.SUCCESS,
+      message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+      token,
+    });
     // }
   } catch (error) {
     next(error);
@@ -185,7 +140,7 @@ const updateUser = async (req, res, next) => {
     const {
       body: { first_name, last_name, mobile_number },
     } = req;
-    const {user:{ userid: id } }= req;
+    const { user: { userid: id } } = req;
 
     const formData = {
       first_name,
@@ -196,7 +151,7 @@ const updateUser = async (req, res, next) => {
     await updateUserData(formData, id);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
   } catch (error) {
     next(error);
   }
@@ -204,7 +159,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    const {user:{ userid: id, admin }} = req;
+    const { user: { userid: id, admin } } = req;
 
     if (admin) {
       const adminCount = await checkAdminCount();
@@ -217,7 +172,7 @@ const deleteUser = async (req, res, next) => {
     await deleteUserData(id);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
     next(error);
   }
@@ -225,7 +180,7 @@ const deleteUser = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   try {
-    const {user:{ userid: id, email: emailID }} = req;
+    const { user: { userid: id, email: emailID } } = req;
     const checkExists = await checkAlreadyExist(emailID);
 
     if (checkExists) {
@@ -235,7 +190,7 @@ const getUser = async (req, res, next) => {
           .status(SUCCESS_STATUS_CODE.SUCCESS)
           .send(
             new ResponseHandler(
-        
+              SUCCESS_STATUS_CODE.SUCCESS,
               SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
               deletedUserInfo
             )
@@ -247,6 +202,7 @@ const getUser = async (req, res, next) => {
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
           new ResponseHandler(
+            SUCCESS_STATUS_CODE.SUCCESS,
             SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
             user
           )
@@ -259,7 +215,7 @@ const getUser = async (req, res, next) => {
 
 const forgotPassword = async (req, res, next) => {
   try {
-    const {body:{ email }} = req;
+    const { body: { email } } = req;
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -274,11 +230,11 @@ const forgotPassword = async (req, res, next) => {
 
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
     }
     res
       .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_MESSAGE.EMAIL_NOT_EXISTS));
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.EMAIL_NOT_EXISTS));
   } catch (error) {
     next(error);
   }
@@ -286,11 +242,11 @@ const forgotPassword = async (req, res, next) => {
 
 const resetPassword = async (req, res, next) => {
   try {
-    const {body:{ email, newPassword } }= req;
+    const { body: { email, newPassword } } = req;
     await updatePassword(email, newPassword);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_MESSAGE.PASSWORD_UPDATE));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PASSWORD_UPDATE));
   } catch (error) {
     next(error);
   }
@@ -301,7 +257,7 @@ const getDoctors = async (req, res, next) => {
 
     const personalInfo = await getDoctorInfo();
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
   } catch (error) {
     next(error)
@@ -309,20 +265,20 @@ const getDoctors = async (req, res, next) => {
 };
 
 const createAppointment = async (req, res, next) => {
-  const {body:{ patient_id, doctor_id, date, time }} = req;
+  const { body: { patient_id, doctor_id, date, time } } = req;
   try {
     const isAvailable = await isDoctorAvailable(doctor_id, date, time);
 
     if (!isAvailable) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_MESSAGE.BOOK_SLOT)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.BOOK_SLOT)
       );
 
     }
 
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
     );
 
   } catch (error) {
@@ -356,7 +312,7 @@ const getDoctorAvailability = async (req, res, next) => {
       .map(row => row.appointment_time);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
         scheduleSlots,
@@ -368,30 +324,39 @@ const getDoctorAvailability = async (req, res, next) => {
   }
 };
 
-const searchDoctor = async (req, res,next) => {
+const searchDoctor = async (req, res, next) => {
   try {
-      const {keyword } = req.query;
-    
-      if (!keyword) {
-          return res.status(400).send({
-              status: ERROR_STATUS_CODE.BAD_REQUEST,
-              message: "Keyword is required for searching"
-          });
-      }
-      const doctor = await getSearchedDoctor( keyword);
-      if (doctor.length === 0) {
-          return res.status(404).send({
-              message: ERROR_MESSAGE.USER_NOT_FOUND
-          })
-      }
-      else {
-          return res.status(200).send({
-              message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-              data: doctor
-          })
-      }
+    const { keyword } = req.query;
+
+    if (!keyword) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.KEYWORD_REQUIRED)
+      );
+      // return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send({
+      //   status: ERROR_STATUS_CODE.BAD_REQUEST,
+      //   message: ERROR_MESSAGE.KEYWORD_REQUIRED
+      // });
+    }
+    const doctor = await getSearchedDoctor(keyword);
+    if (doctor.length === 0) {
+      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
+        new ResponseHandler(ERROR_STATUS_CODE.NOT_FOUND,ERROR_MESSAGE.USER_NOT_FOUND)
+      );
+      // return res.status(ERROR_STATUS_CODE.NOT_FOUND).send({
+      //   message: ERROR_MESSAGE.USER_NOT_FOUND
+      // })
+    }
+    else {
+      // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      //   message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+      //   data: doctor
+      // })
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE)
+      );
+    }
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 

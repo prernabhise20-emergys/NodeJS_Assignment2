@@ -183,6 +183,7 @@ const createPersonalDetails = async (data, userId, email) => {
       updated_by: email,
       user_id: userId,
     };
+console.log('data',data);
 
     return new Promise((resolve, reject) => {
       db.query("INSERT INTO personal_info SET ?", data, (error, result) => {

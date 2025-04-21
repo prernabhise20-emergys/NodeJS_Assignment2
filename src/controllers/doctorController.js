@@ -28,7 +28,7 @@ const getDoctorProfile = async (req, res, next) => {
       const doctorData = await getDoctor(userid);
   
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_MESSAGE.DOCTOR_PROFILE, doctorData)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DOCTOR_PROFILE, doctorData)
       );
     } catch (error) {
       next(error)
@@ -61,12 +61,12 @@ const updateDoctor = async (req, res, next) => {
             await updateDoctorData(data,userid);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                new ResponseHandler(SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)
             );
         }
 
         return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
-            new ResponseHandler(ERROR_MESSAGE.ADMIN_ACCESS)
+            new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN,ERROR_MESSAGE.ADMIN_ACCESS)
         );
     } catch (error) {
         next(error);
@@ -82,11 +82,11 @@ const displayAppointments = async (req, res, next) => {
             const appointments = await showAppointments(user_id);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                new ResponseHandler(SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
             );
         } else {
             return res.status(ERROR_STATUS_CODE.INVALID).send(
-                new ResponseHandler(ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
+                new ResponseHandler(ERROR_STATUS_CODE.INVALID,ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
             );
         }
     } catch (error) {
@@ -182,7 +182,7 @@ const uploadPrescription = async (req, res, next) => {
         await sendPrescription(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
         next(error);
@@ -226,7 +226,7 @@ const updateExistsPrescription = async (req, res, next) => {
         await sendUpdatePrescriptionEmail(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
         next(error);
