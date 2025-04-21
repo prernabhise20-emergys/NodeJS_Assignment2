@@ -441,7 +441,7 @@ const getSearchedDoctor = async (keyword) => {
       const searchQuery = `%${keyword}%`;
       const data = await new Promise((resolve, reject) => {
           db.query(
-              `SELECT name, specialization FROM doctors WHERE name LIKE ?`,
+              `SELECT name, specialization,doctorInTime,doctorOutTime FROM doctors WHERE name LIKE ?`,
               searchQuery,
               (error, results) => {
                   if (error) {
