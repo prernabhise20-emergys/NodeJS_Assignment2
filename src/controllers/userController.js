@@ -47,23 +47,28 @@ const register = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
+console.log('req',req.body);
+const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
 
     await createUserData(
       email,
-      user_password,
+      decodedPassword,
       first_name,
       last_name,
       mobile_number,
     );
 
+
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REGISTER_SUCCESS)
+    );
+
+    
     const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
     const loginToken = `http://localhost:5173/account/user/login?token=${token}`
 
     await sendVerificationEmail(email, loginToken);
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REGISTER_SUCCESS)
-    );
   } catch (error) {
     next(error);
   }
@@ -79,16 +84,23 @@ const login = async (req, res, next) => {
     if (isDeleted) {
       throw USER_DELETED;
     }
+console.log('is_deleted',isDeleted);
 
     const user = await loginUser(email);
     if (!user) {
       throw INVALID_USER;
     }
+    console.log('user',user);
+    
 
     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    console.log(decodedPassword);
+    console.log(user.user_password);
+    
     const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    console.log('match',passwordMatch);
 
-    if (!passwordMatch) {
+    if(!passwordMatch) {
       throw INVALID_USER;
     }
 
