@@ -1,12 +1,12 @@
 import transporter from '../../config/emailConfig.js';
 import {verificationEmail} from '../constants/mailTemplate.js'
-const sendVerificationEmail = async (toEmail) => {
+const sendVerificationEmail = async (toEmail,verificationToken) => {
   try {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: toEmail,
     subject: 'Email Verification',
-    html: verificationEmail(),
+    html: verificationEmail(verificationToken),
   };
 
  

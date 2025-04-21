@@ -48,7 +48,7 @@ const showPatientDetails = async (req, res, next) => {
 
     const patientInfo = await getPatientInfo(id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, patientInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, patientInfo)
     );
   } catch (error) {
     next(error)
@@ -62,7 +62,7 @@ const getPersonalDetails = async (req, res, next) => {
     const familyInfo = await getPersonalInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
   } catch (error) {
     next(error);
@@ -102,7 +102,7 @@ const createPersonalInfo = async (req, res, next) => {
     const result = await createPersonalDetails(data, id, email);
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.CREATED,SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE, { patient_id: result.insertId })
+      new ResponseHandler(SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE, { patient_id: result.insertId })
     );
 
   } catch (error) {
@@ -153,7 +153,7 @@ const updatePersonalInfo = async (req, res, next) => {
       await updatePersonalDetails(data, patient_id);
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
+        new ResponseHandler(SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
       );
     } else {
       throw UNAUTHORIZED_ACCESS;
@@ -173,7 +173,7 @@ const deletePersonalInfo = async (req, res, next) => {
       await deletePersonalDetails(patient_id);
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
+        new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
       );
     }
     throw NOT_DELETED;
@@ -188,7 +188,7 @@ const getFamilyDetails = async (req, res, next) => {
     const familyInfo = await getFamilyInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
   } catch (error) {
     next(error)
@@ -201,7 +201,7 @@ const addFamilyInfo = async (req, res, next) => {
 
     await insertFamilyInfo(familyDetails);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.ADDED_FAMILY_MESSAGE)
+      new ResponseHandler(SUCCESS_MESSAGE.ADDED_FAMILY_MESSAGE)
     );
   } catch (error) {
     next(error)
@@ -256,7 +256,7 @@ const updateFamilyInfoDetails = async (req, res, next) => {
       await updateFamilyInfo(familyData, patient_id);
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.FAMILY_UPDATE_SUCCESSFULLY)
+        new ResponseHandler(SUCCESS_MESSAGE.FAMILY_UPDATE_SUCCESSFULLY)
       );
     }
     throw NOT_UPDATE;
@@ -274,7 +274,7 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
     if (isValidPatient || is_admin) {
       await deleteFamilyInfo(patient_id);
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.FAMILY_DELETE_SUCCESSFULLY)
+        new ResponseHandler(SUCCESS_MESSAGE.FAMILY_DELETE_SUCCESSFULLY)
       );
     }
     throw NOT_DELETED;
@@ -291,7 +291,7 @@ const getDiseaseDetails = async (req, res, next) => {
     const personalInfo = await getDiseaseInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DISEASE_DETAILS, personalInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DETAILS, personalInfo)
     );
   } catch (error) {
     next(error)
@@ -305,7 +305,7 @@ const addDiseaseInfo = async (req, res, next) => {
     await addDiseaseData(diseaseDetails);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.CREATED_DISEASE_INFO_MESSAGE)
+      new ResponseHandler(SUCCESS_MESSAGE.CREATED_DISEASE_INFO_MESSAGE)
     );
 
   } catch (error) {
@@ -326,7 +326,7 @@ const updateDiseaseInfo = async (req, res, next) => {
       await updateDiseaseDetails(formData, patient_id);
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DISEASE_UPDATE_SUCCESSFULLY)
+        new ResponseHandler(SUCCESS_MESSAGE.DISEASE_UPDATE_SUCCESSFULLY)
       );
 
     }
@@ -346,7 +346,7 @@ const deleteDiseaseInfo = async (req, res, next) => {
       await deleteDiseaseDetails(patient_id);
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DISEASE_DELETE_SUCCESSFULLY)
+        new ResponseHandler(SUCCESS_MESSAGE.DISEASE_DELETE_SUCCESSFULLY)
       );
     }
     throw NOT_DELETED;
@@ -362,7 +362,7 @@ const getUploadDocument = async (req, res, next) => {
 
     const personalInfo = await getUploadInfo(patient_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
 
   } catch (error) {
@@ -416,7 +416,7 @@ const uploadDocument = async (req, res, next) => {
     await saveDocument(documentData);
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.CREATED,SUCCESS_MESSAGE.DOCUMENT_UPLOAD, documentPath)
+      new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPLOAD, documentPath)
     );
   } catch (error) {
     next(error)
@@ -457,7 +457,7 @@ const updateDocument = async (req, res, next) => {
       await modifyDocument(data);
 
       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.CREATED,SUCCESS_MESSAGE.DOCUMENT_UPDATE_SUCCESSFULLY)
+        new ResponseHandler(SUCCESS_MESSAGE.DOCUMENT_UPDATE_SUCCESSFULLY)
       );
     }
     throw NOT_UPDATE;

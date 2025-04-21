@@ -83,20 +83,23 @@ const register = async (req, res, next) => {
 //       throw USER_EXISTS;
 //     }
 
-//     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-
-//     const verificationToken = generateVerificationToken(); 
+//     // const verificationToken = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+//     // console.log(verificationToken);
 
 //     await createUserData(
 //       email,
-//       decodedPassword,
+//       user_password,
 //       first_name,
 //       last_name,
 //       mobile_number,
 //       verificationToken
 //     );
 
-//     await sendVerificationEmail(email, verificationToken);
+//     const loginToken = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '1h' });
+
+//     // await sendVerificationEmail(email, verificationToken);
+
+//     await sendVerificationEmail(email, `Bearer ${loginToken}`);
 
 //     const result = await checkDoctor(email);
 //     if (result) {
@@ -110,6 +113,7 @@ const register = async (req, res, next) => {
 //     next(error);
 //   }
 // };
+
 
 
 const login = async (req, res, next) => {
@@ -192,7 +196,7 @@ const updateUser = async (req, res, next) => {
     await updateUserData(formData, id);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
+      .send(new ResponseHandler(SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
   } catch (error) {
     next(error);
   }
@@ -213,7 +217,7 @@ const deleteUser = async (req, res, next) => {
     await deleteUserData(id);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+      .send(new ResponseHandler(SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
     next(error);
   }
@@ -231,7 +235,7 @@ const getUser = async (req, res, next) => {
           .status(SUCCESS_STATUS_CODE.SUCCESS)
           .send(
             new ResponseHandler(
-              SUCCESS_STATUS_CODE.SUCCESS,
+        
               SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
               deletedUserInfo
             )
@@ -242,7 +246,7 @@ const getUser = async (req, res, next) => {
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
-          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,
+          new ResponseHandler(
             SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
             user
           )
@@ -270,7 +274,7 @@ const forgotPassword = async (req, res, next) => {
 
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
+        .send(new ResponseHandler(SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
     }
     res
       .status(ERROR_STATUS_CODE.BAD_REQUEST)
@@ -286,7 +290,7 @@ const resetPassword = async (req, res, next) => {
     await updatePassword(email, newPassword);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PASSWORD_UPDATE));
+      .send(new ResponseHandler(SUCCESS_MESSAGE.PASSWORD_UPDATE));
   } catch (error) {
     next(error);
   }
@@ -297,7 +301,7 @@ const getDoctors = async (req, res, next) => {
 
     const personalInfo = await getDoctorInfo();
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
+      new ResponseHandler(SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
   } catch (error) {
     next(error)
@@ -311,14 +315,14 @@ const createAppointment = async (req, res, next) => {
 
     if (!isAvailable) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.BOOK_SLOT)
+        new ResponseHandler(ERROR_MESSAGE.BOOK_SLOT)
       );
 
     }
 
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
+      new ResponseHandler(SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
     );
 
   } catch (error) {
@@ -352,7 +356,7 @@ const getDoctorAvailability = async (req, res, next) => {
       .map(row => row.appointment_time);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.AVAILABLE_SLOT, {
+      new ResponseHandler(SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
         scheduleSlots,

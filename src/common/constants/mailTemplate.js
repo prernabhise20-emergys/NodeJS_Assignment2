@@ -15,7 +15,7 @@ const otpMailBody = (name, otp) => {
   `;
 };
 
-const verificationEmail =() => {
+const verificationEmail =(verificationToken) => {
   return`
       <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -28,6 +28,7 @@ const verificationEmail =() => {
             <p style="font-size: 16px; color: #555;">
               <strong>Verification Instructions:</strong><br>
               Please click on the link below to verify your email address and complete your registration process.
+              <p>${verificationToken}</p>
             </p>
             <p style="font-size: 14px; color: #888; text-align: center;">
               If you did not sign up for this account, please disregard this email.
