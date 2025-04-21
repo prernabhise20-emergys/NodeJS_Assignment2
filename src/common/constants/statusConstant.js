@@ -49,6 +49,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE = {
+  DOCTOR_INFO_SUCCESS_MESSAGE:"Doctor information retrieve successfully",
   APPOINTMENT_CANCELLED:"Appointment is cancelled successfully",
   DOCTOR_PROFILE:"Doctor profile retrived successfully",
   EMAIL_RETRIVE:"Retrieve all emails successfully",

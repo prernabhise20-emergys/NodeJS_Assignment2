@@ -543,7 +543,7 @@ const getAllEmailForAddDoctor = async () => {
     db.query(
       `select id,
         email,first_name,last_name from user_Register 
-        where is_doctor=false`,
+        where is_doctor=false order by email asc`,
       (error, results) => {
         if (error) {
           return reject(error);

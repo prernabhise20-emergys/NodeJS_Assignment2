@@ -85,8 +85,8 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
 
     if (!passwordMatch) {
       throw INVALID_USER;
@@ -338,23 +338,20 @@ const searchDoctor = async (req, res, next) => {
       // });
     }
     const doctor = await getSearchedDoctor(keyword);
-    if (doctor.length === 0) {
-      return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
-        new ResponseHandler(ERROR_STATUS_CODE.NOT_FOUND,ERROR_MESSAGE.USER_NOT_FOUND)
-      );
+    
       // return res.status(ERROR_STATUS_CODE.NOT_FOUND).send({
       //   message: ERROR_MESSAGE.USER_NOT_FOUND
       // })
-    }
-    else {
+  
+  
       // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       //   message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
       //   data: doctor
       // })
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,doctor)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DOCTOR_INFO_SUCCESS_MESSAGE,doctor)
       );
-    }
+    
   } catch (error) {
     next(error);
   }

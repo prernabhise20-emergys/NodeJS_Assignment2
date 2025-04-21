@@ -439,21 +439,18 @@ AND NOT EXISTS (
 const getSearchedDoctor = async (keyword) => {
   try {
       const searchQuery = `%${keyword}%`;
-      const data = await new Promise((resolve, reject) => {
-          db.query(
-              `SELECT name, specialization,doctorInTime,doctorOutTime FROM doctors WHERE is_deleted=false and name LIKE ?`,
-              searchQuery,
-              (error, results) => {
-                  if (error) {
-                      return reject(error);
-                  }
-
+      return await new Promise((resolve, reject) => {
+          db.query(` SELECT name, specialization, doctorInTime, doctorOutTime 
+          FROM doctors 
+          WHERE is_deleted = false 
+          AND (name LIKE ? OR specialization LIKE ?)`, [searchQuery, searchQuery], (error, results) => {
+              if (error) {
+                  reject(error);
+              } else {
                   resolve(results);
               }
-          );
-
+          });
       });
-      return data;
   } catch (error) {
       throw error;
   }
