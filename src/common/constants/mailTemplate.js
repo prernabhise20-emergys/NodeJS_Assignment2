@@ -122,7 +122,7 @@ const cancelAppointmentMailBody = (patientName, reason, appointmentDate, appoint
         `
 };
 
-const sendUserCode = (name, userCode, user_password, loginToken, email) => {
+const sendUserCode = (email,name,code,user_password,loginToken) => {
   console.log(userCode);
 
   return `
@@ -132,7 +132,7 @@ const sendUserCode = (name, userCode, user_password, loginToken, email) => {
       <h2>Welcome to Our Platform!</h2>
       <p>Dear <strong>${name}</strong>,</p>
       <p>We are excited to provide you with your unique user code. Please find your assigned code, email and password below:</p>
-      <p style="font-size: 24px; font-weight: bold; color: #333;">userCode: ${userCode}</p>
+      <p style="font-size: 24px; font-weight: bold; color: #333;">userCode: ${code}</p>
                   <p style="font-size: 24px; font-weight: bold; color: #333;">Email: ${email}</p>
 
             <p style="font-size: 24px; font-weight: bold; color: #333;">Password: ${user_password}</p>
