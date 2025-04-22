@@ -298,7 +298,7 @@ const addDoctor = async (req, res, next) => {
     if (result) {
           const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
           const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-      await sendRegisterCode(email, data.name, docCode,user_password,loginToken);
+      await sendRegisterCode(data.email, data.name, docCode,data.user_password,loginToken);
     }
 // console.log(result.insertId);
 
