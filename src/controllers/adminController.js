@@ -285,7 +285,7 @@ const addDoctor = async (req, res, next) => {
       last_name
     };
 
-    console.log(data);
+    console.log(data.name);
 
     if (!is_admin) {
       return res
@@ -298,11 +298,12 @@ const addDoctor = async (req, res, next) => {
     if (result) {
           const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
           const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-      await sendRegisterCode(email, name, docCode,user_password,loginToken);
+      await sendRegisterCode(email, data.name, docCode,user_password,loginToken);
     }
+// console.log(result.insertId);
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.userId })
+      new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id:result.insertId })
     );
     
   } catch (error) {
