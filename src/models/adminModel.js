@@ -340,6 +340,7 @@ const createDoctorData = async (data) => {
     const doctorData = { ...data };
     const { first_name, last_name, email, user_password, contact_number, doctorCode } = data;
     const hashedPassword = await bcrypt.hash(user_password, 10);
+console.log('name',data.name);
 
     return await new Promise((resolve, reject) => {
       db.query(
@@ -355,7 +356,7 @@ const createDoctorData = async (data) => {
 
           db.query(
             `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [doctorData.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode],
+            [data.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode],
             (error, result) => {
               if (error) {
                 return reject(error);
