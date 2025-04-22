@@ -68,18 +68,18 @@ const register = async (req, res, next) => {
 
     await sendVerificationEmail(email, loginToken);
 
-    // if (userCode.startsWith("DR")) {
-    //   await setIsDoctor(email);
-    //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-    //     new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, "doctor registration")
-    //   );
-    // }
-    // if (userCode.startsWith("ADM")) {
-    //   await addAsAdmin(email);
-    //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-    //     new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, "admin registration")
-    //   );
-    // }
+    if (userCode.startsWith("DR")) {
+      await setIsDoctor(email);
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, "doctor registration")
+      );
+    }
+    if (userCode.startsWith("ADM")) {
+      await addAsAdmin(email);
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, "admin registration")
+      );
+    }
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REGISTER_SUCCESS)
     );
