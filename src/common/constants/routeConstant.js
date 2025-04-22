@@ -54,7 +54,8 @@ const ROUTE_CONSTANTS = {
   GET_DOCTOR_PROFILE:"/getDoctorProfile",
   UPDATE_PRISCRIPTION:"/updatePrescription",
   CANCELLED_APPOINTMENT:"/cancelledAppointment",
-  SEARCH_DOCTOR:"/searchDoctor"
+  SEARCH_DOCTOR:"/searchDoctor",
+  CHANGE_PASSWORD:"/changePassword"
 };
 
 export default ROUTE_CONSTANTS;

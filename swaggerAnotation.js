@@ -2192,3 +2192,18 @@
  *       500:
  *         description: Internal server error
  */
+
+
+/**
+ * @swagger
+ * /api/admin/getEmailsForDoctor:
+ *   get:
+ *     tags:
+ *       - Admin
+ *     summary: Get list of all user for add as a doctor
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */

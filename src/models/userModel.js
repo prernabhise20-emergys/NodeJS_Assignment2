@@ -83,7 +83,8 @@ const createUserData = async (
   user_password,
   first_name,
   last_name,
-  mobile_number
+  mobile_number,
+  userCode
 ) => {
   try {
     const hashedPassword = await bcrypt.hash(user_password, 10);
@@ -94,6 +95,7 @@ const createUserData = async (
       first_name,
       last_name,
       mobile_number,
+      userCode
     };
     
     return await new Promise((resolve, reject) => {
@@ -164,6 +166,31 @@ const updatePassword = async (email, newPassword) => {
       db.query(
         "UPDATE user_Register SET user_password = ? WHERE email = ?",
         [hashPassword, email],
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results);
+        }
+      );
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+const updateUserPassword = async (newPassword,id) => {
+  try {
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+console.log(newPassword);
+
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE user_Register SET user_password = ? WHERE id = ?",
+        [hashPassword, id],
         (error, results) => {
           if (error) {
             return reject(error);
@@ -456,7 +483,50 @@ const getSearchedDoctor = async (keyword) => {
   }
 };
 
+const setIsDoctor = async (email) => {
+  try {
+
+    return new Promise((resolve, reject) => {
+      db.query(
+        "update user_register set is_doctor=true where email=?",
+        email,
+        (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+
+  } catch (error) {
+    throw error;
+  }
+};
+const addAsAdmin = async (email) => {
+  try {
+      return new Promise((resolve, reject) => {
+        db.query(
+          "update user_register set is_admin=true where email=?",
+          email,
+          (error, results) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(results);
+            }
+          }
+        );
+      });
+    
+  } catch (error) {
+    throw error;
+  }
+};
 export {
+  addAsAdmin,
+  setIsDoctor,
   getSearchedDoctor,
   checkDoctorAvailability,
   checkDoctor,
@@ -478,4 +548,5 @@ export {
   deleteUserData,
   updatePassword,
   checkEmailExists,
+  updateUserPassword
 };

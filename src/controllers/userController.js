@@ -6,6 +6,8 @@ import { ResponseHandler } from "../common/utility/handlers.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 import {
+  updateUserPassword,
+  setIsDoctor,
   getSearchedDoctor,
   checkDoctorAvailability,
   checkDoctor,
@@ -26,6 +28,8 @@ import {
   checkUserDeleteOrNot,
   checkAdminCount,
   updatePassword,
+  addAsAdmin,
+  
 } from "../models/userModel.js";
 import {
   SUCCESS_STATUS_CODE,
@@ -41,7 +45,7 @@ const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER } =
 
 const register = async (req, res, next) => {
   try {
-    const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
+    const { body: { email, user_password, first_name, last_name, mobile_number, userCode } } = req;
 
     const userExists = await checkIfUserExists(email);
     if (userExists) {
@@ -55,6 +59,7 @@ const register = async (req, res, next) => {
       first_name,
       last_name,
       mobile_number,
+      userCode
     );
 
 
@@ -63,10 +68,21 @@ const register = async (req, res, next) => {
 
     await sendVerificationEmail(email, loginToken);
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    // if (userCode.startsWith("DR")) {
+    //   await setIsDoctor(email);
+    //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    //     new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, "doctor registration")
+    //   );
+    // }
+    // if (userCode.startsWith("ADM")) {
+    //   await addAsAdmin(email);
+    //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    //     new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, "admin registration")
+    //   );
+    // }
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REGISTER_SUCCESS)
     );
-
 
 
   } catch (error) {
@@ -89,11 +105,12 @@ const login = async (req, res, next) => {
     if (!user) {
       throw INVALID_USER;
     }
+console.log(user_password);
+console.log(user.user_password);
 
 
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
 
     if (!passwordMatch) {
       throw INVALID_USER;
@@ -156,7 +173,7 @@ const updateUser = async (req, res, next) => {
     };
 
     await updateUserData(formData, id);
-    res
+    return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
   } catch (error) {
@@ -177,7 +194,7 @@ const deleteUser = async (req, res, next) => {
     }
 
     await deleteUserData(id);
-    res
+    return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
@@ -193,7 +210,7 @@ const getUser = async (req, res, next) => {
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);
       if (deletedUserInfo) {
-        res
+       return res
           .status(SUCCESS_STATUS_CODE.SUCCESS)
           .send(
             new ResponseHandler(
@@ -205,7 +222,7 @@ const getUser = async (req, res, next) => {
       }
     } else {
       const user = await getUserData(id);
-      res
+      return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
           new ResponseHandler(
@@ -235,11 +252,11 @@ const forgotPassword = async (req, res, next) => {
 
       const hashOtp = await bcrypt.hash(otp, 10);
 
-      res
+      return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
     }
-    res
+    return res
       .status(ERROR_STATUS_CODE.BAD_REQUEST)
       .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.EMAIL_NOT_EXISTS));
   } catch (error) {
@@ -251,14 +268,32 @@ const resetPassword = async (req, res, next) => {
   try {
     const { body: { email, newPassword } } = req;
     await updatePassword(email, newPassword);
-    res
+   return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
   } catch (error) {
     next(error);
   }
 };
+const changePassword = async (req, res, next) => {
+  try {
+    const { body: { oldPassword, newPassword } } = req;
+const {email,userid}=req.user;
+console.log(req.user);
 
+console.log(email);
+    // const oldHashPassword = await bcrypt.hash(oldPassword, 10);
+console.log(userid);
+
+    await updateUserPassword(newPassword,userid);
+    return res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
+
+  } catch (error) {
+    next(error);
+  }
+};
 const getDoctors = async (req, res, next) => {
   try {
 
@@ -362,4 +397,5 @@ export default {
   getUser,
   updateUser,
   deleteUser,
+  changePassword
 };

@@ -43,10 +43,10 @@ const verificationEmail = (loginToken) => {
   `;
 };
 
- 
-  
+
+
 const prescriptionBody = () => {
-return `
+  return `
         <html>
           <body>
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -60,8 +60,8 @@ return `
       `
 };
 
-const approveRequestMailBody =( patientName, appointmentDate, appointmentTime, doctorName) => {
- return`
+const approveRequestMailBody = (patientName, appointmentDate, appointmentTime, doctorName) => {
+  return `
         <html>
   <body>
     <div style="font-family: Arial, sans-serif; line-height: 1.5;">
@@ -80,7 +80,7 @@ const approveRequestMailBody =( patientName, appointmentDate, appointmentTime, d
 </html>
 
         `
-   
+
 };
 const updatedPrescriptionBody = () => {
   return `
@@ -99,7 +99,7 @@ const updatedPrescriptionBody = () => {
     </html>
   `;
 };
-const cancelAppointmentMailBody = (patientName,reason, appointmentDate, appointmentTime, doctorName) => {
+const cancelAppointmentMailBody = (patientName, reason, appointmentDate, appointmentTime, doctorName) => {
   return `
         <html>
   <body>
@@ -122,4 +122,33 @@ const cancelAppointmentMailBody = (patientName,reason, appointmentDate, appointm
         `
 };
 
-export {otpMailBody,verificationEmail,prescriptionBody,approveRequestMailBody,updatedPrescriptionBody,cancelAppointmentMailBody}
+const sendUserCode = (name, userCode, user_password, loginToken, email) => {
+  console.log(userCode);
+
+  return `
+<html>
+  <body>
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Welcome to Our Platform!</h2>
+      <p>Dear <strong>${name}</strong>,</p>
+      <p>We are excited to provide you with your unique user code. Please find your assigned code, email and password below:</p>
+      <p style="font-size: 24px; font-weight: bold; color: #333;">userCode: ${userCode}</p>
+                  <p style="font-size: 24px; font-weight: bold; color: #333;">Email: ${email}</p>
+
+            <p style="font-size: 24px; font-weight: bold; color: #333;">Password: ${user_password}</p>
+  <div style="text-align: center;">
+            <a href="${loginToken}" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: white; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">
+              Login
+            </a>
+          </div>
+      <p>Please keep this code safe as it will be required for authentication and identification within our system.</p>
+      <p>If you have any questions, feel free to reach out to our support team.</p>
+      <p>Thank you,</p>
+      <p><strong>The Support Team</strong></p>
+    </div>
+  </body>
+</html>`
+};
+
+
+export { otpMailBody, verificationEmail, prescriptionBody, approveRequestMailBody, updatedPrescriptionBody, cancelAppointmentMailBody, sendUserCode }

@@ -1,5 +1,7 @@
 import db from "../db/connection.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken"
 const { UNAUTHORIZED_ACCESS } = AUTH_RESPONSES;
 
 
@@ -208,27 +210,7 @@ const ageGroupWiseData = (is_admin) => {
   });
 };
 
-const addAsAdmin = async (isAdmin, email) => {
-  try {
-    if (isAdmin) {
-      return new Promise((resolve, reject) => {
-        db.query(
-          "update user_register set is_admin=true where email=?",
-          email,
-          (error, results) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(results);
-            }
-          }
-        );
-      });
-    }
-  } catch (error) {
-    throw error;
-  }
-};
+
 
 // **********************************************************
 
@@ -310,23 +292,84 @@ const displayAdmin = async () => {
     throw error;
   }
 };
+
+// const createDoctorData = async (data) => {
+//   try {
+//     const doctorData = { ...data };
+//     const { first_name, last_name, email, user_password, contact_number, doctorCode } = data;
+
+
+//     console.log(doctorData.specialization);
+
+
+//     return await new Promise((resolve, reject) => {
+//       db.query( `INSERT INTO user_register (email, user_password, first_name, last_name, mobile_number,userCode) VALUES (?, ?, ?, ?, ?,?)`,
+//            [email, user_password, first_name, last_name, contact_number,doctorCode], (error, result) => {
+//         if (error) {
+//           reject(error);
+//         } else {
+//           const userId = result.insertId; 
+//           resolve(userId);
+//         }
+//       });
+//       // const userId = userResult.insertId;
+// console.log('id',userId);
+// console.log('doccod',doctorCode);
+
+
+//       db.query( `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime,doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)`,
+//       [doctorData.name, doctorData.specialization, contact_number, email, userId,doctorData.doctorInTime,doctorData.doctorOutTime,doctorCode], (error, result) => {
+//      if (error) {
+//        reject(error);
+//      } else {
+//        resolve(result);
+//      }
+//    });
+//     });
+
+
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+
+
 const createDoctorData = async (data) => {
   try {
-    let doctorData = { ...data };
+    const doctorData = { ...data };
+    const { first_name, last_name, email, user_password, contact_number, doctorCode } = data;
+    const hashedPassword = await bcrypt.hash(user_password, 10);
 
-    return new Promise((resolve, reject) => {
-      db.query("INSERT INTO doctors SET?", doctorData, (error, result) => {
-        if (error) {
-          return reject(error);
+    return await new Promise((resolve, reject) => {
+      db.query(
+        `INSERT INTO user_register (email, user_password, first_name, last_name, mobile_number,is_doctor, userCode) VALUES (?, ?,?, ?, ?, ?, ?)`,
+        [email, hashedPassword, first_name, last_name, contact_number,true, doctorCode],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+
+          const userId = result.insertId; 
+          console.log("User ID:", userId);
+
+          db.query(
+            `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [doctorData.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode],
+            (error, result) => {
+              if (error) {
+                return reject(error);
+              }
+              resolve(result);
+            }
+          );
         }
-        return resolve(result);
-      });
+      );
     });
   } catch (error) {
     throw error;
   }
 };
-
 
 const deleteDoctorData = async (doctor_id) => {
 
@@ -371,20 +414,20 @@ const changeStatus = async (status, appointment_id) => {
 };
 const cancelStatus = async (appointment_id, reason) => {
   try {
-      return new Promise((resolve, reject) => {
-          db.query(
-              `UPDATE appointments SET status = 'Cancelled', reason = ? WHERE appointment_id = ?`,
-              [reason, appointment_id], 
-              (error, result) => {
-                  if (error) {
-                      return reject(error);
-                  }
-                  resolve(result);
-              }
-          );
-      });
+    return new Promise((resolve, reject) => {
+      db.query(
+        `UPDATE appointments SET status = 'Cancelled', reason = ? WHERE appointment_id = ?`,
+        [reason, appointment_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
 
@@ -630,7 +673,6 @@ export {
   getUserRegisterDetails,
   checkSuperAdmin,
   getUserByEmail,
-  setIsDoctor,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
   checkDoctor,
@@ -644,7 +686,6 @@ export {
   createDoctorData,
   getInfo,
   displayAdmin,
-  addAsAdmin,
   removeAdminAuthority,
   ageGroupWiseData,
   deletePatientDetails,

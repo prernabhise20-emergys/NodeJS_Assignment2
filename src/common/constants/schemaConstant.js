@@ -36,6 +36,7 @@ const user_schemas = {
       .pattern(/^[0-9]{10}$/)
       .required()
       .error(new Error("mobile_number is required and must be 10 digits")),
+      userCode:Joi.string().optional()
   }),
 
   userLoginSchema: Joi.object({
