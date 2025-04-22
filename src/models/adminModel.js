@@ -353,6 +353,7 @@ console.log('name',data.name);
 
           const userId = result.insertId; 
           console.log("User ID:", userId);
+console.log('data',data.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode);
 
           db.query(
             `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
