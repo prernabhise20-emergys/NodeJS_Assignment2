@@ -2172,3 +2172,23 @@
  *       200:
  *         description: Appointments retrieved successfully
  */
+
+/**
+ * @swagger
+ * /api/user/searchDoctor:
+ *    get:
+ *     tags:
+ *       - User
+ *     summary: Search a doctor
+ *     parameters:
+ *       - in: query
+ *         name: keyword
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Doctor searched successfully
+ *       500:
+ *         description: Internal server error
+ */

@@ -95,7 +95,6 @@ const createUserData = async (
       last_name,
       mobile_number,
     };
-    console.log('user',user);
     
     return await new Promise((resolve, reject) => {
       db.query("insert into user_register set ?", user, (error, result) => {
@@ -325,7 +324,7 @@ const isDoctorAvailable = (doctor_id, date, time) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT COUNT(*) AS count
     FROM appointments
-    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ? and status='Scheduled'`,
+    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ? and status in('Scheduled','Pending')`,
       [doctor_id, date, time], (error, results) => {
         if (error) {
           return reject(error);

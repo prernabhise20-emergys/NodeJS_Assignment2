@@ -130,8 +130,6 @@ const updatePersonalInfo = async (req, res, next) => {
     const is_diabetic = diabetic === true || diabetic === 1;
     const cardiac_issue = cardiac === true || cardiac === 1;
     const blood_pressure = pressure === true || pressure === 1;
-
-    console.log(is_diabetic,cardiac_issue,blood_pressure);
     
     const data = {
       patient_name,

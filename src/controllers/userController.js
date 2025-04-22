@@ -47,8 +47,7 @@ const register = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-console.log('req',req.body);
-const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
 
     await createUserData(
       email,
@@ -59,15 +58,16 @@ const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
     );
 
 
-    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REGISTER_SUCCESS)
-    );
-
-    
     const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
     const loginToken = `http://localhost:5173/account/user/login?token=${token}`
 
     await sendVerificationEmail(email, loginToken);
+
+    res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REGISTER_SUCCESS)
+    );
+
+
 
   } catch (error) {
     next(error);
@@ -84,23 +84,18 @@ const login = async (req, res, next) => {
     if (isDeleted) {
       throw USER_DELETED;
     }
-console.log('is_deleted',isDeleted);
 
     const user = await loginUser(email);
     if (!user) {
       throw INVALID_USER;
     }
-    console.log('user',user);
-    
+
 
     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    console.log(decodedPassword);
-    console.log(user.user_password);
-    
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
-    console.log('match',passwordMatch);
 
-    if(!passwordMatch) {
+    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+
+    if (!passwordMatch) {
       throw INVALID_USER;
     }
 
@@ -163,7 +158,7 @@ const updateUser = async (req, res, next) => {
     await updateUserData(formData, id);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
   } catch (error) {
     next(error);
   }
@@ -184,7 +179,7 @@ const deleteUser = async (req, res, next) => {
     await deleteUserData(id);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
     next(error);
   }
@@ -242,11 +237,11 @@ const forgotPassword = async (req, res, next) => {
 
       res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OTP_SENT, { hashOtp }));
     }
     res
       .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.EMAIL_NOT_EXISTS));
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.EMAIL_NOT_EXISTS));
   } catch (error) {
     next(error);
   }
@@ -258,7 +253,7 @@ const resetPassword = async (req, res, next) => {
     await updatePassword(email, newPassword);
     res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PASSWORD_UPDATE));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
   } catch (error) {
     next(error);
   }
@@ -269,7 +264,7 @@ const getDoctors = async (req, res, next) => {
 
     const personalInfo = await getDoctorInfo();
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
   } catch (error) {
     next(error)
@@ -283,14 +278,14 @@ const createAppointment = async (req, res, next) => {
 
     if (!isAvailable) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.BOOK_SLOT)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.BOOK_SLOT)
       );
 
     }
 
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
     );
 
   } catch (error) {
@@ -304,7 +299,6 @@ const getDoctorAvailability = async (req, res, next) => {
     const { body: { date } } = req;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
-    // console.log(availableTimes);
 
     // if (!availableTimes || availableTimes.length === 0) {
     //   return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
@@ -324,7 +318,7 @@ const getDoctorAvailability = async (req, res, next) => {
       .map(row => row.appointment_time);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.AVAILABLE_SLOT, {
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.AVAILABLE_SLOT, {
         doctorInTime,
         doctorOutTime,
         scheduleSlots,
@@ -342,28 +336,15 @@ const searchDoctor = async (req, res, next) => {
 
     if (!keyword) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.KEYWORD_REQUIRED)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.KEYWORD_REQUIRED)
       );
-      // return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send({
-      //   status: ERROR_STATUS_CODE.BAD_REQUEST,
-      //   message: ERROR_MESSAGE.KEYWORD_REQUIRED
-      // });
     }
     const doctor = await getSearchedDoctor(keyword);
-    
-      // return res.status(ERROR_STATUS_CODE.NOT_FOUND).send({
-      //   message: ERROR_MESSAGE.USER_NOT_FOUND
-      // })
-  
-  
-      // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-      //   message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-      //   data: doctor
-      // })
-      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DOCTOR_INFO_SUCCESS_MESSAGE,doctor)
-      );
-    
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DOCTOR_INFO_SUCCESS_MESSAGE, doctor)
+    );
+
   } catch (error) {
     next(error);
   }
