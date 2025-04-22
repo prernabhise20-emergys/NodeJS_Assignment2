@@ -45,7 +45,8 @@ const ERROR_MESSAGE = {
   FAILED_TO_RETRIVE: "Failed to retrieve data",
   CANNOT_DELETE_SUPERADMIN:"Cannot delete the superadmin",
   CANNOT_ADD_DOCTOR:"User not found. Please register the user before adding as a doctor.",
-  FAILED_TO_CANCEL:"Failed to cancelled appointment"
+  FAILED_TO_CANCEL:"Failed to cancelled appointment",
+  WRONG_PASSWORD:"Please enter a correct old password"
 };
 
 const SUCCESS_MESSAGE = {

@@ -29,7 +29,7 @@ import {
   checkAdminCount,
   updatePassword,
   addAsAdmin,
-  
+
 } from "../models/userModel.js";
 import {
   SUCCESS_STATUS_CODE,
@@ -105,12 +105,12 @@ const login = async (req, res, next) => {
     if (!user) {
       throw INVALID_USER;
     }
-console.log(user_password);
-console.log(user.user_password);
+    console.log(user_password);
+    console.log(user.user_password);
 
 
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
 
     if (!passwordMatch) {
       throw INVALID_USER;
@@ -121,6 +121,7 @@ console.log(user.user_password);
         userid: user.id,
         email: user.email,
         admin: user.is_admin,
+        user_password: user.user_password,
         doctor: user.is_doctor,
         first_name: user.first_name,
         last_name: user.last_name,
@@ -210,7 +211,7 @@ const getUser = async (req, res, next) => {
     if (checkExists) {
       const deletedUserInfo = await getDeleteUserInfo(emailID);
       if (deletedUserInfo) {
-       return res
+        return res
           .status(SUCCESS_STATUS_CODE.SUCCESS)
           .send(
             new ResponseHandler(
@@ -268,32 +269,72 @@ const resetPassword = async (req, res, next) => {
   try {
     const { body: { email, newPassword } } = req;
     await updatePassword(email, newPassword);
-   return res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
-  } catch (error) {
-    next(error);
-  }
-};
-const changePassword = async (req, res, next) => {
-  try {
-    const { body: { oldPassword, newPassword } } = req;
-const {email,userid}=req.user;
-console.log(req.user);
-
-console.log(email);
-    // const oldHashPassword = await bcrypt.hash(oldPassword, 10);
-console.log(userid);
-
-    await updateUserPassword(newPassword,userid);
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
-
   } catch (error) {
     next(error);
   }
 };
+
+// const bcrypt = require('bcrypt');
+
+const changePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const { email, userid, user_password } = req.user;
+
+    const passwordMatch = await bcrypt.compare(oldPassword, user_password);
+    
+    if (!passwordMatch) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.WRONG_PASSWORD));
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(hashedNewPassword, userid);
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
+
+  } catch (error) {
+    console.error("Error in changePassword:", error); 
+    next(error);
+  }
+};
+
+// const changePassword = async (req, res, next) => {
+//   try {
+//     const { body: { oldPassword, newPassword } } = req;
+//     const { email, userid, user_password } = req.user;
+//     console.log(req.user);
+//     console.log(oldPassword);
+//     console.log(user_password);
+
+
+//     const passwordMatch = await bcrypt.compare(oldPassword, user_password);
+
+//     console.log(email);
+//     // const oldHashPassword = await bcrypt.hash(oldPassword, 10);
+//     console.log(userid);
+//     console.log(passwordMatch);
+//     if (!passwordMatch) {
+//       return res
+//       .status(ERROR_STATUS_CODE.BAD_REQUEST)
+//       .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.WRONG_PASSWORD));
+//     }
+   
+//       await updateUserPassword(newPassword, userid);
+//       return res
+//         .status(SUCCESS_STATUS_CODE.SUCCESS)
+//         .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
+    
+  
+
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 const getDoctors = async (req, res, next) => {
   try {
 
