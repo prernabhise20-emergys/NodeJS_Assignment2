@@ -109,8 +109,8 @@ console.log(user_password);
 console.log(user.user_password);
 
 
-    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
+    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
 
     if (!passwordMatch) {
       throw INVALID_USER;
