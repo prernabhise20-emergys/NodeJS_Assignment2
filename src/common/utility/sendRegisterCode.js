@@ -1,7 +1,6 @@
 import transporter from '../../config/emailConfig.js';
 import { sendUserCode } from '../constants/mailTemplate.js';
 const sendRegisterCode = async (email,name,code,user_password,loginToken) => {
-  console.log('code',code);
   
   try {
     const mailOptions = {

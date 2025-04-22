@@ -123,7 +123,6 @@ const cancelAppointmentMailBody = (patientName, reason, appointmentDate, appoint
 };
 
 const sendUserCode = (email,name,code,user_password,loginToken) => {
-  console.log(userCode);
 
   return `
 <html>
