@@ -280,6 +280,7 @@ const changePassword = async (req, res, next) => {
   try {
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
+    const decodedPassword = Buffer.from(newPassword, 'base64').toString('utf-8');
 
     const passwordMatch = await bcrypt.compare(oldPassword, user_password);
     console.log('new:', newPassword);
@@ -292,7 +293,7 @@ const changePassword = async (req, res, next) => {
         .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.WRONG_PASSWORD));
     }
 
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const hashedNewPassword = await bcrypt.hash(decodedPassword, 10);
     console.log('hashnew',hashedNewPassword);
     
     await updateUserPassword(hashedNewPassword, userid);
