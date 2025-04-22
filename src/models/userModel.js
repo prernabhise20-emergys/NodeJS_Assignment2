@@ -185,7 +185,7 @@ const updateUserPassword = async (newPassword,id) => {
   try {
 
     // const hashPassword = await bcrypt.hash(newPassword, 10);
-console.log(newPassword);
+console.log('newPassword',newPassword);
 
     const result = await new Promise((resolve, reject) => {
       db.query(
@@ -207,7 +207,6 @@ console.log(newPassword);
 
 // ************************************************************
 const deleteUserData = async (userId) => {
-
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
