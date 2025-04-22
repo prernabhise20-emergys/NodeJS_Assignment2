@@ -280,9 +280,11 @@ const changePassword = async (req, res, next) => {
   try {
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
+    const decodedoldPassword = Buffer.from(oldPassword, 'base64').toString('utf-8');
+
     const decodedPassword = Buffer.from(newPassword, 'base64').toString('utf-8');
 
-    const passwordMatch = await bcrypt.compare(oldPassword, user_password);
+    const passwordMatch = await bcrypt.compare(decodedoldPassword, user_password);
     console.log('new:', newPassword);
     console.log('old:', oldPassword);
     console.log('userid:', userid);
