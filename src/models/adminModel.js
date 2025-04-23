@@ -686,7 +686,33 @@ const setAsAdmin = async (email) => {
   });
 };
 
+const createAdmin = async (data,adminCode) => {
+  try {
+    const { first_name, last_name, email, user_password, mobile_number} = data;
+    const hashedPassword = await bcrypt.hash(user_password, 10);
+console.log('name',data.name);
+
+    return await new Promise((resolve, reject) => {
+      db.query(
+        `INSERT INTO user_register (email, user_password, first_name, last_name, mobile_number,is_admin, userCode) VALUES (?, ?,?, ?, ?, ?, ?)`,
+        [email, hashedPassword, first_name, last_name, mobile_number,true, adminCode],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+
+
+    resolve(result)
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 export {
+  createAdmin,
   setAsAdmin,
   cancelStatus,
   getUserRegisterDetails,

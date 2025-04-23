@@ -93,7 +93,6 @@ const user_schemas = {
       .error(new Error("date_of_birth is required and must be a valid date")),
     gender: Joi.string()
       .required()
-      .valid("male", "female", "other")
       .error(
         new Error(
           "gender is required field and allowed this options male, female,other"
@@ -135,7 +134,6 @@ const user_schemas = {
       .error(new Error("patient name is required")),
     gender: Joi.string()
       .required()
-      .valid("male", "female", "other")
       .error(
         new Error(
           "gender is required field and allowed this options male, female,other"

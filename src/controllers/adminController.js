@@ -11,6 +11,7 @@ import approveRequest from "../common/utility/approveAppointment.js"
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import {
+  createAdmin,
   setAsAdmin,
   getUserRegisterDetails,
   getAllEmailForAddDoctor,
@@ -121,13 +122,24 @@ const ageGroupData = async (req, res, next) => {
 
 const addAdmin = async (req, res, next) => {
   try {
-    const { user: { admin: is_admin,first_name,last_name } } = req;
-    const { body: { email } } = req;
+    // const { user: { admin: is_admin,first_name,last_name } } = req;
+    const { body: { email,user_password,first_name,last_name,mobile_number } } = req;
 const name=first_name+' '+last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900); 
     const adminCode = `ADM${randomNumber}`;
-    await sendRegisterCode(email,name,adminCode)
-    await setAsAdmin(email);
+
+    const data={
+      first_name,
+      last_name,
+      email,
+      user_password,
+      mobile_number
+    }
+    await createAdmin(data,adminCode)
+              const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+          const loginToken = `http://localhost:5173/account/user/login?token=${token}`
+    await sendRegisterCode(email,name,adminCode,user_password,loginToken)
+    // await setAsAdmin(email);
 
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
