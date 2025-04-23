@@ -366,68 +366,6 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-
-// const changePassword = async (req, res, next) => {
-//   try {
-//     const { oldPassword, newPassword } = req.body;
-//     const { userid, user_password } = req.user;
-
-//     const passwordMatch = await bcrypt.compare(oldPassword, user_password);
-//     console.log('new', newPassword);
-//     console.log('old', oldPassword);
-//     console.log(userid);
-// console.log(!passwordMatch);
-
-//     if (passwordMatch) {
-//       return res.status(ERROR_STATUS_CODE.BAD_REQUEST)
-//         .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.WRONG_PASSWORD));
-//     }
-   
-
-//     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-//     await updateUserPassword(hashedNewPassword, userid);
-
-//     return res.status(SUCCESS_STATUS_CODE.SUCCESS)
-//       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
-
-//   } catch (error) {
-//     console.error("Error in changePassword:", error);
-//     next(error);
-//   }
-// };
-
-// const changePassword = async (req, res, next) => {
-//   try {
-//     const { body: { oldPassword, newPassword } } = req;
-//     const { email, userid, user_password } = req.user;
-//     console.log(req.user);
-//     console.log(oldPassword);
-//     console.log(user_password);
-
-
-//     const passwordMatch = await bcrypt.compare(oldPassword, user_password);
-
-//     console.log(email);
-//     // const oldHashPassword = await bcrypt.hash(oldPassword, 10);
-//     console.log(userid);
-//     console.log(passwordMatch);
-//     if (!passwordMatch) {
-//       return res
-//       .status(ERROR_STATUS_CODE.BAD_REQUEST)
-//       .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.WRONG_PASSWORD));
-//     }
-
-//       await updateUserPassword(newPassword, userid);
-//       return res
-//         .status(SUCCESS_STATUS_CODE.SUCCESS)
-//         .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PASSWORD_UPDATE));
-
-
-
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 const getDoctors = async (req, res, next) => {
   try {
 

@@ -12,7 +12,6 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import {
   createAdmin,
-  setAsAdmin,
   getUserRegisterDetails,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,

@@ -95,7 +95,7 @@ const user_schemas = {
       .required()
       .error(
         new Error(
-          "gender is required field and allowed this options male, female,other"
+          "gender is required field"
         )
       ),
     weight: Joi.number()
@@ -136,7 +136,7 @@ const user_schemas = {
       .required()
       .error(
         new Error(
-          "gender is required field and allowed this options male, female,other"
+          "gender is required field "
         )
       ),
     date_of_birth: Joi.date()

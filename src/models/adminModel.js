@@ -667,24 +667,24 @@ const getUserRegisterDetails = async (userId) => {
   });
 };
 
-const setAsAdmin = async (email) => {
-  return new Promise((resolve, reject) => {
-    try {
-      db.query(
-        'update user_register set is_admin=true where email=?',
-        email,
-        (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(result[0]);
-        }
-      );
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
+// const setAsAdmin = async (email) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       db.query(
+//         'update user_register set is_admin=true where email=?',
+//         email,
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           resolve(result[0]);
+//         }
+//       );
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// };
 
 const createAdmin = async (data,adminCode) => {
   try {
@@ -713,7 +713,6 @@ console.log('name',data.name);
 
 export {
   createAdmin,
-  setAsAdmin,
   cancelStatus,
   getUserRegisterDetails,
   checkSuperAdmin,
