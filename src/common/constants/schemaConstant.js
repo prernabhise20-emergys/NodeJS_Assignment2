@@ -42,15 +42,20 @@ const user_schemas = {
   userLoginSchema: Joi.object({
     email: Joi.string()
       .email()
-      .required()
-      .error(new Error("email is required and must be a valid email")),
-
+      .optional()
+      .error(new Error("email is optional and if enter then must be a valid email")),
+      userCode: Joi.string()
+      .optional()
+      .error(new Error("userCode is opitonal")),
     user_password: Joi.string()
       .min(4)
-      .required()
+      .optional()
       .error(
         new Error("user_password is required and must be at least 4 characters")
       ),
+      newPassword: Joi.string()
+      .min(4)
+      .optional()
   }),
 
   updateUserSchema: Joi.object({

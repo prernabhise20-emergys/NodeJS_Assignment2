@@ -61,20 +61,7 @@ const checkAlreadyExist = (email) => {
     );
   });
 };
-const checkUserDeleteOrNot = (email) => {
-  return new Promise((resolve, reject) => {
-    db.query(
-      `SELECT id FROM user_register WHERE is_deleted=true and email = ?`,
-      email,
-      (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(result.length > 0);
-      }
-    );
-  });
-};
+
 
 // ****************************************************
 
@@ -114,27 +101,43 @@ const createUserData = async (
 
 // ******************************************************
 
-const loginUser = (email) => {
-  try {
-    return new Promise((resolve, reject) => {
-      db.query(
-        "SELECT * FROM user_register WHERE email = ?",
-        email,
-        (error, results) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(results.length > 0 ? results[0] : null);
-          }
-        }
-      );
+const checkUserDeleteOrNot = (email) => {
+  return new Promise((resolve, reject) => {
+
+    db.query("SELECT id FROM user_register WHERE is_deleted = true AND email = ?", [email], (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(result.length > 0); 
     });
-  } catch (error) {
-    throw error;
-  }
+  });
 };
 
-// **********************************************************
+const loginWithUsercode = (userCode) => {
+  return new Promise((resolve, reject) => {
+
+    db.query("SELECT * FROM user_register WHERE userCode = ?", [userCode], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(results.length > 0 ? results[0] : null);
+    });
+  });
+};
+
+const loginUser = (email) => {
+  return new Promise((resolve, reject) => {
+
+    db.query("SELECT * FROM user_register WHERE email = ?", [email], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(results.length > 0 ? results[0] : null);
+    });
+  });
+};
+
+
 
 const updateUserData = async (formData, id) => {
   try {
@@ -524,6 +527,7 @@ const addAsAdmin = async (email) => {
   }
 };
 export {
+  loginWithUsercode,
   addAsAdmin,
   setIsDoctor,
   getSearchedDoctor,
@@ -547,5 +551,6 @@ export {
   deleteUserData,
   updatePassword,
   checkEmailExists,
-  updateUserPassword
+  updateUserPassword,
+  
 };

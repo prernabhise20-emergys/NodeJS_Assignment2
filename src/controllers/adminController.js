@@ -11,6 +11,7 @@ import approveRequest from "../common/utility/approveAppointment.js"
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import {
+  setAsAdmin,
   getUserRegisterDetails,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
@@ -116,24 +117,17 @@ const ageGroupData = async (req, res, next) => {
     next(error);
   }
 };
-const generateAdminCode = async () => {
-  const randomNumber = Math.floor(100 + Math.random() * 900); 
-  const newCode = `ADM${randomNumber}`;
-console.log(newCode);
 
-  return newCode;
-};
 
 const addAdmin = async (req, res, next) => {
   try {
     const { user: { admin: is_admin,first_name,last_name } } = req;
     const { body: { email } } = req;
 const name=first_name+' '+last_name;
-    // const adminCode=generateAdminCode();
     const randomNumber = Math.floor(100 + Math.random() * 900); 
     const adminCode = `ADM${randomNumber}`;
-    
     await sendRegisterCode(email,name,adminCode)
+    await setAsAdmin(email);
 
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -200,60 +194,6 @@ const generateDoctorCode = async () => {
 };
 
 
-// const addDoctor = async (req, res, next) => {
-//   try {
-//     // const { query: { id } } = req;
-//     const { user: { admin: is_admin } } = req;
-
-//     // const userDetails = await getUserRegisterDetails(id);
-
-//     if (!userDetails) {
-//       return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
-//         new ResponseHandler(ERROR_STATUS_CODE.NOT_FOUND,ERROR_MESSAGE.USER_NOT_FOUND)
-//       );
-//     }
-
-//     // const { first_name, last_name, mobile_number } = userDetails;
-//     const docCode=await generateDoctorCode();
-
-//     const { body: {name, specialization,contact_number,email, doctorInTime, doctorOutTime,doctorCode,user_password, first_name, last_name } } = req;
-
-//     const data = {
-//       name,
-//       specialization,
-//       contact_number,
-//       email,
-//       doctorInTime,
-//       doctorOutTime,
-//       doctorCode:docCode,
-//       user_password,
-//       first_name,
-//       last_name
-//     };
-// console.log(data);
-
-//     if (is_admin) {
-//       const result = await createDoctorData(data);
-
-//       if (result) {
-
-//         // await setIsDoctor(id);
-//         await sendRegisterCode(email,name,doctorCode)
-//       }
-
-//       return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-//         new ResponseHandler(SUCCESS_STATUS_CODE.CREATED,SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
-//       );
-//     }
-
-//     return res
-//       .status(ERROR_STATUS_CODE.BAD_REQUEST)
-//       .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,SUCCESS_STATUS_CODE.UNAUTHORIZED,ERROR_MESSAGE.ADMIN_ACCESS));
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 
 const addDoctor = async (req, res, next) => {
   try {
@@ -262,10 +202,8 @@ const addDoctor = async (req, res, next) => {
 
     const docCode = await generateDoctorCode();
 
-    // Ensure userDetails is retrieved properly if needed
     // const { query: { id } } = req;
     // const userDetails = await getUserRegisterDetails(id);
-
     // if (!userDetails) {
     //   return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
     //     new ResponseHandler(ERROR_STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND)
@@ -297,7 +235,7 @@ const addDoctor = async (req, res, next) => {
     if (result) {
           const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
           const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-      // await sendRegisterCode(data.email, data.name,data.doctorCode,data.user_password,loginToken);
+      await sendRegisterCode(data.email, data.name,data.doctorCode,data.user_password,loginToken);
     }
 // console.log(result.insertId);
 

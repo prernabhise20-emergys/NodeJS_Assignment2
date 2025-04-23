@@ -353,7 +353,6 @@ console.log('name',data.name);
 
           const userId = result.insertId; 
           console.log("User ID:", userId);
-console.log('data',data.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode);
 
           db.query(
             `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -668,9 +667,27 @@ const getUserRegisterDetails = async (userId) => {
   });
 };
 
-
+const setAsAdmin = async (email) => {
+  return new Promise((resolve, reject) => {
+    try {
+      db.query(
+        'update user_register set is_admin=true where email=?',
+        email,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result[0]);
+        }
+      );
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
 export {
+  setAsAdmin,
   cancelStatus,
   getUserRegisterDetails,
   checkSuperAdmin,

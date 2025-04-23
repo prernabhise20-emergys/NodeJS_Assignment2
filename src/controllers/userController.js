@@ -29,6 +29,7 @@ import {
   checkAdminCount,
   updatePassword,
   addAsAdmin,
+  loginWithUsercode,
 
 } from "../models/userModel.js";
 import {
@@ -90,28 +91,36 @@ const register = async (req, res, next) => {
   }
 };
 
-
-
 const login = async (req, res, next) => {
   try {
-    const { body: { email, user_password } } = req;
+    const { email, userCode, user_password } = req.body;
 
-    const isDeleted = await checkUserDeleteOrNot(email);
+    if (!email && !userCode) {
+      throw new Error("Either email or userCode must be provided");
+    }
+
+    let user;
+
+    if (userCode) {
+      user = await loginWithUsercode(userCode);
+      
+    }
+
+    if (email) {
+      user = await loginUser(email);
+    }
+
+    if (!user) {
+      throw INVALID_USER;
+    }
+
+    const isDeleted = await checkUserDeleteOrNot(user.email);
     if (isDeleted) {
       throw USER_DELETED;
     }
 
-    const user = await loginUser(email);
-    if (!user) {
-      throw INVALID_USER;
-    }
-    console.log(user_password);
-    console.log(user.user_password);
-
-
     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
     const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
-
     if (!passwordMatch) {
       throw INVALID_USER;
     }
@@ -121,44 +130,93 @@ const login = async (req, res, next) => {
         userid: user.id,
         email: user.email,
         admin: user.is_admin,
-        user_password: user.user_password,
         doctor: user.is_doctor,
         first_name: user.first_name,
         last_name: user.last_name,
         mobile_number: user.mobile_number,
-        superAdmin: user.is_superadmin
+        superAdmin: user.is_superadmin,
       },
       process.env.SECRET_KEY,
       { expiresIn: "3h", algorithm: "HS256" }
     );
 
-    // if (user.is_admin|| user.is_superadmin) {
-    // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-    //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-    //     admin_message: user.is_admin,
-    //     superAdmin_message: user.is_superadmin,
-    //     token,
-    //   });
-    // }
-
-    // if (user.is_doctor) {
-    //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-    //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-    //     doctor_message: user.is_doctor,
-    //     token,
-    //   });
-    // }
-    // else {
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       status: SUCCESS_STATUS_CODE.SUCCESS,
       message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
       token,
     });
-    // }
+
   } catch (error) {
-    next(error);
+    next(error); 
   }
 };
+
+
+
+// const login = async (req, res, next) => {
+//   try {
+//     const { body: { email, user_password } } = req;
+
+//     const isDeleted = await checkUserDeleteOrNot(email);
+//     if (isDeleted) {
+//       throw USER_DELETED;
+//     }
+
+//     const user = await loginUser(email);
+//     if (!user) {
+//       throw INVALID_USER;
+//     }
+
+//     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+//     const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+
+//     if (!passwordMatch) {
+//       throw INVALID_USER;
+//     }
+
+//     const token = jwt.sign(
+//       {
+//         userid: user.id,
+//         email: user.email,
+//         admin: user.is_admin,
+//         user_password: user.user_password,
+//         doctor: user.is_doctor,
+//         first_name: user.first_name,
+//         last_name: user.last_name,
+//         mobile_number: user.mobile_number,
+//         superAdmin: user.is_superadmin
+//       },
+//       process.env.SECRET_KEY,
+//       { expiresIn: "3h", algorithm: "HS256" }
+//     );
+
+//     // if (user.is_admin|| user.is_superadmin) {
+//     // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+//     //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+//     //     admin_message: user.is_admin,
+//     //     superAdmin_message: user.is_superadmin,
+//     //     token,
+//     //   });
+//     // }
+
+//     // if (user.is_doctor) {
+//     //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+//     //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+//     //     doctor_message: user.is_doctor,
+//     //     token,
+//     //   });
+//     // }
+//     // else {
+//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+//       status: SUCCESS_STATUS_CODE.SUCCESS,
+//       message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
+//       token,
+//     });
+//     // }
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 const updateUser = async (req, res, next) => {
   try {

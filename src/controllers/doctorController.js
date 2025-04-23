@@ -4,13 +4,16 @@ import {
     SUCCESS_STATUS_CODE,
     ERROR_STATUS_CODE
 } from "../common/constants/statusConstant.js";
+
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
-import sendUpdatePrescriptionEmail from "../common/utility/sendUpdatePrescriptionEmail.js"
+import sendUpdatePrescriptionEmail from "../common/utility/sendUpdatePrescriptionEmail.js";
+
 // import xlsx from 'xlsx';
 // import puppeteer from "puppeteer";
-// import { createPrescription } from '../common/utility/createPrescription.js'
+// import { createPrescription } from '../common/utility/createPrescription.js';
+
 import {
     updatePrescription,
     getPrescriptionByAppointmentId,
