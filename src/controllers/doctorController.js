@@ -49,7 +49,7 @@ const updateDoctor = async (req, res, next) => {
             },
         } = req;
 
-        const {user:{ doctor: is_doctor ,userid} }= req;
+        const {user:{ doctor: is_doctor ,email} }= req;
 
         const data = {
             name,
@@ -61,7 +61,7 @@ const updateDoctor = async (req, res, next) => {
 
 
         if (is_doctor) {
-            await updateDoctorData(data,userid);
+            await updateDoctorData(data,email);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)

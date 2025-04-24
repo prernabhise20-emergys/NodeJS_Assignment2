@@ -27,15 +27,15 @@ const getDoctor = async (userid) => {
   }
 };
 
-const updateDoctorData = async (data, user_id) => {
+const updateDoctorData = async (data, email) => {
   try {
     const updateData = {
       ...data,
     };
 
     return new Promise((resolve, reject) => {
-      db.query("UPDATE doctors SET ? WHERE user_id = ?",
-        [updateData, user_id], (error, result) => {
+      db.query("UPDATE doctors SET ? WHERE email = ?",
+        [updateData, email], (error, result) => {
           if (error) {
             return reject(error);
           }

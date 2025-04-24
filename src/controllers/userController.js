@@ -406,6 +406,7 @@ const getDoctorAvailability = async (req, res, next) => {
     const { body: { date } } = req;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
+// console.log(availableTimes);
 
     // if (!availableTimes || availableTimes.length === 0) {
     //   return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
