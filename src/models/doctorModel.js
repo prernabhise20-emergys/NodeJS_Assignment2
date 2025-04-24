@@ -77,7 +77,7 @@ const showAppointments = async (user_id) => {
         LEFT JOIN 
           prescriptions pr ON pr.appointment_id = a.appointment_id  
         WHERE 
-          u.is_deleted = FALSE 
+          u.is_deleted = FALSE and p.is_deleted=false and a.is_deleted=false and d.is_deleted=false and ds.is_deleted=false and pr.is_deleted=false
           AND a.status = 'Scheduled'
           AND u.id = ?
         GROUP BY 
