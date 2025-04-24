@@ -131,6 +131,7 @@ const login = async (req, res, next) => {
         email: user.email,
         admin: user.is_admin,
         doctor: user.is_doctor,
+        user_password:user.user_password,
         first_name: user.first_name,
         last_name: user.last_name,
         mobile_number: user.mobile_number,
@@ -336,15 +337,20 @@ const resetPassword = async (req, res, next) => {
 };
 const changePassword = async (req, res, next) => {
   try {
+    
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
+    console.log(req.user);
+    
     const decodedoldPassword = Buffer.from(oldPassword, 'base64').toString('utf-8');
+    console.log('old:', decodedoldPassword);
 
     const decodedPassword = Buffer.from(newPassword, 'base64').toString('utf-8');
+    console.log('new:', user_password);
 
     const passwordMatch = await bcrypt.compare(decodedoldPassword, user_password);
+    
     console.log('new:', newPassword);
-    console.log('old:', oldPassword);
     console.log('userid:', userid);
     console.log('passwordMatch:', passwordMatch);
 
