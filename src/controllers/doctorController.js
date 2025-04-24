@@ -157,57 +157,13 @@ const displayAppointments = async (req, res, next) => {
 
 import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
-// const uploadPrescription = async (req, res, next) => {
-//     try {
-//         const {body:{ appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } }= req;
-//         const {user:{ email } }= req;
-
-//         const patientData = await getAppointmentData(appointment_id);
-//         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
-
-//         const formattedAppointmentDate = formatDate(appointmentDate);
-//         const formattedBirthDate = formatDate(date_of_birth);
-
-//         const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
-
-//         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
-
-//         const result = await uploadFile({
-//             buffer: pdfBuffer,
-//             originalname: "prescription.pdf",
-//         });
-
-//         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
-
-//         const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
-//         await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
-        
-//         await sendPrescription(email, result.secure_url);
-
-//         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//             new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
-//         );
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
 const uploadPrescription = async (req, res, next) => {
     try {
-        const { body: { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } } = req;
-        const { user: { email } } = req;
+        const {body:{ appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } }= req;
+        const {user:{ email } }= req;
 
         const patientData = await getAppointmentData(appointment_id);
-
-        if (!patientData) {
-            throw new Error('Appointment data not found');
-        }
-
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
-
-        if (!patientName || !appointmentDate || !doctorName || !specialization || !date_of_birth) {
-            throw new Error('Invalid patient data: Missing required fields');
-        }
 
         const formattedAppointmentDate = formatDate(appointmentDate);
         const formattedBirthDate = formatDate(date_of_birth);
@@ -225,17 +181,17 @@ const uploadPrescription = async (req, res, next) => {
 
         const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
         await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
-
+        
         await sendPrescription(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
-        
-        return res.status(400).send({ message: 'Error uploading prescription', error: error.message });
+        next(error);
     }
 };
+
 
 
 const updateExistsPrescription = async (req, res, next) => {

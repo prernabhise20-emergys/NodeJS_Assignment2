@@ -2,10 +2,32 @@ const createPrescription = (data, patientName, appointmentDate, age, gender, doc
     let tableRows = '';
 
     for (let i = 0; i < data.medicines.length; i++) {
-        const morningTiming = data.morning[i] === 'both' ? 'before and after meal' : (data.morning[i] ? 'before meal' : 'after meal');
-        const afternoonTiming = data.afternoon[i] === 'both' ? 'before and after meal' : (data.afternoon[i] ? 'before meal' : 'after meal');
-        const eveningTiming = data.evening[i] === 'both' ? 'before and after meal' : (data.evening[i] ? 'before meal' : 'after meal');
-        
+        const morningTiming = data.morning[i] === 'both'
+            ? 'before and after meal'
+            : (data.morning[i] === false
+                ? 'no'
+                : (data.morning[i]
+                    ? 'before meal'
+                    : 'after meal'));
+
+        const afternoonTiming = data.afternoon[i] === 'both'
+            ? 'before and after meal'
+            : (data.afternoon[i] === false
+                ? 'no' :
+                (data.afternoon[i]
+                    ? 'before meal'
+                    : 'after meal'));
+
+        const eveningTiming = data.evening[i] === 'both'
+            ? 'before and after meal'
+            : (data.evening[i] === false
+                ? 'no' :
+
+
+                (data.evening[i]
+                    ? 'before meal'
+                    : 'after meal'));
+
         tableRows += `
             <tr>
                 <td>${data.medicines[i]}</td>
