@@ -102,12 +102,10 @@ const user_schemas = {
       .positive()
       .optional()
       .error(new Error("weight must be a positive number")),
-
     height: Joi.string()
       .pattern(/^\d+(\.\d{1,2})?$/)
       .optional()
       .error(new Error("height must be a valid number, e.g., 5.2")),
-
     country_of_origin: Joi.string()
       .optional()
       .error(new Error("country_of_origin is required")),
