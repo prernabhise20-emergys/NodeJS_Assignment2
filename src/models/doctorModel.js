@@ -51,7 +51,7 @@ const showAppointments = async (user_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(`
-          SELECT 
+           SELECT
           p.patient_name,
           u.id AS user_id,
           p.age,
@@ -63,26 +63,26 @@ const showAppointments = async (user_id) => {
           a.appointment_time,
           a.status,
           COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types,
-          MAX(pr.appointment_id) AS prescription_id 
-        FROM 
+          MAX(pr.appointment_id) AS prescription_id
+        FROM
           user_register u
-        JOIN 
+        JOIN
           doctors d ON u.id = d.user_id
-        JOIN 
+        JOIN
           appointments a ON d.doctor_id = a.doctor_id
-        JOIN 
+        JOIN
           personal_info p ON a.patient_id = p.patient_id
-        LEFT JOIN 
+        LEFT JOIN
           disease ds ON ds.patient_id = p.patient_id
-        LEFT JOIN 
+        LEFT JOIN
           prescriptions pr ON pr.appointment_id = a.appointment_id  
-        WHERE 
-          u.is_deleted = FALSE and p.is_deleted=false and d.is_deleted=false and ds.is_deleted=false 
+        WHERE
+          u.is_deleted = FALSE and p.is_deleted=false
           AND a.status = 'Scheduled'
           AND u.id = ?
-        GROUP BY 
+        GROUP BY
           p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status
-        ORDER BY 
+        ORDER BY
           a.appointment_id;
       `, [user_id], (error, result) => {
         if (error) {
