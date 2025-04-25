@@ -37,6 +37,39 @@ const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELET
 
 
 
+// const getAllInfo = async (req, res, next) => {
+//   try {
+//     const { admin: is_admin } = req.user;
+
+//     if (!is_admin) {
+//       throw UNAUTHORIZED_ACCESS;
+//     }
+//     let { page, limit } = req.query;
+//     page = parseInt(page || 1);
+//     limit = parseInt(limit || 10);
+
+//     limit = limit * 4;
+
+//     const offset = (page - 1) * limit;
+
+//     const [personalInfo, totalCount] = await Promise.all([
+//       getInfo(is_admin, limit, offset),
+//       getTotalCount(is_admin),
+//     ]);
+
+//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+//       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+//       data: personalInfo,
+//       pagination: {
+//         currentPage: page,
+//         limit: limit / 4,
+//         totalPatients: totalCount,
+//       },
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 const getAllInfo = async (req, res, next) => {
   try {
     const { admin: is_admin } = req.user;
@@ -44,11 +77,9 @@ const getAllInfo = async (req, res, next) => {
     if (!is_admin) {
       throw UNAUTHORIZED_ACCESS;
     }
-    let { page, limit } = req.query;
-    page = parseInt(page || 1);
-    limit = parseInt(limit || 10);
 
-    limit = limit * 4;
+    let { page,limit } = req.query;
+    page = parseInt(page || 1, 10);
 
     const offset = (page - 1) * limit;
 
@@ -62,7 +93,7 @@ const getAllInfo = async (req, res, next) => {
       data: personalInfo,
       pagination: {
         currentPage: page,
-        limit: limit / 4,
+        limit,
         totalPatients: totalCount,
       },
     });
