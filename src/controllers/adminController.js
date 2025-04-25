@@ -79,8 +79,10 @@ const getAllInfo = async (req, res, next) => {
     }
 
     let { page,limit } = req.query;
+    // const limit = 10; 
     page = parseInt(page || 1, 10);
 
+    limit=parseInt(limit)
     const offset = (page - 1) * limit;
 
     const [personalInfo, totalCount] = await Promise.all([

@@ -70,8 +70,8 @@ const createUserData = async (
   user_password,
   first_name,
   last_name,
-  mobile_number,
-  userCode
+  mobile_number
+
 ) => {
   try {
     const hashedPassword = await bcrypt.hash(user_password, 10);
@@ -81,8 +81,7 @@ const createUserData = async (
       user_password: hashedPassword,
       first_name,
       last_name,
-      mobile_number,
-      userCode
+      mobile_number
     };
     
     return await new Promise((resolve, reject) => {
@@ -526,7 +525,7 @@ const addAsAdmin = async (email) => {
     throw error;
   }
 };
-export {
+export  {
   loginWithUsercode,
   addAsAdmin,
   setIsDoctor,
