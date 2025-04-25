@@ -26,7 +26,6 @@ import {
   checkUserDeleteOrNot,
   checkAdminCount,
   updatePassword,
-  addAsAdmin,
   loginWithUsercode,
 
 } from "../models/userModel.js";
@@ -450,7 +449,7 @@ const searchDoctor = async (req, res, next) => {
   }
 };
 
-export  {
+export default{
   searchDoctor,
   getDoctorAvailability,
   createAppointment,

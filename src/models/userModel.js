@@ -525,7 +525,7 @@ const addAsAdmin = async (email) => {
     throw error;
   }
 };
-export  {
+export {
   loginWithUsercode,
   addAsAdmin,
   setIsDoctor,

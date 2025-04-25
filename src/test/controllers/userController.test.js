@@ -187,14 +187,14 @@ describe('POST /register', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  // it('should return error if user already exists', async () => {
-  //   // Mock the behavior of checkIfUserExists to simulate the case where user already exists
-  //   const USER_EXISTS = { message: "User already exists" }; // Define error message
-  //   userModel.checkIfUserExists.mockResolvedValue(true); // Simulate that the user exists
+//   it('should return error if user already exists', async () => {
+//     // Mock the behavior of checkIfUserExists to simulate the case where user already exists
+//     const USER_EXISTS = { message: "User already exists" }; // Define error message
+//     userModel.checkIfUserExists.mockResolvedValue(true); // Simulate that the user exists
 
-  //   await register(req, res, next);
+//     await register(req, res, next);
 
-  //   // Check if next was called with the error message
-  //   expect(next).toHaveBeenCalledWith(USER_EXISTS);
-  // });
+//     // Check if next was called with the error message
+//     expect(next).toHaveBeenCalledWith(USER_EXISTS);
+//   });
 });
