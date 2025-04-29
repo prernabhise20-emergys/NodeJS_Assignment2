@@ -430,7 +430,7 @@ LEFT JOIN appointments a
     AND a.appointment_date = ?
     AND a.status IN ('Scheduled', 'Pending')
 WHERE 
-    d.is_deleted = false and p.is_deleted=fals
+    d.is_deleted = false and p.is_deleted=false
     AND d.doctor_id = ?
 
 UNION ALL
