@@ -621,22 +621,22 @@ ORDER BY a.appointment_id
 const getAllPatientAppointment = async () => {
   return new Promise((resolve, reject) => {
     db.query(
-      ` SELECT
-        a.appointment_id,
-        p.patient_name,
-        p.gender,
-        p.age,
-        d.disease_type,
-        DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date,
-        a.appointment_time,
-        a.status,
-        do.name
-      FROM appointments a
-      JOIN personal_info p ON a.patient_id = p.patient_id
-      JOIN disease d ON d.patient_id = p.patient_id
-      JOIN doctors do ON a.doctor_id = do.doctor_id
-      WHERE do.is_deleted=false
-      AND a.status IN ('Pending', 'Scheduled')
+      ` SELECT 
+        a.appointment_id, 
+        p.patient_name, 
+        p.gender, 
+        p.age, 
+        d.disease_type, 
+        DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
+        a.appointment_time, 
+        a.status, 
+        do.name 
+      FROM appointments a 
+      JOIN personal_info p ON a.patient_id = p.patient_id 
+      JOIN disease d ON d.patient_id = p.patient_id 
+      JOIN doctors do ON a.doctor_id = do.doctor_id 
+      WHERE p.is_deleted = FALSE 
+      AND a.status IN ('Pending', 'Scheduled') 
       ORDER BY a.appointment_id`,
       (error, results) => {
         if (error) {
