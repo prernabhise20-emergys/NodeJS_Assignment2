@@ -440,7 +440,7 @@ SELECT
     NULL AS appointment_time,
     NULL AS status
 FROM doctors d
-WHERE d.doctor_id = ?
+WHERE d.doctor_id = ? and d.is_deleted=false
 AND NOT EXISTS (
     SELECT 1 
     FROM appointments a
