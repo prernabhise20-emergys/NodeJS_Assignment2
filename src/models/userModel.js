@@ -423,12 +423,14 @@ SELECT
     a.appointment_time,
     a.status
 FROM doctors d
+join personal_info p
+on(p.patient_id=d.patient_id)
 LEFT JOIN appointments a 
     ON d.doctor_id = a.doctor_id
     AND a.appointment_date = ?
     AND a.status IN ('Scheduled', 'Pending')
 WHERE 
-    d.is_deleted = false
+    d.is_deleted = false and p.is_deleted=fals
     AND d.doctor_id = ?
 
 UNION ALL
