@@ -149,7 +149,7 @@ const getInfo = async (is_admin, limit, offset) => {
           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
           f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
           d.disease_type, d.disease_description, 
-          do.document_type, do.document_url  
+          do.document_type, do.document_url,a.status  
         FROM 
           personal_info p 
         JOIN 
@@ -160,6 +160,7 @@ const getInfo = async (is_admin, limit, offset) => {
           disease d ON d.patient_id = p.patient_id 
         JOIN 
           documents do ON do.patient_id = p.patient_id 
+          JOIN appointments a ON a.patient_id=p.patient_id
         WHERE 
           p.is_deleted = FALSE 
           AND u.is_deleted = FALSE 
@@ -628,22 +629,22 @@ ORDER BY a.appointment_id
 const getAllPatientAppointment = async () => {
   return new Promise((resolve, reject) => {
     db.query(
-      ` SELECT 
-        a.appointment_id, 
-        p.patient_name, 
-        p.gender, 
-        p.age, 
-        d.disease_type, 
-        DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
-        a.appointment_time, 
-        a.status, 
-        do.name 
-      FROM appointments a 
-      JOIN personal_info p ON a.patient_id = p.patient_id 
-      JOIN disease d ON d.patient_id = p.patient_id 
-      JOIN doctors do ON a.doctor_id = do.doctor_id 
-      WHERE p.is_deleted = FALSE and do.is_deleted=false
-      AND a.status IN ('Pending', 'Scheduled') 
+      ` SELECT
+        a.appointment_id,
+        p.patient_name,
+        p.gender,
+        p.age,
+        d.disease_type,
+        DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date,
+        a.appointment_time,
+        a.status,
+        do.name
+      FROM appointments a
+      JOIN personal_info p ON a.patient_id = p.patient_id
+      JOIN disease d ON d.patient_id = p.patient_id
+      JOIN doctors do ON a.doctor_id = do.doctor_id
+      WHERE do.is_deleted=false
+      AND a.status IN ('Pending', 'Scheduled')
       ORDER BY a.appointment_id`,
       (error, results) => {
         if (error) {

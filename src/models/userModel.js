@@ -415,39 +415,65 @@ const checkDoctorAvailability = async (doctor_id, date) => {
   try {
     const results = await new Promise((resolve, reject) => {
       db.query(
-        `
-SELECT 
-    d.doctorInTime, 
-    d.doctorOutTime, 
-    a.appointment_date, 
+      `SELECT
+    d.doctorInTime,
+    d.doctorOutTime,
+    a.appointment_date,
     a.appointment_time,
-    a.status
+    a.status,
+    p.patient_id,
+    p.patient_name,
+    p.date_of_birth,
+    p.gender,
+    p.age,
+    p.weight,
+    p.height,
+    p.bmi,
+    p.country_of_origin,
+    p.is_diabetic,
+    p.cardiac_issue,
+    p.blood_pressure
 FROM doctors d
-LEFT JOIN appointments a 
+LEFT JOIN appointments a
     ON d.doctor_id = a.doctor_id
     AND a.appointment_date = ?
     AND a.status IN ('Scheduled', 'Pending')
-WHERE 
+LEFT JOIN personal_info p
+    ON a.patient_id = p.patient_id
+    AND p.is_deleted = false
+WHERE
     d.is_deleted = false
     AND d.doctor_id = ?
-
 UNION ALL
-
-SELECT 
-    d.doctorInTime, 
-    d.doctorOutTime, 
+SELECT
+    d.doctorInTime,
+    d.doctorOutTime,
     NULL AS appointment_date,  
     NULL AS appointment_time,
-    NULL AS status
+    NULL AS status,
+    NULL AS patient_id,
+    NULL AS patient_name,
+    NULL AS date_of_birth,
+    NULL AS gender,
+    NULL AS age,
+    NULL AS weight,
+    NULL AS height,
+    NULL AS bmi,
+    NULL AS country_of_origin,
+    NULL AS is_diabetic,
+    NULL AS cardiac_issue,
+    NULL AS blood_pressure
 FROM doctors d
 WHERE d.doctor_id = ?
 AND NOT EXISTS (
-    SELECT 1 
+    SELECT 1
     FROM appointments a
-    WHERE a.doctor_id = d.doctor_id 
+    LEFT JOIN personal_info p
+        ON a.patient_id = p.patient_id
+        AND p.is_deleted = false
+    WHERE a.doctor_id = d.doctor_id
     AND a.appointment_date = ?
-);
-        `,
+);`,
         [date, doctor_id, doctor_id, date],
         (error, results) => {
           if (error) {
