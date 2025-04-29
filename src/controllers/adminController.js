@@ -45,6 +45,8 @@ const getAllInfo = async (req, res, next) => {
     }
 
     let { page,limit } = req.query;
+    console.log(page,limit);
+    
     // const limit = 10; 
     page = parseInt(page || 1, 10);
 
@@ -55,6 +57,7 @@ const getAllInfo = async (req, res, next) => {
       getInfo(is_admin, limit, offset),
       getTotalCount(is_admin),
     ]);
+console.log(personalInfo);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,

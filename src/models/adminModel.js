@@ -4,141 +4,16 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 const { UNAUTHORIZED_ACCESS } = AUTH_RESPONSES;
 
-
-// const getInfo = async (is_admin, limit, offset) => {
-//   try {
-//     if (!is_admin) {
-//       throw UNAUTHORIZED_ACCESS;
-//     }
-
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `
-//  SELECT 
-//           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
-//           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
-//           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
-//           f.father_name, f.father_age, f.mother_name, f.mother_age, 
-//           f.father_country_origin, f.mother_country_origin, 
-//           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
-//           f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-//           d.disease_type, d.disease_description, 
-//           do.document_type, do.document_url  
-//         FROM 
-//           personal_info p 
-//         JOIN 
-//           user_register u ON p.user_id = u.id 
-//         JOIN 
-//           family_info f ON f.patient_id = p.patient_id 
-//         JOIN 
-//           disease d ON d.patient_id = p.patient_id 
-//         JOIN 
-//           documents do ON do.patient_id = p.patient_id 
-//         WHERE 
-//           p.is_deleted = FALSE and u.is_deleted=false and f.is_deleted=false and d.is_deleted=false and do.is_deleted=false
-//         ORDER BY 
-//           p.patient_id 
-//         LIMIT ? OFFSET ?`,
-//         [limit, offset],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           const patientData = [];
-
-//           result.forEach((row) => {
-//             let existing = patientData.find(
-//               (item) => item.patient_id === row.patient_id
-//             );
-
-//             if (!existing) {
-//               const { document_type, document_url, ...data } = row;
-//               existing = {
-//                 ...data,
-//                 documents: [],
-//               };
-//               patientData.push(existing);
-//             }
-//             existing.documents.push({
-//               document_type: row.document_type,
-//               document_url: row.document_url,
-//             });
-//           });
-
-//           return resolve(patientData);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-// const getTotalCount = async (is_admin) => {
-//   try {
-//     if (!is_admin) {
-//       throw UNAUTHORIZED_ACCESS;
-//     }
-
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `
-//           SELECT COUNT(*) AS total 
-//           FROM personal_info 
-//           WHERE is_deleted = FALSE
-//         `,
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           return resolve(result[0].total);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-// const deletePatientDetails = async (patient_id) => {
-//   try {
-//     const data = await new Promise((resolve, reject) => {
-
-//       db.query(
-//         `          
-//   UPDATE personal_info p
-//   JOIN family_info f 
-//   ON p.patient_id = f.patient_id
-//   JOIN disease d 
-//   ON p.patient_id = d.patient_id
-//   JOIN documents doc 
-//   ON p.patient_id = doc.patient_id
-//   SET p.is_deleted = TRUE, f.is_deleted = TRUE, d.is_deleted = TRUE, doc.is_deleted = TRUE
-//   WHERE p.patient_id =?  and f.patient_id=? and d.patient_id=? and doc.patient_id=?;`,
-//         [patient_id, patient_id, patient_id, patient_id],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           return resolve(result);
-//         }
-//       );
-//     });
-
-//     return data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-
 const getInfo = async (is_admin, limit, offset) => {
-  if (!is_admin) {
-    throw UNAUTHORIZED_ACCESS;
-  }
-  return new Promise((resolve, reject) => {
-    db.query(
-      `
-        SELECT 
+  try {
+    if (!is_admin) {
+      throw UNAUTHORIZED_ACCESS;
+    }
+
+    return new Promise((resolve, reject) => {
+      db.query(
+        `
+ SELECT 
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
@@ -147,53 +22,55 @@ const getInfo = async (is_admin, limit, offset) => {
           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
           f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
           d.disease_type, d.disease_description, 
-          do.document_type, do.document_url,app.status  
+          do.document_type, do.document_url  
         FROM 
           personal_info p 
-        JOIN 
+        LEFT JOIN 
           user_register u ON p.user_id = u.id 
-        JOIN 
+        LEFT JOIN 
           family_info f ON f.patient_id = p.patient_id 
-        JOIN 
+        LEFT JOIN 
           disease d ON d.patient_id = p.patient_id 
-        JOIN 
+        LEFT JOIN 
           documents do ON do.patient_id = p.patient_id 
-          JOIN appointments app ON app.patient_id=p.patient_id
         WHERE 
           p.is_deleted = FALSE 
         ORDER BY 
           p.patient_id 
-        LIMIT ? OFFSET ?
-      `,
-      [limit, offset],
-      (error, results) => {
-        if (error) {
-          return reject(error);
-        }
+        LIMIT ? OFFSET ?`,
+        [limit, offset],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          const patientData = [];
 
-        const patientData = results.reduce((acc, row) => {
-          const existing = acc.find(item => item.patient_id === row.patient_id);
+          result.forEach((row) => {
+            let existing = patientData.find(
+              (item) => item.patient_id === row.patient_id
+            );
 
-          if (!existing) {
-            const { document_type, document_url, ...data } = row;
-            acc.push({
-              ...data,
-              documents: [{ document_type, document_url }],
-            });
-          } else {
+            if (!existing) {
+              const { document_type, document_url, ...data } = row;
+              existing = {
+                ...data,
+                documents: [],
+              };
+              patientData.push(existing);
+            }
             existing.documents.push({
               document_type: row.document_type,
               document_url: row.document_url,
             });
-          }
+          });
 
-          return acc;
-        }, []);
-
-        resolve(patientData);
-      }
-    );
-  });
+          return resolve(patientData);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getTotalCount = async (is_admin) => {
