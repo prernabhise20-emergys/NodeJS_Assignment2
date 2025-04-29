@@ -131,12 +131,10 @@ const { UNAUTHORIZED_ACCESS } = AUTH_RESPONSES;
 // };
 
 
-
 const getInfo = async (is_admin, limit, offset) => {
   if (!is_admin) {
     throw UNAUTHORIZED_ACCESS;
   }
-
   return new Promise((resolve, reject) => {
     db.query(
       `
@@ -149,7 +147,7 @@ const getInfo = async (is_admin, limit, offset) => {
           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
           f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
           d.disease_type, d.disease_description, 
-          do.document_type, do.document_url,a.status  
+          do.document_type, do.document_url  
         FROM 
           personal_info p 
         JOIN 
@@ -160,13 +158,8 @@ const getInfo = async (is_admin, limit, offset) => {
           disease d ON d.patient_id = p.patient_id 
         JOIN 
           documents do ON do.patient_id = p.patient_id 
-          JOIN appointments a ON a.patient_id=p.patient_id
         WHERE 
           p.is_deleted = FALSE 
-          AND u.is_deleted = FALSE 
-          AND f.is_deleted = FALSE 
-          AND d.is_deleted = FALSE 
-          AND do.is_deleted = FALSE
         ORDER BY 
           p.patient_id 
         LIMIT ? OFFSET ?
@@ -434,7 +427,6 @@ const createDoctorData = async (data) => {
     const doctorData = { ...data };
     const { first_name, last_name, email, user_password, contact_number, doctorCode } = data;
     const hashedPassword = await bcrypt.hash(user_password, 10);
-console.log('name',data.name);
 
     return await new Promise((resolve, reject) => {
       db.query(

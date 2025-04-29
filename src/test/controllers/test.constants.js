@@ -318,7 +318,121 @@ const forgotPasswordBody={
 
       const showPatientDetails={
          mockUserId : '123',
-         name: 'Prerna Bhise', 
+         name: 'Prerna', 
          age: 30 
       }
-export {registerApiBody,regitserId,loginApiBody,getAllEmailReq,getAllEmailRes,showPatientDetails,getAllEmailForDoctorReq,getAllAppointmentReq,getPatientsAppointmentResponse,getPatientsAppointmentReq,getAllAppointmentResult,appointmentRequestResult,appointmentRequestUser,approveAppointmentReq,addDoctorBody,appointmentCancelledResult,getAppointmentInformation,appointmentCancelledBody,changeAppointmentsStatusReq,addDoctorUser,deleteDoctorQuery,getAdminParams,getAdminUser,addAdminBody,loginId,updateUserBody,removeAdminReqBody,ageGroupDataZeroResponse,updateUserId,deleteUserBody,getUserBody,getUserResult,adminDeletePatientDataBody,forgotPasswordBody,otpInformation,resetPasswordBody,changePasswordBody,getDoctorResult,createAppointmentBody,getDoctorAvailabilityBody,getDoctorAvailabilityResult,getDoctorAvailabilityResponse,getDoctorAvailabilityNegativeResponse,searchDoctorBody,searchDoctorResult,getDoctorProfile,getDoctorProfileResult,updateDoctorBody,updateDoctorUser,displayAppointmentsBody,displayAppointmentsResult,getAllInfoRequest,getAllInfoPersonal,totalCount,ageGroupDataUser,ageGroupDataSample,ageGroupDataResponse}
+
+      const getPersonalDetails={
+        mockPatientId : '456'
+      }
+
+      const mockFamilyInfo={ familyName: 'Satej', members: 4 }
+
+      const createPersonalInfoBody={
+        patient_name: 'Prerna Bhise',
+        date_of_birth: '2000-01-01',
+        gender: 'Female',
+        weight: 45,
+        height: 150,
+        country_of_origin: 'India',
+        is_diabetic: false,
+        cardiac_issue: false,
+        blood_pressure: 'Normal',
+      }
+
+      const createPersonalInfoRes={
+        mockUserId : '123',
+mockEmail : 'prerna@gmail.com'
+      }
+
+      const updatePersonalInfoBody={
+        patient_name: 'Satej Bhise',
+        date_of_birth: '1990-01-01',
+        gender: 'Male',
+        weight: 50,
+        height: 150,
+        country_of_origin: 'India',
+        is_diabetic: true,
+        cardiac_issue: false,
+        blood_pressure: true,
+        patient_id: '7',
+      }
+
+      const updatePersonalInfoRes={
+        mockUserId :'123',
+       mockIsAdmin : true,
+       mockIsAdmin2:false
+      }
+
+      const updatePersonalInfoReq={
+        patient_name: 'Prerna Bhise',
+        date_of_birth: '1990-01-01',
+        gender: 'female',
+        weight: 50,
+        height: 150,
+        country_of_origin: 'India',
+        is_diabetic: true,
+        cardiac_issue: false,
+        blood_pressure: true,
+        patient_id: '9',
+      }
+
+      const getFamilyDetailsBody={
+        mockPatientId : '123',
+      }
+
+      const getFamilyDetailsRes= {
+        "father_name": "abc",
+        "father_age": 55,
+        "father_country_origin": "India",
+        "mother_name": "Urmila",
+        "mother_age": 42,
+        "mother_country_origin": "India",
+        "mother_diabetic": false,
+        "mother_cardiac_issue": false,
+        "mother_bp": false,
+        "father_diabetic": false,
+        "father_cardiac_issue": false,
+        "father_bp": false,
+        "patient_id": 18
+      }
+
+      const addFamilyInfoBody= {
+    
+        "familyDetails": 
+          {
+            "father_name": "abc",
+            "father_age": 55,
+            "father_country_origin": "India",
+            "mother_name": "Urmila",
+            "mother_age": 42,
+            "mother_country_origin": "India",
+            "mother_diabetic": false,
+            "mother_cardiac_issue": false,
+            "mother_bp": false,
+            "father_diabetic": false,
+            "father_cardiac_issue": false,
+            "father_bp": false,
+            "patient_id": 18
+          }
+        
+    }
+
+    const updateFamilyInfoBody={
+      father_name: 'xyz',
+      father_age: 50,
+      father_country_origin: 'India',
+      mother_name: 'pqr',
+      mother_age: 48,
+      mother_country_origin: 'India',
+      mother_diabetic: true,
+      mother_cardiac_issue: false,
+      mother_bp: false,
+      father_diabetic: false,
+      father_cardiac_issue: true,
+      father_bp: true,
+      patient_id: '9',
+    }
+
+    const getDiseaseDetailsRes={ disease_type: 'Diabetes', disease_description: 'Moderate' }
+export {registerApiBody,regitserId,updatePersonalInfoReq,getDiseaseDetailsRes,updateFamilyInfoBody,addFamilyInfoBody,getFamilyDetailsRes,getFamilyDetailsBody,loginApiBody,updatePersonalInfoRes,updatePersonalInfoBody,createPersonalInfoRes,createPersonalInfoBody,getAllEmailReq,getPersonalDetails,mockFamilyInfo,getAllEmailRes,showPatientDetails,getAllEmailForDoctorReq,getAllAppointmentReq,getPatientsAppointmentResponse,getPatientsAppointmentReq,getAllAppointmentResult,appointmentRequestResult,appointmentRequestUser,approveAppointmentReq,addDoctorBody,appointmentCancelledResult,getAppointmentInformation,appointmentCancelledBody,changeAppointmentsStatusReq,addDoctorUser,deleteDoctorQuery,getAdminParams,getAdminUser,addAdminBody,loginId,updateUserBody,removeAdminReqBody,ageGroupDataZeroResponse,updateUserId,deleteUserBody,getUserBody,getUserResult,adminDeletePatientDataBody,forgotPasswordBody,otpInformation,resetPasswordBody,changePasswordBody,getDoctorResult,createAppointmentBody,getDoctorAvailabilityBody,getDoctorAvailabilityResult,getDoctorAvailabilityResponse,getDoctorAvailabilityNegativeResponse,searchDoctorBody,searchDoctorResult,getDoctorProfile,getDoctorProfileResult,updateDoctorBody,updateDoctorUser,displayAppointmentsBody,displayAppointmentsResult,getAllInfoRequest,getAllInfoPersonal,totalCount,ageGroupDataUser,ageGroupDataSample,ageGroupDataResponse}

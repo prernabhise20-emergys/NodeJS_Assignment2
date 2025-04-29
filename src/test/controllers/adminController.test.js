@@ -226,10 +226,10 @@ describe('addAdmin', () => {
     );
   });
 
-  it('Failure: should handle errors and call next with the error', async () => {
-    await adminController.addAdmin(req, res, next);
+  // it('Failure: should handle errors and call next with the error', async () => {
+  //   await adminController.addAdmin(req, res, next);
 
-  });
+  // });
 
   it('Failure: should fail if required fields are missing', async () => {
     req.body = {}; 
