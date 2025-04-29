@@ -13,13 +13,13 @@ const connection = mysql.createConnection({
   database: DATABASE
 });
 
-connection.connect((error) => {
-  if (error) {
-    console.log(error);
-    console.log('error');
-  } else {
-    console.log('database connected');
-  }
-});
+// connection.connect((error) => {
+//   if (error) {
+//     console.log(error);
+//     console.log('error');
+//   } else {
+//     console.log('database connected');
+//   }
+// });
 
 export default connection;

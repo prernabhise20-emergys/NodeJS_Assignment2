@@ -37,7 +37,7 @@ import {
 } from "../common/constants/statusConstant.js";
 
 dotenv.config();
-const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER } =
+const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER,LOGIN_CREDENTIAL } =
   AUTH_RESPONSES;
 
 
@@ -81,7 +81,7 @@ const login = async (req, res, next) => {
     const { email, userCode, user_password } = req.body;
 
     if (!email && !userCode) {
-      throw new Error("Either email or userCode must be provided");
+      throw LOGIN_CREDENTIAL;
     }
 
     let user;
@@ -136,73 +136,6 @@ const login = async (req, res, next) => {
     next(error); 
   }
 };
-
-
-
-// const login = async (req, res, next) => {
-//   try {
-//     const { body: { email, user_password } } = req;
-
-//     const isDeleted = await checkUserDeleteOrNot(email);
-//     if (isDeleted) {
-//       throw USER_DELETED;
-//     }
-
-//     const user = await loginUser(email);
-//     if (!user) {
-//       throw INVALID_USER;
-//     }
-
-//     const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-//     const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
-
-//     if (!passwordMatch) {
-//       throw INVALID_USER;
-//     }
-
-//     const token = jwt.sign(
-//       {
-//         userid: user.id,
-//         email: user.email,
-//         admin: user.is_admin,
-//         user_password: user.user_password,
-//         doctor: user.is_doctor,
-//         first_name: user.first_name,
-//         last_name: user.last_name,
-//         mobile_number: user.mobile_number,
-//         superAdmin: user.is_superadmin
-//       },
-//       process.env.SECRET_KEY,
-//       { expiresIn: "3h", algorithm: "HS256" }
-//     );
-
-//     // if (user.is_admin|| user.is_superadmin) {
-//     // return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-//     //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-//     //     admin_message: user.is_admin,
-//     //     superAdmin_message: user.is_superadmin,
-//     //     token,
-//     //   });
-//     // }
-
-//     // if (user.is_doctor) {
-//     //   return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-//     //     message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-//     //     doctor_message: user.is_doctor,
-//     //     token,
-//     //   });
-//     // }
-//     // else {
-//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-//       status: SUCCESS_STATUS_CODE.SUCCESS,
-//       message: SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
-//       token,
-//     });
-//     // }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 const updateUser = async (req, res, next) => {
   try {
@@ -325,19 +258,13 @@ const changePassword = async (req, res, next) => {
     
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
-    console.log(req.user);
     
     const decodedoldPassword = Buffer.from(oldPassword, 'base64').toString('utf-8');
-    console.log('old:', decodedoldPassword);
 
     const decodedPassword = Buffer.from(newPassword, 'base64').toString('utf-8');
-    console.log('new:', user_password);
 
     const passwordMatch = await bcrypt.compare(decodedoldPassword, user_password);
-    
-    console.log('new:', newPassword);
-    console.log('userid:', userid);
-    console.log('passwordMatch:', passwordMatch);
+ 
 
     if (!passwordMatch) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST)
@@ -345,7 +272,6 @@ const changePassword = async (req, res, next) => {
     }
 
     const hashedNewPassword = await bcrypt.hash(decodedPassword, 10);
-    console.log('hashnew',hashedNewPassword);
     
     await updateUserPassword(hashedNewPassword, userid);
 

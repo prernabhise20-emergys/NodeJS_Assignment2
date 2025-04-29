@@ -499,7 +499,7 @@ const downloadDocument = async (req, res, next) => {
 };
 
 
-export default {
+export default{
   downloadDocument,
   getUploadDocument,
   getPersonalDetails,

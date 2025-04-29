@@ -642,7 +642,7 @@ const getAllPatientAppointment = async () => {
       JOIN personal_info p ON a.patient_id = p.patient_id 
       JOIN disease d ON d.patient_id = p.patient_id 
       JOIN doctors do ON a.doctor_id = do.doctor_id 
-      WHERE p.is_deleted = FALSE 
+      WHERE p.is_deleted = FALSE and d.is_deleted=false
       AND a.status IN ('Pending', 'Scheduled') 
       ORDER BY a.appointment_id`,
       (error, results) => {

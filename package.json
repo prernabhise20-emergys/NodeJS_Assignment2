@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "test": "jest ",
+    "test": "jest --coverage",
     "start": "nodemon index.js",
     "generateDoc": "node swagger.js"
   },

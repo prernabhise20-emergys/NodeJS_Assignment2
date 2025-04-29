@@ -93,7 +93,6 @@ const displayAppointments = async (req, res, next) => {
             );
         }
     } catch (error) {
-        console.error("Error in displayAppointments:", error);
         next(error);
     }
 };
@@ -245,7 +244,8 @@ const formatDate = (dateString) => {
 };
 
 
-export default {
+export default{
+    formatDate,
     updateExistsPrescription,
     getDoctorProfile,
     uploadPrescription,

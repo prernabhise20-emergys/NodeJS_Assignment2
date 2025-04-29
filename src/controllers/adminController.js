@@ -36,40 +36,6 @@ import {
 const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 
-
-// const getAllInfo = async (req, res, next) => {
-//   try {
-//     const { admin: is_admin } = req.user;
-
-//     if (!is_admin) {
-//       throw UNAUTHORIZED_ACCESS;
-//     }
-//     let { page, limit } = req.query;
-//     page = parseInt(page || 1);
-//     limit = parseInt(limit || 10);
-
-//     limit = limit * 4;
-
-//     const offset = (page - 1) * limit;
-
-//     const [personalInfo, totalCount] = await Promise.all([
-//       getInfo(is_admin, limit, offset),
-//       getTotalCount(is_admin),
-//     ]);
-
-//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-//       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-//       data: personalInfo,
-//       pagination: {
-//         currentPage: page,
-//         limit: limit / 4,
-//         totalPatients: totalCount,
-//       },
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 const getAllInfo = async (req, res, next) => {
   try {
     const { admin: is_admin } = req.user;
@@ -154,7 +120,6 @@ const ageGroupData = async (req, res, next) => {
 
 const addAdmin = async (req, res, next) => {
   try {
-    // const { user: { admin: is_admin,first_name,last_name } } = req;
     const { body: { email,user_password,first_name,last_name,mobile_number } } = req;
 const name=first_name+' '+last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900); 
@@ -210,8 +175,6 @@ const removeAdmin = async (req, res, next) => {
   }
 };
 
-
-
 const getAdmin = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
@@ -246,14 +209,6 @@ const addDoctor = async (req, res, next) => {
 
     const docCode = await generateDoctorCode();
 
-    // const { query: { id } } = req;
-    // const userDetails = await getUserRegisterDetails(id);
-    // if (!userDetails) {
-    //   return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
-    //     new ResponseHandler(ERROR_STATUS_CODE.NOT_FOUND, ERROR_MESSAGE.USER_NOT_FOUND)
-    //   );
-    // }
-
     const data = {
       name:first_name+' '+last_name,
       specialization,
@@ -281,7 +236,6 @@ const addDoctor = async (req, res, next) => {
           const loginToken = `http://localhost:5173/account/user/login?token=${token}`
       await sendRegisterCode(data.email, data.name,data.doctorCode,data.user_password,loginToken);
     }
-// console.log(result.insertId);
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id:result.insertId })
@@ -291,7 +245,6 @@ const addDoctor = async (req, res, next) => {
     next(error);
   }
 };
-
 
 
 const deleteDoctor = async (req, res, next) => {
@@ -376,10 +329,6 @@ const setAppointmentCancelled = async (req, res, next) => {
     next(error);
   }
 };
-
-
-
-
 
 const approveAppointment = async (req, res, next) => {
   try {
@@ -510,7 +459,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
   }
 };
 
-export default {
+export default{
   setAppointmentCancelled,
   getAllEmailForDoctor,
   getAllEmail,

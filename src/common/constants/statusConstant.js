@@ -11,6 +11,7 @@ const SUCCESS_STATUS_CODE = {
   SUCCESS: 200,
 };
 const ERROR_MESSAGE = {
+  LOGIN_CREDENTIAL:"Either email or userCode must be provided",
   KEYWORD_REQUIRED:"Keyword is required for searching",
   DOCTOR_NOT_AVAILABLE: "Doctor not available for the selected date or time.",
   BOOK_SLOT: "The selected time slot is already booked. Please choose another time.",
