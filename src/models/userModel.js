@@ -416,44 +416,43 @@ const checkDoctorAvailability = async (doctor_id, date) => {
     const results = await new Promise((resolve, reject) => {
       db.query(
         `
-    SELECT 
-    d.doctorInTime, 
-    d.doctorOutTime, 
-    a.appointment_date, 
+    SELECT
+    d.doctorInTime,
+    d.doctorOutTime,
+    a.appointment_date,
     a.appointment_time,
     a.status
 FROM doctors d
-LEFT JOIN appointments a 
+LEFT JOIN appointments a
     ON d.doctor_id = a.doctor_id
     AND a.appointment_date = ?
     AND a.status IN ('Scheduled', 'Pending')
     JOIN personal_info p
-    ON p.patient_id = a.patient_id 
-WHERE 
-    d.is_deleted = false 
+    ON p.patient_id = a.patient_id
+WHERE
+    d.is_deleted = false
     AND p.is_deleted = false
     AND d.doctor_id = ?
-
+ 
 UNION ALL
-
-SELECT 
-    d.doctorInTime, 
-    d.doctorOutTime, 
+ 
+SELECT
+    d.doctorInTime,
+    d.doctorOutTime,
     NULL AS appointment_date,  
     NULL AS appointment_time,
     NULL AS status
 FROM doctors d
-WHERE 
+WHERE
     d.doctor_id = ?
     AND d.is_deleted = false
     AND NOT EXISTS (
-        SELECT 1 
+        SELECT 1
         FROM appointments a
-        WHERE a.doctor_id = d.doctor_id 
+        WHERE a.doctor_id = d.doctor_id
         AND a.appointment_date = ?
         AND a.status IN ('Scheduled', 'Pending')
     );
-);
         `,
         [date, doctor_id, doctor_id, date],
         (error, results) => {

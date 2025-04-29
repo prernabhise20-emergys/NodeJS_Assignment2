@@ -24,7 +24,7 @@ JOIN disease d ON d.patient_id = p.patient_id
 JOIN documents do ON do.patient_id = p.patient_id 
 LEFT JOIN appointments a ON a.patient_id = p.patient_id 
     AND (a.status = 'Pending' OR a.status = 'Scheduled')
-WHERE p.is_deleted = FALSE 
+WHERE p.is_deleted = FALSE and d.is_deleted=false
 AND r.id = ?;
 
 `,
