@@ -127,7 +127,7 @@ const loginWithUsercode = (userCode) => {
 const loginUser = (email) => {
   return new Promise((resolve, reject) => {
 
-    db.query("SELECT * FROM user_register WHERE email = ?", [email], (error, results) => {
+    db.query("SELECT * FROM user_register WHERE email = ? and is_deleted=false", [email], (error, results) => {
       if (error) {
         return reject(error);
       }
