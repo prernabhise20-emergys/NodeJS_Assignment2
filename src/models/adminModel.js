@@ -9,6 +9,7 @@ const getInfo = async (is_admin, limit, offset) => {
     if (!is_admin) {
       throw new Error("UNAUTHORIZED_ACCESS");
     }
+
     const patients = await new Promise((resolve, reject) => {
       db.query(
         `
@@ -81,12 +82,15 @@ const getInfo = async (is_admin, limit, offset) => {
       };
     });
 
-    return patientData;
+    const limitedPatientData = patientData.slice(0, limit);
+
+    return limitedPatientData;
 
   } catch (error) {
     throw error;
   }
 };
+
 
 // const getInfo = async (is_admin, limit, offset) => {
 //   try {
