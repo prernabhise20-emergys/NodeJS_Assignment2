@@ -80,7 +80,7 @@ const adminDeletePatientData = async (req, res, next) => {
     const { query: { patient_id } } = req;
 const checkAppointment=patientHaveAppointment=(patient_id)
 console.log(checkAppointment);
-if(checkAppointment){
+if(!checkAppointment){
   throw new Error('appointment is booked for this patient, so you cannot delete')
 }
 
