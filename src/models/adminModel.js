@@ -21,7 +21,7 @@ const getInfo = async (is_admin, limit, offset) => {
           f.father_country_origin, f.mother_country_origin, 
           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
           f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-          d.disease_type, d.disease_description, app.status
+          d.disease_type, d.disease_description
         FROM 
           personal_info p 
         LEFT JOIN 
@@ -30,8 +30,6 @@ const getInfo = async (is_admin, limit, offset) => {
           family_info f ON f.patient_id = p.patient_id 
         LEFT JOIN 
           disease d ON d.patient_id = p.patient_id 
-        LEFT JOIN 
-          appointments app ON app.patient_id = p.patient_id
         WHERE 
           p.is_deleted = FALSE 
         ORDER BY 
