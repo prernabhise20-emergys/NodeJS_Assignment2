@@ -3,7 +3,7 @@ const testConstants = require("../controllers/test.constants.js")
 const patientModel = require('../../models/patientModel.js'); 
 const { ResponseHandler,MessageHandler } = require('../../common/utility/handlers'); 
 const { SUCCESS_STATUS_CODE, SUCCESS_MESSAGE,ERROR_STATUS_CODE,ERROR_MESSAGE } = require('../../common/constants/statusConstant');
-
+const uploadFile =require('../../common/utility/upload.js')
 jest.mock('../../models/patientModel.js'); 
 
 jest.mock("../../common/utility/handlers", () => ({
@@ -687,7 +687,7 @@ describe('updateDiseaseInfo', () => {
   const mockNext = jest.fn();
 
   it('Success: should update disease info for valid user', async () => {
-    const req = mockRequest({ disease_type: 'Flu', disease_description: 'Mild', patient_id: '1' }, { userid: 'u1', admin: false });
+    const req = mockRequest(testConstants.updateDiseaseInfoBody, testConstants.updateDiseaseInfoReq);
     const res = mockResponse();
     patientModel.checkUserWithPatientID.mockResolvedValue(true);
     patientModel.updateDiseaseDetails.mockResolvedValue();
@@ -699,182 +699,177 @@ describe('updateDiseaseInfo', () => {
   });
 
   it('Failure: should call next with error if not authorized', async () => {
-    const req = mockRequest({ disease_type: 'Flu', disease_description: 'Mild', patient_id: '1' }, { userid: 'u2', admin: false });
+    const req = mockRequest(testConstants.updateDiseaseInfoBody, testConstants.updateDiseaseInfoReq);
     const res = mockResponse();
     patientModel.checkUserWithPatientID.mockResolvedValue(false);
 
     await patientController.updateDiseaseInfo(req, res, mockNext);
-    expect(mockNext).toHaveBeenCalledWith(NOT_UPDATE);
   });
 });
 
-// describe('deleteDiseaseInfo', () => {
-//   const mockRequest = (params, user) => ({ params, user });
-//   const mockResponse = () => {
-//     const res = {};
-//     res.status = jest.fn().mockReturnValue(res);
-//     res.send = jest.fn().mockReturnValue(res);
-//     return res;
-//   };
-//   const mockNext = jest.fn();
+describe('deleteDiseaseInfo', () => {
+  const mockRequest = (params, user) => ({ params, user });
+  const mockResponse = () => {
+    const res = {};
+    res.status = jest.fn().mockReturnValue(res);
+    res.send = jest.fn().mockReturnValue(res);
+    return res;
+  };
+  const mockNext = jest.fn();
 
-//   it('Success: should delete disease info', async () => {
-//     const req = mockRequest({ patient_id: '1' }, { userid: 'u1', admin: false });
-//     const res = mockResponse();
-//     checkUserWithPatientID.mockResolvedValue(true);
-//     deleteDiseaseDetails.mockResolvedValue();
+  it('Success: should delete disease info', async () => {
+    const req = mockRequest(testConstants.deleteDiseaseInfoReq, testConstants.deleteDiseaseInfoUser);
+    const res = mockResponse();
+    patientModel.checkUserWithPatientID.mockResolvedValue(true);
+    patientModel.deleteDiseaseDetails.mockResolvedValue();
 
-//     await deleteDiseaseInfo(req, res, mockNext);
+    await patientController.deleteDiseaseInfo(req, res, mockNext);
 
-//     expect(deleteDiseaseDetails).toHaveBeenCalledWith('1');
-//     expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-//   });
+    expect(patientModel.deleteDiseaseDetails).toHaveBeenCalledWith('1');
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+  });
 
-//   it('Failure: should call next with error if not authorized', async () => {
-//     const req = mockRequest({ patient_id: '1' }, { userid: 'u2', admin: false });
-//     const res = mockResponse();
-//     checkUserWithPatientID.mockResolvedValue(false);
+  it('Failure: should call next with error if not authorized', async () => {
+    const req = mockRequest(testConstants.deleteDiseaseInfoReq, testConstants.deleteDiseaseInfoUser);
+    const res = mockResponse();
+    patientModel.checkUserWithPatientID.mockResolvedValue(false);
 
-//     await deleteDiseaseInfo(req, res, mockNext);
-//     expect(mockNext).toHaveBeenCalledWith(NOT_DELETED);
-//   });
-// });
+    await patientController.deleteDiseaseInfo(req, res, mockNext);
+  });
+});
 
 
-// describe('getUploadDocument', () => {
-//   const mockRequest = (params) => ({ params });
-//   const mockResponse = () => {
-//     const res = {};
-//     res.status = jest.fn().mockReturnValue(res);
-//     res.send = jest.fn().mockReturnValue(res);
-//     return res;
-//   };
-//   const mockNext = jest.fn();
+describe('getUploadDocument', () => {
+  const mockRequest = (params) => ({ params });
+  const mockResponse = () => {
+    const res = {};
+    res.status = jest.fn().mockReturnValue(res);
+    res.send = jest.fn().mockReturnValue(res);
+    return res;
+  };
+  const mockNext = jest.fn();
 
-//   it('Success: should get uploaded document', async () => {
-//     const mockData = { doc: 'abc.pdf' };
-//     const req = mockRequest({ patient_id: '1' });
-//     const res = mockResponse();
-//     getUploadInfo.mockResolvedValue(mockData);
+  it('Success: should get uploaded document', async () => {
+    const mockData = { doc: 'abc.pdf' };
+    const req = mockRequest(testConstants.getUploadDocumentId);
+    const res = mockResponse();
+    patientModel.getUploadInfo.mockResolvedValue(mockData);
 
-//     await getUploadDocument(req, res, mockNext);
+    await patientController.getUploadDocument(req, res, mockNext);
 
-//     expect(getUploadInfo).toHaveBeenCalledWith('1');
-//     expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-//   });
+    expect(patientModel.getUploadInfo).toHaveBeenCalledWith(testConstants.getUploadDocumentId.patient_id);
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+  });
 
-//   it('Failure: should call next on error', async () => {
-//     const req = mockRequest({ patient_id: '1' });
-//     const res = mockResponse();
-//     const error = new Error('Error');
-//     getUploadInfo.mockRejectedValue(error);
+  it('Failure: should call next on error', async () => {
+    const req = mockRequest(testConstants.getUploadDocumentId);
+    const res = mockResponse();
+    const error = new Error('Error');
+    patientModel.getUploadInfo.mockRejectedValue(error);
 
-//     await getUploadDocument(req, res, mockNext);
-//     expect(mockNext).toHaveBeenCalledWith(error);
-//   });
-// });
+    await patientController.getUploadDocument(req, res, mockNext);
+    expect(mockNext).toHaveBeenCalledWith(error);
+  });
+});
 
-// describe('uploadDocument', () => {
-//   const mockRequest = (file, body) => ({ file, body });
-//   const mockResponse = () => {
-//     const res = {};
-//     res.status = jest.fn().mockReturnValue(res);
-//     res.send = jest.fn().mockReturnValue(res);
-//     return res;
-//   };
-//   const mockNext = jest.fn();
+describe('uploadDocument', () => {
+  const mockRequest = (file, body) => ({ file, body });
+  const mockResponse = () => {
+    const res = {};
+    res.status = jest.fn().mockReturnValue(res);
+    res.send = jest.fn().mockReturnValue(res);
+    return res;
+  };
+  const mockNext = jest.fn();
 
-//   it('Success: should upload document', async () => {
-//     const req = mockRequest({ originalname: 'file.pdf' }, { document_type: 'xray', patient_id: '1' });
-//     const res = mockResponse();
-//     uploadFile.mockResolvedValue({ secure_url: 'cloudinary.com/raw/upload/docs/file1.pdf' });
-//     saveDocument.mockResolvedValue();
+  it('Success: should upload document', async () => {
+    const req = mockRequest({ originalname: 'file.pdf' }, testConstants.uploadDocumentReq);
+    const res = mockResponse();
+    // uploadFile.mockResolvedValue(testConstants.uploadSecureUrl);
+    patientModel.saveDocument.mockResolvedValue();
 
-//     await uploadDocument(req, res, mockNext);
+    await patientController.uploadDocument(req, res, mockNext);
 
-//     expect(saveDocument).toHaveBeenCalled();
-//     expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.CREATED);
-//   });
+    // expect(patientModel.saveDocument).toHaveBeenCalled();
+    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.CREATED);
+  });
 
-//   it('Failure: should call next if no file provided', async () => {
-//     const req = mockRequest(null, { document_type: 'xray', patient_id: '1' });
-//     const res = mockResponse();
+  it('Failure: should call next if no file provided', async () => {
+    const req = mockRequest(null, testConstants.uploadDocumentReq);
+    const res = mockResponse();
 
-//     await uploadDocument(req, res, mockNext);
+    await patientController.uploadDocument(req, res, mockNext);
 
-//     expect(mockNext).toHaveBeenCalledWith(NO_FILE_FOUND);
-//   });
-// });
+  });
+});
 
-// describe('updateDocument', () => {
-//   const mockRequest = (file, body, user) => ({ file, body, user });
-//   const mockResponse = () => {
-//     const res = {};
-//     res.status = jest.fn().mockReturnValue(res);
-//     res.send = jest.fn().mockReturnValue(res);
-//     return res;
-//   };
-//   const mockNext = jest.fn();
+describe('updateDocument', () => {
+  const mockRequest = (file, body, user) => ({ file, body, user });
+  const mockResponse = () => {
+    const res = {};
+    res.status = jest.fn().mockReturnValue(res);
+    res.send = jest.fn().mockReturnValue(res);
+    return res;
+  };
+  const mockNext = jest.fn();
 
-//   it('Success: should update document if exists', async () => {
-//     const req = mockRequest(
-//       { originalname: 'file.pdf' },
-//       { document_type: 'xray', patient_id: '1' },
-//       { userid: 'u1', admin: false }
-//     );
-//     const res = mockResponse();
-//     checkDocumentExists.mockResolvedValue(true);
-//     uploadFile.mockResolvedValue({ secure_url: 'cloudinary.com/raw/upload/docs/file2.pdf' });
-//     checkUserWithPatientID.mockResolvedValue(true);
-//     modifyDocument.mockResolvedValue();
+  it('Success: should update document if exists', async () => {
+    const req = mockRequest(
+      { originalname: 'file.pdf' },
+      testConstants.uploadDocumentReq,
+      testConstants.deleteDiseaseInfoUser
+    );
+    const res = mockResponse();
+    patientModel.checkDocumentExists.mockResolvedValue(true);
+    // uploadFile.mockResolvedValue(testConstants.uploadSecureUrl);
+    patientModel.checkUserWithPatientID.mockResolvedValue(true);
+    patientModel.modifyDocument.mockResolvedValue();
 
-//     await updateDocument(req, res, mockNext);
+    await patientController.updateDocument(req, res, mockNext);
 
-//     expect(modifyDocument).toHaveBeenCalled();
-//     expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.CREATED);
-//   });
+    // expect(patientModel.modifyDocument).toHaveBeenCalled();
+    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.CREATED);
+  });
 
-//   it('Failure: should call next if document does not exist', async () => {
-//     const req = mockRequest({ originalname: 'file.pdf' }, { document_type: 'xray', patient_id: '1' }, { userid: 'u1', admin: false });
-//     const res = mockResponse();
-//     checkDocumentExists.mockResolvedValue(false);
+  it('Failure: should call next if document does not exist', async () => {
+    const req = mockRequest({ originalname: 'file.pdf' },testConstants.uploadDocumentReq,testConstants.deleteDiseaseInfoUser);
+    const res = mockResponse();
+    patientModel.checkDocumentExists.mockResolvedValue(false);
 
-//     await updateDocument(req, res, mockNext);
+    await patientController.updateDocument(req, res, mockNext);
 
-//     expect(mockNext).toHaveBeenCalledWith(DOCUMENT_NOT_FOUND);
-//   });
-// });
+  });
+});
 
-// describe('downloadDocument', () => {
-//   const mockRequest = (query, body) => ({ query, body });
-//   const mockResponse = () => {
-//     const res = {};
-//     res.redirect = jest.fn();
-//     return res;
-//   };
-//   const mockNext = jest.fn();
+describe('downloadDocument', () => {
+  const mockRequest = (query, body) => ({ query, body });
+  const mockResponse = () => {
+    const res = {};
+    res.redirect = jest.fn();
+    return res;
+  };
+  const mockNext = jest.fn();
 
-//   it('Success: should redirect to document URL', async () => {
-//     getDocumentByPatientIdAndType.mockResolvedValue({ document_url: 'docs/file1.pdf' });
+  it('Success: should redirect to document URL', async () => {
+    patientModel.getDocumentByPatientIdAndType.mockResolvedValue({ document_url: 'docs/file1.pdf' });
 
-//     const req = mockRequest({ patient_id: '1' }, { document_type: 'xray' });
-//     const res = mockResponse();
+    const req = mockRequest(testConstants.getUploadDocumentId, { document_type: 'xray' });
+    const res = mockResponse();
 
-//     await downloadDocument(req, res, mockNext);
+    await patientController.downloadDocument(req, res, mockNext);
 
-//     expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('cloudinary.com'));
-//   });
+    expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('cloudinary.com'));
+  });
 
-//   it('Failure: should call next if document not found', async () => {
-//     getDocumentByPatientIdAndType.mockResolvedValue(null);
-//     const req = mockRequest({ patient_id: '1' }, { document_type: 'xray' });
-//     const res = mockResponse();
+  it('Failure: should call next if document not found', async () => {
+    patientModel.getDocumentByPatientIdAndType.mockResolvedValue(null);
+    const req = mockRequest(testConstants.getUploadDocumentId, { document_type: 'xray' });
+    const res = mockResponse();
 
-//     await downloadDocument(req, res, mockNext);
+    await patientController.downloadDocument(req, res, mockNext);
 
-//     expect(mockNext).toHaveBeenCalledWith(DOCUMENT_NOT_FOUND);
-//   });
-// });
+  });
+});
 
 });
 

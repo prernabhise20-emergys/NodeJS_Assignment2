@@ -32,7 +32,7 @@ LEFT JOIN
   disease d ON d.patient_id = p.patient_id 
 
 WHERE 
-  p.is_deleted = FALSE 
+  p.is_deleted = FALSE and u.is_deleted= FALSE
 ORDER BY 
   p.patient_id 
 LIMIT ? OFFSET ?
@@ -347,48 +347,6 @@ const displayAdmin = async () => {
   }
 };
 
-// const createDoctorData = async (data) => {
-//   try {
-//     const doctorData = { ...data };
-//     const { first_name, last_name, email, user_password, contact_number, doctorCode } = data;
-
-
-//     console.log(doctorData.specialization);
-
-
-//     return await new Promise((resolve, reject) => {
-//       db.query( `INSERT INTO user_register (email, user_password, first_name, last_name, mobile_number,userCode) VALUES (?, ?, ?, ?, ?,?)`,
-//            [email, user_password, first_name, last_name, contact_number,doctorCode], (error, result) => {
-//         if (error) {
-//           reject(error);
-//         } else {
-//           const userId = result.insertId; 
-//           resolve(userId);
-//         }
-//       });
-//       // const userId = userResult.insertId;
-// console.log('id',userId);
-// console.log('doccod',doctorCode);
-
-
-//       db.query( `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime,doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)`,
-//       [doctorData.name, doctorData.specialization, contact_number, email, userId,doctorData.doctorInTime,doctorData.doctorOutTime,doctorCode], (error, result) => {
-//      if (error) {
-//        reject(error);
-//      } else {
-//        resolve(result);
-//      }
-//    });
-//     });
-
-
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-
-
 const createDoctorData = async (data) => {
   try {
     const doctorData = { ...data };
@@ -405,7 +363,6 @@ const createDoctorData = async (data) => {
           }
 
           const userId = result.insertId; 
-          console.log("User ID:", userId);
 
           db.query(
             `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -726,7 +683,6 @@ const createAdmin = async (data,adminCode) => {
   try {
     const { first_name, last_name, email, user_password, mobile_number} = data;
     const hashedPassword = await bcrypt.hash(user_password, 10);
-console.log('name',data.name);
 
     return await new Promise((resolve, reject) => {
       db.query(

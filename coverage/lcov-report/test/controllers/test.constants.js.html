@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>69/69</span>
+                <span class='fraction'>76/76</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>69/69</span>
+                <span class='fraction'>76/76</span>
             </div>
         
             
@@ -500,7 +500,21 @@
 <a name='L435'></a><a href='#L435'>435</a>
 <a name='L436'></a><a href='#L436'>436</a>
 <a name='L437'></a><a href='#L437'>437</a>
-<a name='L438'></a><a href='#L438'>438</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
+<a name='L438'></a><a href='#L438'>438</a>
+<a name='L439'></a><a href='#L439'>439</a>
+<a name='L440'></a><a href='#L440'>440</a>
+<a name='L441'></a><a href='#L441'>441</a>
+<a name='L442'></a><a href='#L442'>442</a>
+<a name='L443'></a><a href='#L443'>443</a>
+<a name='L444'></a><a href='#L444'>444</a>
+<a name='L445'></a><a href='#L445'>445</a>
+<a name='L446'></a><a href='#L446'>446</a>
+<a name='L447'></a><a href='#L447'>447</a>
+<a name='L448'></a><a href='#L448'>448</a>
+<a name='L449'></a><a href='#L449'>449</a>
+<a name='L450'></a><a href='#L450'>450</a>
+<a name='L451'></a><a href='#L451'>451</a>
+<a name='L452'></a><a href='#L452'>452</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -935,6 +949,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const registerApiBody={
@@ -1374,14 +1402,28 @@ mockEmail : 'prerna@gmail.com'
     }
 &nbsp;
     const getDiseaseDetailsRes={ disease_type: 'Diabetes', disease_description: 'Moderate' }
-export {registerApiBody,regitserId,updatePersonalInfoReq,getDiseaseDetailsRes,updateFamilyInfoBody,addFamilyInfoBody,getFamilyDetailsRes,getFamilyDetailsBody,loginApiBody,updatePersonalInfoRes,updatePersonalInfoBody,createPersonalInfoRes,createPersonalInfoBody,getAllEmailReq,getPersonalDetails,mockFamilyInfo,getAllEmailRes,showPatientDetails,getAllEmailForDoctorReq,getAllAppointmentReq,getPatientsAppointmentResponse,getPatientsAppointmentReq,getAllAppointmentResult,appointmentRequestResult,appointmentRequestUser,approveAppointmentReq,addDoctorBody,appointmentCancelledResult,getAppointmentInformation,appointmentCancelledBody,changeAppointmentsStatusReq,addDoctorUser,deleteDoctorQuery,getAdminParams,getAdminUser,addAdminBody,loginId,updateUserBody,removeAdminReqBody,ageGroupDataZeroResponse,updateUserId,deleteUserBody,getUserBody,getUserResult,adminDeletePatientDataBody,forgotPasswordBody,otpInformation,resetPasswordBody,changePasswordBody,getDoctorResult,createAppointmentBody,getDoctorAvailabilityBody,getDoctorAvailabilityResult,getDoctorAvailabilityResponse,getDoctorAvailabilityNegativeResponse,searchDoctorBody,searchDoctorResult,getDoctorProfile,getDoctorProfileResult,updateDoctorBody,updateDoctorUser,displayAppointmentsBody,displayAppointmentsResult,getAllInfoRequest,getAllInfoPersonal,totalCount,ageGroupDataUser,ageGroupDataSample,ageGroupDataResponse}</pre></td></tr></table></pre>
+&nbsp;
+    const updateDiseaseInfoBody={ disease_type: 'Flu', disease_description: 'Mild', patient_id: '1' }
+&nbsp;
+    const updateDiseaseInfoReq={ userid: 'u1', admin: false }
+&nbsp;
+    const deleteDiseaseInfoReq={ patient_id: '1' }
+&nbsp;
+    const deleteDiseaseInfoUser={ userid: 'u1', admin: false }
+&nbsp;
+    const getUploadDocumentId={ patient_id: '1' }
+   
+    const uploadDocumentReq={ document_type: 'xray', patient_id: '1' }
+&nbsp;
+    const uploadSecureUrl={ secure_url: 'cloudinary.com/raw/upload/docs/file1.pdf' }
+    export {registerApiBody,regitserId,updatePersonalInfoReq,uploadSecureUrl,uploadDocumentReq,getUploadDocumentId,deleteDiseaseInfoUser,deleteDiseaseInfoReq,getDiseaseDetailsRes,updateDiseaseInfoReq,updateDiseaseInfoBody,updateFamilyInfoBody,addFamilyInfoBody,getFamilyDetailsRes,getFamilyDetailsBody,loginApiBody,updatePersonalInfoRes,updatePersonalInfoBody,createPersonalInfoRes,createPersonalInfoBody,getAllEmailReq,getPersonalDetails,mockFamilyInfo,getAllEmailRes,showPatientDetails,getAllEmailForDoctorReq,getAllAppointmentReq,getPatientsAppointmentResponse,getPatientsAppointmentReq,getAllAppointmentResult,appointmentRequestResult,appointmentRequestUser,approveAppointmentReq,addDoctorBody,appointmentCancelledResult,getAppointmentInformation,appointmentCancelledBody,changeAppointmentsStatusReq,addDoctorUser,deleteDoctorQuery,getAdminParams,getAdminUser,addAdminBody,loginId,updateUserBody,removeAdminReqBody,ageGroupDataZeroResponse,updateUserId,deleteUserBody,getUserBody,getUserResult,adminDeletePatientDataBody,forgotPasswordBody,otpInformation,resetPasswordBody,changePasswordBody,getDoctorResult,createAppointmentBody,getDoctorAvailabilityBody,getDoctorAvailabilityResult,getDoctorAvailabilityResponse,getDoctorAvailabilityNegativeResponse,searchDoctorBody,searchDoctorResult,getDoctorProfile,getDoctorProfileResult,updateDoctorBody,updateDoctorUser,displayAppointmentsBody,displayAppointmentsResult,getAllInfoRequest,getAllInfoPersonal,totalCount,ageGroupDataUser,ageGroupDataSample,ageGroupDataResponse}</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-30T04:45:05.891Z
+                at 2025-04-30T09:33:29.069Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

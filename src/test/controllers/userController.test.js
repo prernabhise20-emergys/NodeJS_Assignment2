@@ -39,10 +39,10 @@ describe('User controller test cases', () => {
         });
 
         it('Success: should create a new user', async () => {
-            userModel.createUserData.mockResolvedValue({
-                status: SUCCESS_STATUS_CODE.SUCCESS,
-                message: SUCCESS_MESSAGE.REGISTER_SUCCESS,
-            });
+            // userModel.createUserData.mockResolvedValue({
+            //     status: SUCCESS_STATUS_CODE.SUCCESS,
+            //     message: SUCCESS_MESSAGE.REGISTER_SUCCESS,
+            // });
 
             const mockResponse = new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REGISTER_SUCCESS);
 

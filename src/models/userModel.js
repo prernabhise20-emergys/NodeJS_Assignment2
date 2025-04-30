@@ -185,10 +185,6 @@ const updatePassword = async (email, newPassword) => {
 
 const updateUserPassword = async (newPassword,id) => {
   try {
-
-    // const hashPassword = await bcrypt.hash(newPassword, 10);
-console.log('newPassword',newPassword);
-
     const result = await new Promise((resolve, reject) => {
       db.query(
         "UPDATE user_Register SET user_password = ? WHERE id = ?",

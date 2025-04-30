@@ -435,4 +435,18 @@ mockEmail : 'prerna@gmail.com'
     }
 
     const getDiseaseDetailsRes={ disease_type: 'Diabetes', disease_description: 'Moderate' }
-export {registerApiBody,regitserId,updatePersonalInfoReq,getDiseaseDetailsRes,updateFamilyInfoBody,addFamilyInfoBody,getFamilyDetailsRes,getFamilyDetailsBody,loginApiBody,updatePersonalInfoRes,updatePersonalInfoBody,createPersonalInfoRes,createPersonalInfoBody,getAllEmailReq,getPersonalDetails,mockFamilyInfo,getAllEmailRes,showPatientDetails,getAllEmailForDoctorReq,getAllAppointmentReq,getPatientsAppointmentResponse,getPatientsAppointmentReq,getAllAppointmentResult,appointmentRequestResult,appointmentRequestUser,approveAppointmentReq,addDoctorBody,appointmentCancelledResult,getAppointmentInformation,appointmentCancelledBody,changeAppointmentsStatusReq,addDoctorUser,deleteDoctorQuery,getAdminParams,getAdminUser,addAdminBody,loginId,updateUserBody,removeAdminReqBody,ageGroupDataZeroResponse,updateUserId,deleteUserBody,getUserBody,getUserResult,adminDeletePatientDataBody,forgotPasswordBody,otpInformation,resetPasswordBody,changePasswordBody,getDoctorResult,createAppointmentBody,getDoctorAvailabilityBody,getDoctorAvailabilityResult,getDoctorAvailabilityResponse,getDoctorAvailabilityNegativeResponse,searchDoctorBody,searchDoctorResult,getDoctorProfile,getDoctorProfileResult,updateDoctorBody,updateDoctorUser,displayAppointmentsBody,displayAppointmentsResult,getAllInfoRequest,getAllInfoPersonal,totalCount,ageGroupDataUser,ageGroupDataSample,ageGroupDataResponse}
+
+    const updateDiseaseInfoBody={ disease_type: 'Flu', disease_description: 'Mild', patient_id: '1' }
+
+    const updateDiseaseInfoReq={ userid: 'u1', admin: false }
+
+    const deleteDiseaseInfoReq={ patient_id: '1' }
+
+    const deleteDiseaseInfoUser={ userid: 'u1', admin: false }
+
+    const getUploadDocumentId={ patient_id: '1' }
+   
+    const uploadDocumentReq={ document_type: 'xray', patient_id: '1' }
+
+    const uploadSecureUrl={ secure_url: 'cloudinary.com/raw/upload/docs/file1.pdf' }
+    export {registerApiBody,regitserId,updatePersonalInfoReq,uploadSecureUrl,uploadDocumentReq,getUploadDocumentId,deleteDiseaseInfoUser,deleteDiseaseInfoReq,getDiseaseDetailsRes,updateDiseaseInfoReq,updateDiseaseInfoBody,updateFamilyInfoBody,addFamilyInfoBody,getFamilyDetailsRes,getFamilyDetailsBody,loginApiBody,updatePersonalInfoRes,updatePersonalInfoBody,createPersonalInfoRes,createPersonalInfoBody,getAllEmailReq,getPersonalDetails,mockFamilyInfo,getAllEmailRes,showPatientDetails,getAllEmailForDoctorReq,getAllAppointmentReq,getPatientsAppointmentResponse,getPatientsAppointmentReq,getAllAppointmentResult,appointmentRequestResult,appointmentRequestUser,approveAppointmentReq,addDoctorBody,appointmentCancelledResult,getAppointmentInformation,appointmentCancelledBody,changeAppointmentsStatusReq,addDoctorUser,deleteDoctorQuery,getAdminParams,getAdminUser,addAdminBody,loginId,updateUserBody,removeAdminReqBody,ageGroupDataZeroResponse,updateUserId,deleteUserBody,getUserBody,getUserResult,adminDeletePatientDataBody,forgotPasswordBody,otpInformation,resetPasswordBody,changePasswordBody,getDoctorResult,createAppointmentBody,getDoctorAvailabilityBody,getDoctorAvailabilityResult,getDoctorAvailabilityResponse,getDoctorAvailabilityNegativeResponse,searchDoctorBody,searchDoctorResult,getDoctorProfile,getDoctorProfileResult,updateDoctorBody,updateDoctorUser,displayAppointmentsBody,displayAppointmentsResult,getAllInfoRequest,getAllInfoPersonal,totalCount,ageGroupDataUser,ageGroupDataSample,ageGroupDataResponse}
