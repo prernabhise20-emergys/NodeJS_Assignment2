@@ -13,28 +13,30 @@ const getInfo = async (is_admin, limit, offset) => {
     const patients = await new Promise((resolve, reject) => {
       db.query(
         `
-        SELECT 
-          p.patient_id, p.patient_name, p.gender, u.mobile_number, 
-          p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
-          p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
-          f.father_name, f.father_age, f.mother_name, f.mother_age, 
-          f.father_country_origin, f.mother_country_origin, 
-          f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
-          f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-          d.disease_type, d.disease_description
-        FROM 
-          personal_info p 
-        LEFT JOIN 
-          user_register u ON p.user_id = u.id 
-        LEFT JOIN 
-          family_info f ON f.patient_id = p.patient_id 
-        LEFT JOIN 
-          disease d ON d.patient_id = p.patient_id 
-        WHERE 
-          p.is_deleted = FALSE 
-        ORDER BY 
-          p.patient_id 
-        LIMIT ? OFFSET ?`,
+        SELECT DISTINCT
+  p.patient_id, p.patient_name, p.gender, u.mobile_number, 
+  p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
+  p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
+  f.father_name, f.father_age, f.mother_name, f.mother_age, 
+  f.father_country_origin, f.mother_country_origin, 
+  f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
+  f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
+  d.disease_type, d.disease_description
+FROM 
+  personal_info p 
+LEFT JOIN 
+  user_register u ON p.user_id = u.id 
+LEFT JOIN 
+  family_info f ON f.patient_id = p.patient_id 
+LEFT JOIN 
+  disease d ON d.patient_id = p.patient_id 
+
+WHERE 
+  p.is_deleted = FALSE 
+ORDER BY 
+  p.patient_id 
+LIMIT ? OFFSET ?
+`,
         [limit, offset],
         (error, result) => {
           if (error) {
@@ -749,12 +751,14 @@ console.log('name',data.name);
 const patientHaveAppointment = async (patient_id) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT patient_id,status from appointments where patient_id=? and status in('Pending','Schedule')`, patient_id,
+      `SELECT patient_id, status FROM appointments 
+       WHERE patient_id = ? AND status IN ('Pending', 'Schedule')`,
+      [patient_id], 
       (error, results) => {
         if (error) {
           return reject(error);
         }
-        resolve(results);
+        resolve(results); 
       }
     );
   });

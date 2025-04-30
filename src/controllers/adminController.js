@@ -45,7 +45,6 @@ const getAllInfo = async (req, res, next) => {
     }
 
     let { page,limit } = req.query;
-    console.log(page,limit);
     
     // const limit = 10; 
     page = parseInt(page || 1, 10);
@@ -57,7 +56,6 @@ const getAllInfo = async (req, res, next) => {
       getInfo(is_admin, limit, offset),
       getTotalCount(is_admin),
     ]);
-console.log(personalInfo);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
@@ -72,32 +70,37 @@ console.log(personalInfo);
     next(error);
   }
 };
-
-
 const adminDeletePatientData = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
     const { query: { patient_id } } = req;
-const checkAppointment=patientHaveAppointment=(patient_id)
-console.log(checkAppointment);
-if(!checkAppointment){
-  throw new Error('appointment is booked for this patient, so you cannot delete')
-}
+
+    const checkAppointment = await patientHaveAppointment(patient_id);
+    if (checkAppointment.length > 0) {
+      throw new Error('Appointment is booked for this patient, so you cannot delete');
+    }
 
     if (is_admin) {
       await deletePatientDetails(patient_id);
 
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+        .send(new ResponseHandler(
+          SUCCESS_STATUS_CODE.SUCCESS,
+          SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE
+        ));
     }
-    throw NOT_DELETED;
+
+    throw new Error('Not authorized to delete patient data');
   } catch (error) {
     next(error);
   }
 };
 
-// ********************************************************************
+
+
+
+
 
 const ageGroupData = async (req, res, next) => {
   try {
