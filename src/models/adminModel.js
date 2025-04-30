@@ -13,7 +13,7 @@ const getInfo = async (is_admin, limit, offset) => {
     const patients = await new Promise((resolve, reject) => {
       db.query(
         `
-        SELECT distinct
+        SELECT 
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
