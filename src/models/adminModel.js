@@ -13,7 +13,7 @@ const getInfo = async (is_admin, limit, offset) => {
     const patients = await new Promise((resolve, reject) => {
       db.query(
         `
-        SELECT 
+        SELECT distinct
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
@@ -21,7 +21,7 @@ const getInfo = async (is_admin, limit, offset) => {
           f.father_country_origin, f.mother_country_origin, 
           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
           f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-          d.disease_type, d.disease_description
+          d.disease_type, d.disease_description, app.status
         FROM 
           personal_info p 
         LEFT JOIN 
@@ -30,7 +30,8 @@ const getInfo = async (is_admin, limit, offset) => {
           family_info f ON f.patient_id = p.patient_id 
         LEFT JOIN 
           disease d ON d.patient_id = p.patient_id 
-       
+        LEFT JOIN 
+          appointments app ON app.patient_id = p.patient_id
         WHERE 
           p.is_deleted = FALSE 
         ORDER BY 
