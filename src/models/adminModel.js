@@ -747,7 +747,22 @@ console.log('name',data.name);
   }
 };
 
+
+const patientHaveAppointment = async (patient_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT patient_id,status from appointments where patient_id=? and status in('Pending','Schedule')`, patient_id,
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+};
 export {
+  patientHaveAppointment,
   createAdmin,
   cancelStatus,
   getUserRegisterDetails,

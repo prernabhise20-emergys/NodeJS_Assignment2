@@ -12,7 +12,7 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import {
   createAdmin,
-  getUserRegisterDetails,
+  patientHaveAppointment,
   getAllEmailForAddDoctor,
   getAllEmailForAddAdmin,
   checkSuperAdmin,
@@ -78,6 +78,11 @@ const adminDeletePatientData = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
     const { query: { patient_id } } = req;
+const checkAppointment=patientHaveAppointment=(patient_id)
+console.log(checkAppointment);
+if(checkAppointment){
+  throw new Error('appointment is booked for this patient, so you cannot delete')
+}
 
     if (is_admin) {
       await deletePatientDetails(patient_id);
