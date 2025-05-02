@@ -199,7 +199,9 @@ const createPersonalDetails = async (data, userId, email) => {
 
 const updatePersonalDetails = async (data, patient_id) => {
   try {
-    let{
+    const today = new Date();
+
+    let {
       patient_name,
       date_of_birth,
       gender,
@@ -208,41 +210,40 @@ const updatePersonalDetails = async (data, patient_id) => {
       is_diabetic,
       cardiac_issue,
       blood_pressure,
-      country_of_origin,
-      patient_id
-    }=data
-    const patientHeight = height;
-    const birthDate = date_of_birth;
-    height = height * 0.3048;
-    const userAge = today.getFullYear() - new Date(date_of_birth).getFullYear();
-    let userBMI = weight / (height * height);
+      country_of_origin
+    } = data;
 
-    const values = {
-      patient_name: patient_name,
-      date_of_birth: birthDate,
-      age: userAge,
-      gender: gender,
-      height: patientHeight,
-      weight: weight,
-      bmi: userBMI,
-      is_diabetic: is_diabetic,
-      cardiac_issue: cardiac_issue,
-      blood_pressure: blood_pressure,
-      country_of_origin: country_of_origin,
+    const patientHeight = height; 
+    const birthDate = date_of_birth;
+    const convertedHeight = height * 0.3048; 
+    const userAge = today.getFullYear() - new Date(date_of_birth).getFullYear();
+    let userBMI = weight / (convertedHeight * convertedHeight); 
+
+    const valuesArray = [
+      patient_name,
+      birthDate,
+      userAge,
+      gender,
+      patientHeight, 
+      weight,
+      userBMI,
+      is_diabetic,
+      cardiac_issue,
+      blood_pressure,
+      country_of_origin,
       patient_id,
-    };
+    ];
 
     return new Promise((resolve, reject) => {
       db.query(
-        `UPDATE personal_info SET patient_name=?, date_of_birth = ?,gender=?, height = ?, 
-        weight = ?, is_diabetic = ?, cardiac_issue = ?, blood_pressure = ?, country_of_origin = ? 
-        WHERE patient_id = ?`,
-        values,
+        `UPDATE personal_info SET patient_name=?, date_of_birth=?, age=?, gender=?, height=?, 
+        weight=?, bmi=?, is_diabetic=?, cardiac_issue=?, blood_pressure=?, country_of_origin=? 
+        WHERE patient_id=?`,
+        valuesArray,
         (error, result) => {
           if (error) {
             return reject(error);
           }
-
           resolve(result);
         }
       );
