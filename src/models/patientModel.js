@@ -122,31 +122,6 @@ const getDeletePatientInfo = async (email) => {
     throw error;
   }
 };
-// const getPersonalInfo = async (patient_id) => {
-//   try {
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `SELECT patient_name, date_of_birth, gender, age, 
-//         weight, 
-//        height, 
-//         bmi, country_of_origin, is_diabetic, cardiac_issue, blood_pressure 
-//         FROM personal_info WHERE is_deleted = FALSE AND patient_id = ?`,
-//         [patient_id],
-//         (error, result) => {
-//           if (error) return reject(error);
-
-//           if (result.length > 0 && result[0].height) {
-//             result[0].height = Number(result[0].height);
-//           }
-
-//           return resolve(result);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 const getPersonalInfo = async (patient_id) => {
   try {

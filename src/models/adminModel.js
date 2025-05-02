@@ -4,6 +4,93 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 const { UNAUTHORIZED_ACCESS } = AUTH_RESPONSES;
 
+// const getInfo = async (is_admin, limit, offset) => {
+//   try {
+//     if (!is_admin) {
+//       throw new Error("UNAUTHORIZED_ACCESS");
+//     }
+
+//     const patients = await new Promise((resolve, reject) => {
+//       db.query(
+//         `
+//         SELECT DISTINCT
+//   p.patient_id, p.patient_name, p.gender, u.mobile_number, 
+//   p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
+//   p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
+//   f.father_name, f.father_age, f.mother_name, f.mother_age, 
+//   f.father_country_origin, f.mother_country_origin, 
+//   f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
+//   f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
+//   d.disease_type, d.disease_description
+// FROM 
+//   personal_info p 
+// LEFT JOIN 
+//   user_register u ON p.user_id = u.id 
+// LEFT JOIN 
+//   family_info f ON f.patient_id = p.patient_id 
+// LEFT JOIN 
+//   disease d ON d.patient_id = p.patient_id 
+
+// WHERE 
+//   p.is_deleted = FALSE and u.is_deleted= FALSE
+// ORDER BY 
+//   p.patient_id 
+// LIMIT ? OFFSET ?
+// `,
+//         [limit, offset],
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           resolve(result);
+//         }
+//       );
+//     });
+
+//     if (!patients.length) {
+//       return [];
+//     }
+
+//     const patientIds = patients.map((patient) => patient.patient_id);
+//     const documents = await new Promise((resolve, reject) => {
+//       db.query(
+//         `
+//         SELECT 
+//           document_type, document_url, patient_id
+//         FROM 
+//           documents
+//         WHERE 
+//           patient_id IN (?);`,
+//         [patientIds],
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           resolve(result);
+//         }
+//       );
+//     });
+
+//     const patientData = patients.map((patient) => {
+//       const patientDocuments = documents
+//         .filter((doc) => doc.patient_id === patient.patient_id)
+//         .map(({ document_type, document_url }) => ({ document_type, document_url }));
+
+//       return {
+//         ...patient,
+//         documents: patientDocuments,
+//       };
+//     });
+
+//     const limitedPatientData = patientData.slice(0, limit);
+
+//     return limitedPatientData;
+
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
 const getInfo = async (is_admin, limit, offset) => {
   try {
     if (!is_admin) {
@@ -14,29 +101,29 @@ const getInfo = async (is_admin, limit, offset) => {
       db.query(
         `
         SELECT DISTINCT
-  p.patient_id, p.patient_name, p.gender, u.mobile_number, 
-  p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
-  p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
-  f.father_name, f.father_age, f.mother_name, f.mother_age, 
-  f.father_country_origin, f.mother_country_origin, 
-  f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
-  f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-  d.disease_type, d.disease_description
-FROM 
-  personal_info p 
-LEFT JOIN 
-  user_register u ON p.user_id = u.id 
-LEFT JOIN 
-  family_info f ON f.patient_id = p.patient_id 
-LEFT JOIN 
-  disease d ON d.patient_id = p.patient_id 
-
-WHERE 
-  p.is_deleted = FALSE and u.is_deleted= FALSE
-ORDER BY 
-  p.patient_id 
-LIMIT ? OFFSET ?
-`,
+          p.patient_id, p.patient_name, p.gender, u.mobile_number, 
+          DATE_FORMAT(p.date_of_birth, '%Y-%m-%d') as date_of_birth,  -- ✅ FIXED
+          p.age, p.weight, p.height, p.bmi, 
+          p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
+          f.father_name, f.father_age, f.mother_name, f.mother_age, 
+          f.father_country_origin, f.mother_country_origin, 
+          f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
+          f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
+          d.disease_type, d.disease_description
+        FROM 
+          personal_info p 
+        LEFT JOIN 
+          user_register u ON p.user_id = u.id 
+        LEFT JOIN 
+          family_info f ON f.patient_id = p.patient_id 
+        LEFT JOIN 
+          disease d ON d.patient_id = p.patient_id 
+        WHERE 
+          p.is_deleted = FALSE and u.is_deleted = FALSE
+        ORDER BY 
+          p.patient_id 
+        LIMIT ? OFFSET ?
+        `,
         [limit, offset],
         (error, result) => {
           if (error) {
@@ -83,84 +170,12 @@ LIMIT ? OFFSET ?
     });
 
     const limitedPatientData = patientData.slice(0, limit);
-
     return limitedPatientData;
 
   } catch (error) {
     throw error;
   }
 };
-
-
-// const getInfo = async (is_admin, limit, offset) => {
-//   try {
-//     if (!is_admin) {
-//       throw UNAUTHORIZED_ACCESS;
-//     }
-
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `
-//  SELECT 
-//           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
-//           p.date_of_birth, p.age, p.weight, p.height, p.bmi, 
-//           p.country_of_origin, p.is_diabetic, p.cardiac_issue, p.blood_pressure, 
-//           f.father_name, f.father_age, f.mother_name, f.mother_age, 
-//           f.father_country_origin, f.mother_country_origin, 
-//           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
-//           f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-//           d.disease_type, d.disease_description, 
-//           do.document_type, do.document_url,app.status  
-//         FROM 
-//           personal_info p 
-//         LEFT JOIN 
-//           user_register u ON p.user_id = u.id 
-//         LEFT JOIN 
-//           family_info f ON f.patient_id = p.patient_id 
-//         LEFT JOIN 
-//           disease d ON d.patient_id = p.patient_id 
-//         LEFT JOIN 
-//           documents do ON do.patient_id = p.patient_id 
-//           LEFT JOIN appointments app ON app.patient_id=p.patient_id
-//         WHERE 
-//           p.is_deleted = FALSE 
-//         ORDER BY 
-//           p.patient_id 
-//         LIMIT ? OFFSET ?`,
-//         [limit, offset],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           const patientData = [];
-
-//           result.forEach((row) => {
-//             let existing = patientData.find(
-//               (item) => item.patient_id === row.patient_id
-//             );
-
-//             if (!existing) {
-//               const { document_type, document_url, ...data } = row;
-//               existing = {
-//                 ...data,
-//                 documents: [],
-//               };
-//               patientData.push(existing);
-//             }
-//             existing.documents.push({
-//               document_type: row.document_type,
-//               document_url: row.document_url,
-//             });
-//           });
-
-//           return resolve(patientData);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 const getTotalCount = async (is_admin) => {
   if (!is_admin) {
