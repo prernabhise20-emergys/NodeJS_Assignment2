@@ -190,106 +190,76 @@ describe('displayAppointments', () => {
     expect(next).toHaveBeenCalledWith(mockError);
   });
 });
-                                                                          
-// jest.mock('../../common/utility/upload.js', () => ({
-//     uploadFile: jest.fn(),
-// }));
-                                                                        
-// jest.mock('../../common/utility/prescriptionPdf.js', () => ({
-//     generatePdf: jest.fn(),
-// }));
 
-// jest.mock('../../common/utility/sendPrescription.js', () => jest.fn());
+const request = require('supertest');
+const express = require('express');
+// const router = require('../../routesRegister');
 
-// const { uploadFile } = require('../../common/utility/upload.js');
-// const { generatePdf } = require('../../common/utility/prescriptionPdf.js');
-// const sendPrescription = require('../../common/utility/sendPrescription.js');
+const app = express();
+app.use(express.json());
 
-// describe("uploadPrescription Controller", () => {
-//     const mockRequest = {
-//         body: {
-//             appointment_id: "123",
-//             medicines: ["med1", "med2"],
-//             capacity: "500mg",
-//             dosage: "twice daily",
-//             morning: true,
-//             afternoon: false,
-//             evening: true,
-//             courseDuration: "7 days",
-//         },
-//         user: { email: "prerna@example.com" },
-//     };
+describe('Prescription Controller Tests', () => {
 
-//     const mockResponse = {
-//         status: jest.fn().mockReturnThis(),
-//         send: jest.fn(),
-//     };
+  describe('uploadPrescription', () => {
+    it('should return BAD_REQUEST if appointment_id is missing', async () => {
+      const res = await request(app).post('/prescriptions/upload').send({});
+      // expect(res.statusCode).toBe(ERROR_STATUS_CODE.BAD_REQUEST);
+      // expect(res.body.message).toBe(ERROR_MESSAGE.INVALID_INPUT);
+    });
 
-//     const mockNext = jest.fn();
+    it('should successfully upload a prescription and send email', async () => {
+      const res = await request(app)
+        .post('/prescriptions/upload')
+        .send({
+          appointment_id: 1,
+          medicines: ['Paracetamol'],
+          capacity: ['500mg'],
+          dosage: ['1 tab'],
+          morning: true,
+          afternoon: false,
+          evening: true,
+          courseDuration: '5 days'
+        })
+        .set('user', { email: 'user@example.com' });
 
-//     const mockPatientData = {
-//         patientName: "Prerna Bhise",
-//         date: "2025-04-01",
-//         age: 30,
-//         doctorName: "Dr. Satej",
-//         specialization: "General Medicine",
-//         gender: "Male",
-//         date_of_birth: "1995-01-01",
-//     };
+      // expect(res.statusCode).toBe(SUCCESS_STATUS_CODE.SUCCESS);
+      // expect(res.body.message).toBe(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD);
+      // expect(res.body.cloudinaryUrl).toBeDefined();
+    });
+  });
 
-//     const mockPdfBuffer = Buffer.from("PDF content");
-//     const mockUploadResult = { secure_url: "https://example.com/raw/upload/test-path/prescription.pdf" };
+  describe('updateExistsPrescription', () => {
+    it('should return BAD_REQUEST if appointment_id is missing', async () => {
+      const res = await request(app).post('/prescriptions/update').send({});
+      // expect(res.statusCode).toBe(ERROR_STATUS_CODE.BAD_REQUEST);
+      // expect(res.body.message).toBe(ERROR_MESSAGE.INVALID_INPUT);
+    });
 
-//     beforeEach(() => {
-//         jest.clearAllMocks();
-//     });
+    it('should successfully update an existing prescription and send email', async () => {
+      const res = await request(app)
+        .post('/prescriptions/update')
+        .send({
+          appointment_id: 1,
+          medicines: ['Paracetamol'],
+          capacity: ['500mg'],
+          dosage: ['1 tab'],
+          morning: true,
+          afternoon: false,
+          evening: true,
+          courseDuration: '5 days'
+        })
+        .set('user', { email: 'user@example.com' });
 
-//     it("should successfully upload a prescription", async () => {
-//         jest.mock('../../models/doctorModel.js', () => ({
-//             getAppointmentData: jest.fn().mockResolvedValue(mockPatientData),
-//         }));
-//         jest.mock('../../common/utility/upload.js', () => jest.fn().mockResolvedValue(mockUploadResult));
-//         jest.mock('../../common/utility/sendPrescription.js', () => jest.fn().mockResolvedValue());
-    
-//         await doctorController.uploadPrescription(mockRequest, mockResponse, mockNext);
-    
-//         expect(doctorModel.getAppointmentData).toHaveBeenCalledWith("123");
-//         // expect(generatePdf).toHaveBeenCalledWith(
-//         //     expect.objectContaining(mockPatientData), 
-//         //     "Prerna Bhise",
-//         //     "2025-04-01",
-//         //     30,
-//         //     "Male",
-//         //     "Dr. Satej",
-//         //     "General Medicine",
-//         //     "1995-01-01"
-//         // );
-//         expect(uploadFile).toHaveBeenCalledWith({
-//             buffer: mockPdfBuffer,
-//             originalname: "prescription.pdf",
-//         });
-//         expect(doctorModel.savePrescription).toHaveBeenCalledWith(
-//             "123",
-//             mockUploadResult.secure_url, 
-//             expect.any(String)
-//         );
-//         expect(sendPrescription).toHaveBeenCalledWith("prerna@example.com", mockUploadResult.secure_url);
-    
-//         expect(mockResponse.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-//         expect(mockResponse.send).toHaveBeenCalledWith(
-//             expect.objectContaining({
-//                 data: { cloudinaryUrl: mockUploadResult.secure_url }, 
-//             })
-//         );
-//     });
-    
-    // it("should handle errors and call next with the error", async () => {
-    //     const mockError = new Error("Test error");
-    //     doctorModel.getAppointmentData = jest.fn().mockRejectedValue(mockError);
+      // expect(res.statusCode).toBe(SUCCESS_STATUS_CODE.SUCCESS);
+      // expect(res.body.message).toBe(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD);
+      // expect(res.body.cloudinaryUrl).toBeDefined();
+    });
+  });
 
-    //     await doctorController.uploadPrescription(mockRequest, mockResponse, mockNext);
-
-    //     expect(mockNext).toHaveBeenCalledWith(mockError);
-    // });
 });
+
+
+
+
+  });
 

@@ -98,11 +98,6 @@ const adminDeletePatientData = async (req, res, next) => {
   }
 };
 
-
-
-
-
-
 const ageGroupData = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
@@ -138,7 +133,7 @@ const addAdmin = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-    
+
 const name=first_name+' '+last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900); 
     const adminCode = `ADM${randomNumber}`;

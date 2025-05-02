@@ -334,7 +334,7 @@ const displayAdmin = async () => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        "SELECT email FROM user_register WHERE is_admin = true AND is_superadmin=false and is_deleted = false",
+        "SELECT id,email,first_name, last_name FROM user_register WHERE is_admin = true AND is_superadmin=false and is_deleted = false",
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -612,7 +612,7 @@ const getAllEmailForAddAdmin = async () => {
     db.query(
       `select id,
         email,first_name,last_name from user_Register 
-        where is_admin=false order by email asc`,
+        where is_admin=false and is_deleted=false order by email asc`,
       (error, results) => {
         if (error) {
           return reject(error);
