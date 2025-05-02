@@ -15,7 +15,6 @@ const cancelledAppointment = async (email,reason, patientName, appointmentDate, 
     console.log('Appointment Cancelled email sent');
 
   } catch (error) {
-    console.error('Error sending:', error);
     throw new Error('Failed to send  email');
   }
 };

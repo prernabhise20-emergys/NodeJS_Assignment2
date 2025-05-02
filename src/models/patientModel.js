@@ -1,6 +1,8 @@
 import db from "../db/connection.js";
 
 
+
+
 const getPatientInfo = async (id) => {
   try {
     return new Promise((resolve, reject) => {
@@ -120,21 +122,53 @@ const getDeletePatientInfo = async (email) => {
     throw error;
   }
 };
+// const getPersonalInfo = async (patient_id) => {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         `SELECT patient_name, date_of_birth, gender, age, 
+//         weight, 
+//        height, 
+//         bmi, country_of_origin, is_diabetic, cardiac_issue, blood_pressure 
+//         FROM personal_info WHERE is_deleted = FALSE AND patient_id = ?`,
+//         [patient_id],
+//         (error, result) => {
+//           if (error) return reject(error);
+
+//           if (result.length > 0 && result[0].height) {
+//             result[0].height = Number(result[0].height);
+//           }
+
+//           return resolve(result);
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
 const getPersonalInfo = async (patient_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT patient_name, date_of_birth, gender, age, 
-        weight, 
-       height, 
-        bmi, country_of_origin, is_diabetic, cardiac_issue, blood_pressure 
-        FROM personal_info WHERE is_deleted = FALSE AND patient_id = ?`,
+        `SELECT patient_name, 
+                DATE_FORMAT(date_of_birth, '%Y-%m-%d') as date_of_birth, 
+                gender, age, 
+                weight, height, 
+                bmi, country_of_origin, 
+                is_diabetic, cardiac_issue, blood_pressure 
+         FROM personal_info 
+         WHERE is_deleted = FALSE AND patient_id = ?`,
         [patient_id],
         (error, result) => {
           if (error) return reject(error);
 
-          if (result.length > 0 && result[0].height) {
-            result[0].height = Number(result[0].height);
+          // Ensure correct data types for numbers
+          if (result.length > 0) {
+            if (result[0].height) result[0].height = Number(result[0].height);
+            if (result[0].weight) result[0].weight = Number(result[0].weight);
+            if (result[0].bmi) result[0].bmi = Number(result[0].bmi);
           }
 
           return resolve(result);
@@ -145,7 +179,6 @@ const getPersonalInfo = async (patient_id) => {
     throw error;
   }
 };
-
 
 const createPersonalDetails = async (data, userId, email) => {
   try {

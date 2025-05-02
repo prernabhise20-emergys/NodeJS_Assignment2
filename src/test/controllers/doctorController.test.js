@@ -1,5 +1,5 @@
 const testConstants = require("../controllers/test.constants.js")
-const doctorController = require('../../controllers/doctorController.js'); 
+const doctorController = require('../../controllers/doctorController.js').default; 
 const doctorModel = require('../../models/doctorModel'); 
 const { ResponseHandler,MessageHandler } = require('../../common/utility/handlers'); 
 const { SUCCESS_STATUS_CODE, SUCCESS_MESSAGE,ERROR_STATUS_CODE,ERROR_MESSAGE } = require('../../common/constants/statusConstant');

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">11.11% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/9</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>9/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">12.5% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -181,11 +181,11 @@
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
 <a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L119'></a><a href='#L119'>119</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -193,7 +193,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -201,7 +201,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,7 +211,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -223,7 +223,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -299,37 +299,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const createPrescription = <span class="fstat-no" title="function not covered" >(d</span>ata, patientName, appointmentDate, age, gender, doctorName, specialization, birthDate) =&gt; {
-    let tableRows = <span class="cstat-no" title="statement not covered" >'';</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const createPrescription = (data, patientName, appointmentDate, age, gender, doctorName, specialization, birthDate) =&gt; {
+    let tableRows = '';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; data.medicines.length; i++) {</span>
-        const morningTiming = <span class="cstat-no" title="statement not covered" >data.morning[i] === 'both'</span>
+    for (let i = 0; i &lt; data.medicines.length; i++) {
+        const morningTiming = data.morning[i] === 'both'
             ? 'before and after meal'
             : (data.morning[i] === false
-                ? 'no'
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'no'</span>
                 : (data.morning[i]
                     ? 'before meal'
-                    : 'after meal'));
+                    : <span class="branch-1 cbranch-no" title="branch not covered" >'after meal')</span>);
 &nbsp;
-        const afternoonTiming = <span class="cstat-no" title="statement not covered" >data.afternoon[i] === 'both'</span>
-            ? 'before and after meal'
+        const afternoonTiming = data.afternoon[i] === 'both'
+            ? <span class="branch-0 cbranch-no" title="branch not covered" >'before and after meal'</span>
             : (data.afternoon[i] === false
                 ? 'no' :
-                (data.afternoon[i]
+                (<span class="branch-1 cbranch-no" title="branch not covered" >data.afternoon[i]</span>
                     ? 'before meal'
                     : 'after meal'));
 &nbsp;
-        const eveningTiming = <span class="cstat-no" title="statement not covered" >data.evening[i] === 'both'</span>
-            ? 'before and after meal'
+        const eveningTiming = data.evening[i] === 'both'
+            ? <span class="branch-0 cbranch-no" title="branch not covered" >'before and after meal'</span>
             : (data.evening[i] === false
-                ? 'no' :
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'no' </span>:
 &nbsp;
 &nbsp;
                 (data.evening[i]
                     ? 'before meal'
-                    : 'after meal'));
+                    : <span class="branch-1 cbranch-no" title="branch not covered" >'after meal')</span>);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        tableRows += `</span>
+        tableRows += `
             &lt;tr&gt;
                 &lt;td&gt;${data.medicines[i]}&lt;/td&gt;
                 &lt;td&gt;${data.capacity[i]}&lt;/td&gt;
@@ -341,7 +341,7 @@
         `;
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return `</span>
+    return `
         &lt;style&gt;
             body {
                 font-family: Arial, sans-serif;
@@ -424,7 +424,7 @@ export { createPrescription };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-02T05:24:39.966Z
+                at 2025-05-02T08:33:10.567Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

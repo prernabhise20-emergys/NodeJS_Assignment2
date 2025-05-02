@@ -17,9 +17,7 @@ const sendPrescription = async (email, cloudinaryUrl) => {
 
     await transporter.sendMail(mailOptions);
 
-    console.log('Prescription email sent successfully');
   } catch (error) {
-    console.error('Error sending prescription email:', error);
     throw new Error('Failed to send prescription email');
   }
 };

@@ -359,7 +359,7 @@ const searchDoctor = async (req, res, next) => {
   }
 };
 
-export default {
+export default{
   searchDoctor,
   getDoctorAvailability,
   createAppointment,

@@ -1,4 +1,4 @@
-const patientController=require('../../controllers/patientController.js')
+const patientController=require('../../controllers/patientController.js').default;
 const testConstants = require("../controllers/test.constants.js")
 const patientModel = require('../../models/patientModel.js'); 
 const { ResponseHandler,MessageHandler } = require('../../common/utility/handlers'); 

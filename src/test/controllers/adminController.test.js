@@ -1,5 +1,5 @@
 const testConstants = require("../controllers/test.constants.js")
-const adminController = require('../../controllers/adminController.js'); 
+const adminController = require('../../controllers/adminController.js').default; 
 const adminModel = require('../../models/adminModel'); 
 const { ResponseHandler,MessageHandler } = require('../../common/utility/handlers'); 
 const { SUCCESS_STATUS_CODE, SUCCESS_MESSAGE,ERROR_STATUS_CODE,ERROR_MESSAGE } = require('../../common/constants/statusConstant');
@@ -47,7 +47,6 @@ describe('Admin Controller Test Cases',()=>{
         it('Failure: should call next with an error when admin is not authorized', async () => {
           mockReq.user.admin = false;
       
-          const adminController = require('../../controllers/adminController.js');
       
           await adminController.getAllInfo(mockReq, mockRes, mockNext);
       

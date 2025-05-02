@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">24.67% </span>
+                <span class="strong">23.94% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>57/231</span>
+                <span class='fraction'>57/238</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">25.67% </span>
+                <span class="strong">24.89% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>57/222</span>
+                <span class='fraction'>57/229</span>
             </div>
         
             
@@ -748,7 +748,28 @@
 <a name='L683'></a><a href='#L683'>683</a>
 <a name='L684'></a><a href='#L684'>684</a>
 <a name='L685'></a><a href='#L685'>685</a>
-<a name='L686'></a><a href='#L686'>686</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L686'></a><a href='#L686'>686</a>
+<a name='L687'></a><a href='#L687'>687</a>
+<a name='L688'></a><a href='#L688'>688</a>
+<a name='L689'></a><a href='#L689'>689</a>
+<a name='L690'></a><a href='#L690'>690</a>
+<a name='L691'></a><a href='#L691'>691</a>
+<a name='L692'></a><a href='#L692'>692</a>
+<a name='L693'></a><a href='#L693'>693</a>
+<a name='L694'></a><a href='#L694'>694</a>
+<a name='L695'></a><a href='#L695'>695</a>
+<a name='L696'></a><a href='#L696'>696</a>
+<a name='L697'></a><a href='#L697'>697</a>
+<a name='L698'></a><a href='#L698'>698</a>
+<a name='L699'></a><a href='#L699'>699</a>
+<a name='L700'></a><a href='#L700'>700</a>
+<a name='L701'></a><a href='#L701'>701</a>
+<a name='L702'></a><a href='#L702'>702</a>
+<a name='L703'></a><a href='#L703'>703</a>
+<a name='L704'></a><a href='#L704'>704</a>
+<a name='L705'></a><a href='#L705'>705</a>
+<a name='L706'></a><a href='#L706'>706</a>
+<a name='L707'></a><a href='#L707'>707</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -961,6 +982,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -971,7 +1014,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1634,30 +1676,51 @@ const createPersonalDetails = async (data, userId, email) =&gt; {
 &nbsp;
 const updatePersonalDetails = <span class="fstat-no" title="function not covered" >as</span>ync (data, patient_id) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
-    const values = <span class="cstat-no" title="statement not covered" >[</span>
-      data.patient_name,
-      data.date_of_birth,
-      data.gender,
-      data.height,
-      data.weight,
-      data.is_diabetic,
-      data.cardiac_issue,
-      data.blood_pressure,
-      data.country_of_origin,
+    const today = <span class="cstat-no" title="statement not covered" >new Date();</span>
+&nbsp;
+    let {
+      patient_name,
+      date_of_birth,
+      gender,
+      height,
+      weight,
+      is_diabetic,
+      cardiac_issue,
+      blood_pressure,
+      country_of_origin
+    } = <span class="cstat-no" title="statement not covered" >data;</span>
+&nbsp;
+    const patientHeight = <span class="cstat-no" title="statement not covered" >height; </span>
+    const birthDate = <span class="cstat-no" title="statement not covered" >date_of_birth;</span>
+    const convertedHeight = <span class="cstat-no" title="statement not covered" >height * 0.3048; </span>
+    const userAge = <span class="cstat-no" title="statement not covered" >today.getFullYear() - new Date(date_of_birth).getFullYear();</span>
+    let userBMI = <span class="cstat-no" title="statement not covered" >weight / (convertedHeight * convertedHeight); </span>
+&nbsp;
+    const valuesArray = <span class="cstat-no" title="statement not covered" >[</span>
+      patient_name,
+      birthDate,
+      userAge,
+      gender,
+      patientHeight, 
+      weight,
+      userBMI,
+      is_diabetic,
+      cardiac_issue,
+      blood_pressure,
+      country_of_origin,
       patient_id,
     ];
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      db.query(</span>
-        `UPDATE personal_info SET patient_name=?, date_of_birth = ?,gender=?, height = ?, 
-        weight = ?, is_diabetic = ?, cardiac_issue = ?, blood_pressure = ?, country_of_origin = ? 
-        WHERE patient_id = ?`,
-        values,
+        `UPDATE personal_info SET patient_name=?, date_of_birth=?, age=?, gender=?, height=?, 
+        weight=?, bmi=?, is_diabetic=?, cardiac_issue=?, blood_pressure=?, country_of_origin=? 
+        WHERE patient_id=?`,
+        valuesArray,
 <span class="fstat-no" title="function not covered" >        (e</span>rror, result) =&gt; {
 <span class="cstat-no" title="statement not covered" >          if (error) {</span>
 <span class="cstat-no" title="statement not covered" >            return reject(error);</span>
           }
-&nbsp;
 <span class="cstat-no" title="statement not covered" >          resolve(result);</span>
         }
       );
@@ -2125,7 +2188,7 @@ export {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-02T05:24:39.966Z
+                at 2025-05-02T08:33:10.567Z
             </div>
         <script src="../prettify.js"></script>
         <script>

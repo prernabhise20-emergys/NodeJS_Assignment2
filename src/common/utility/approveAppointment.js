@@ -14,7 +14,6 @@ const approveRequest = async (email, patient_name, appointment_date, appointment
     console.log('Appointment Confirmation email sent');
 
   } catch (error) {
-    console.error('Error sending:', error);
     throw new Error('Failed to send  email');
   }
 };

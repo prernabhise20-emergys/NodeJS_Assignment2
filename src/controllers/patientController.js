@@ -56,18 +56,31 @@ const showPatientDetails = async (req, res, next) => {
 };
 
 // *********************************************************************
+// const getPersonalDetails = async (req, res, next) => {
+//   try {
+//     const {params:{ patient_id }} = req;
+//     const familyInfo = await getPersonalInfo(patient_id);
+
+//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
+//     );
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 const getPersonalDetails = async (req, res, next) => {
   try {
-    const {params:{ patient_id }} = req;
+    const { params: { patient_id } } = req;
     const familyInfo = await getPersonalInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
   } catch (error) {
     next(error);
   }
 };
+
 
 const createPersonalInfo = async (req, res, next) => {
   try {

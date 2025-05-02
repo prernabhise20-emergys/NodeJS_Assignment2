@@ -1,7 +1,7 @@
 const testConstants = require("../controllers/test.constants.js")
 const userModel = require('../../models/userModel.js');
 // const { register, login, updateUser,deleteUser, getUser, forgotPassword, resetPassword,changePassword, getDoctors, createAppointment,getDoctorAvailability, searchDoctor } = require('../../controllers/userController.js');
-const userController=require('../../controllers/userController.js')
+const userController=require('../../controllers/userController.js').default;
 const { ResponseHandler, MessageHandler } = require("../../common/utility/handlers.js");
 
 const bcrypt = require('bcryptjs');
