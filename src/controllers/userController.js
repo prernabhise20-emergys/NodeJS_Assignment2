@@ -183,22 +183,7 @@ const deleteUser = async (req, res, next) => {
 const getUser = async (req, res, next) => {
   try {
     const { user: { userid: id, email: emailID } } = req;
-    const checkExists = await checkAlreadyExist(emailID);
-
-    if (checkExists) {
-      const deletedUserInfo = await getDeleteUserInfo(emailID);
-      if (deletedUserInfo) {
-        return res
-          .status(SUCCESS_STATUS_CODE.SUCCESS)
-          .send(
-            new ResponseHandler(
-              SUCCESS_STATUS_CODE.SUCCESS,
-              SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
-              deletedUserInfo
-            )
-          );
-      }
-    } else {
+    
       const user = await getUserData(id);
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -210,7 +195,7 @@ const getUser = async (req, res, next) => {
           )
         );
     }
-  } catch (error) {
+   catch (error) {
     next(error);
   }
 };
