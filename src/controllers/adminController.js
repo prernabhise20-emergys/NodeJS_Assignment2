@@ -11,6 +11,7 @@ import approveRequest from "../common/utility/approveAppointment.js"
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import {
+  checkIfUserExists,
   createAdmin,
   patientHaveAppointment,
   getAllEmailForAddDoctor,
@@ -33,7 +34,7 @@ import {
   getAllPatientAppointment,
   cancelStatus
 } from "../models/adminModel.js";
-const { UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
+const {USER_EXISTS, UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 
 const getAllInfo = async (req, res, next) => {
@@ -132,6 +133,12 @@ const ageGroupData = async (req, res, next) => {
 const addAdmin = async (req, res, next) => {
   try {
     const { body: { email,user_password,first_name,last_name,mobile_number } } = req;
+
+    const userExists = await checkIfUserExists(email);
+    if (userExists) {
+      throw USER_EXISTS;
+    }
+    
 const name=first_name+' '+last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900); 
     const adminCode = `ADM${randomNumber}`;
@@ -218,6 +225,11 @@ const addDoctor = async (req, res, next) => {
     const { user: { admin: is_admin } } = req;
     const { body: {specialization, contact_number, email, doctorInTime, doctorOutTime, user_password, first_name, last_name } } = req;
 
+    
+    const userExists = await checkIfUserExists(email);
+    if (userExists) {
+      throw USER_EXISTS;
+    }
     const docCode = await generateDoctorCode();
 
     const data = {

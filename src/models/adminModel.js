@@ -346,7 +346,26 @@ const displayAdmin = async () => {
     throw error;
   }
 };
+const checkIfUserExists = async (email) => {
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT id FROM user_register WHERE is_deleted=false and email= ?",
+        [email],
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results);
+        }
+      );
+    });
 
+    return result.length > 0;
+  } catch (error) {
+    throw error;
+  }
+};
 const createDoctorData = async (data) => {
   try {
     const doctorData = { ...data };
@@ -720,6 +739,7 @@ const patientHaveAppointment = async (patient_id) => {
   });
 };
 export {
+  checkIfUserExists,
   patientHaveAppointment,
   createAdmin,
   cancelStatus,
