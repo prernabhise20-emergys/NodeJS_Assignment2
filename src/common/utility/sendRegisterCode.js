@@ -12,7 +12,6 @@ const sendRegisterCode = async (email,name,code,user_password,loginToken) => {
 
     await transporter.sendMail(mailOptions);
 
-    console.log('Registration Code email sent');
 
   } catch (error) {
     console.error('Error sending:', error);

@@ -12,7 +12,6 @@ const cancelledAppointment = async (email,reason, patientName, appointmentDate, 
 
     await transporter.sendMail(mailOptions);
 
-    console.log('Appointment Cancelled email sent');
 
   } catch (error) {
     throw new Error('Failed to send  email');

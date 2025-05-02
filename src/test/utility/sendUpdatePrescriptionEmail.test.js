@@ -1,6 +1,8 @@
 const transporter=require('../../config/emailConfig.js')
 const sendUpdatePrescriptionEmail=require('../../common/utility/sendUpdatePrescriptionEmail.js').default
 const {updatedPrescriptionBody}=require('../../common/constants/mailTemplate.js')
+const testConstants=require('../utility/test.constants.js').default
+
 jest.mock('../../config/emailConfig.js', () => ({
   sendMail: jest.fn(),
 }));
@@ -10,8 +12,8 @@ jest.mock('../../common/constants/mailTemplate.js', () => ({
 }));
 
 describe('sendUpdatePrescriptionEmail', () => {
-  const email = 'test@example.com';
-  const prescriptionUrl = 'https://example.com/prescription.pdf';
+  const email = testConstants.SEND_PRESCRIPTION.email;
+  const prescriptionUrl = testConstants.SEND_PRESCRIPTION.cloudinaryUrl;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -41,7 +43,7 @@ describe('sendUpdatePrescriptionEmail', () => {
   it('should log error if email sending fails', async () => {
     const error = new Error('SMTP error');
     transporter.sendMail.mockRejectedValueOnce(error);
-    console.error = jest.fn(); // mock console.error
+    console.error = jest.fn(); 
 
     await sendUpdatePrescriptionEmail(email, prescriptionUrl);
 

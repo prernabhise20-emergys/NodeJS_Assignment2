@@ -1,6 +1,7 @@
 const {uploadFile}=require('../../common/utility/upload.js')
 const cloudinary=require('cloudinary')
 const streamifier=require('streamifier')
+
 jest.mock('cloudinary');
 jest.mock('streamifier');
 
@@ -25,7 +26,6 @@ describe('uploadFile', () => {
     cloudinary.v2 = {
       uploader: {
         upload_stream: jest.fn((options, callback) => {
-          // Simulate success async callback
           process.nextTick(() => callback(null, expectedResult));
           return {};
         }),
@@ -44,7 +44,6 @@ describe('uploadFile', () => {
     cloudinary.v2 = {
       uploader: {
         upload_stream: jest.fn((options, callback) => {
-          // Simulate error async callback
           process.nextTick(() => callback(expectedError));
           return {};
         }),

@@ -1,6 +1,8 @@
 const transporter=require('../../config/emailConfig.js')
 const sendVerificationEmail=require('../../common/utility/sendVerificationEmail.js').default
 const {verificationEmail}=require('../../common/constants/mailTemplate.js')
+const testConstants=require('../utility/test.constants.js').default
+
 jest.mock('../../config/emailConfig.js', () => ({
   sendMail: jest.fn(),
 }));
@@ -10,8 +12,8 @@ jest.mock('../../common/constants/mailTemplate.js', () => ({
 }));
 
 describe('sendVerificationEmail', () => {
-  const toEmail = 'test@example.com';
-  const loginToken = 'mockToken123';
+  const toEmail = testConstants.SEND_VERIFICATION.toEmail;
+  const loginToken = testConstants.SEND_VERIFICATION.loginToken;
 
   beforeEach(() => {
     jest.clearAllMocks();

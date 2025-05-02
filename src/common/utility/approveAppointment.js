@@ -11,7 +11,6 @@ const approveRequest = async (email, patient_name, appointment_date, appointment
 
     await transporter.sendMail(mailOptions);
 
-    console.log('Appointment Confirmation email sent');
 
   } catch (error) {
     throw new Error('Failed to send  email');
