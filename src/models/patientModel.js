@@ -199,18 +199,38 @@ const createPersonalDetails = async (data, userId, email) => {
 
 const updatePersonalDetails = async (data, patient_id) => {
   try {
-    const values = [
-      data.patient_name,
-      data.date_of_birth,
-      data.gender,
-      data.height,
-      data.weight,
-      data.is_diabetic,
-      data.cardiac_issue,
-      data.blood_pressure,
-      data.country_of_origin,
+    let{
+      patient_name,
+      date_of_birth,
+      gender,
+      height,
+      weight,
+      is_diabetic,
+      cardiac_issue,
+      blood_pressure,
+      country_of_origin,
+      patient_id
+    }=data
+    const patientHeight = height;
+    const birthDate = date_of_birth;
+    height = height * 0.3048;
+    const userAge = today.getFullYear() - new Date(date_of_birth).getFullYear();
+    let userBMI = weight / (height * height);
+
+    const values = {
+      patient_name: patient_name,
+      date_of_birth: birthDate,
+      age: userAge,
+      gender: gender,
+      height: patientHeight,
+      weight: weight,
+      bmi: userBMI,
+      is_diabetic: is_diabetic,
+      cardiac_issue: cardiac_issue,
+      blood_pressure: blood_pressure,
+      country_of_origin: country_of_origin,
       patient_id,
-    ];
+    };
 
     return new Promise((resolve, reject) => {
       db.query(
