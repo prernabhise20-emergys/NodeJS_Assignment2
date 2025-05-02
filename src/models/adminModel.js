@@ -727,7 +727,7 @@ const patientHaveAppointment = async (patient_id) => {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT patient_id, status FROM appointments 
-       WHERE patient_id = ? AND status IN ('Pending', 'Schedule')`,
+       WHERE patient_id = ? AND status IN ('Pending', 'Scheduled')`,
       [patient_id], 
       (error, results) => {
         if (error) {
