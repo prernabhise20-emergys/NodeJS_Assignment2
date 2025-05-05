@@ -101,7 +101,6 @@ describe('getPersonalDetails', () => {
         mockFamilyInfo
       )
     );
-    // expect(mockNext).not.toHaveBeenCalled();
   });
 
   it('Failure: should call next with error when an exception occurs', async () => {
@@ -495,7 +494,6 @@ describe('updateFamilyInfoDetails', () => {
     await patientController.updateFamilyInfoDetails(req, res, mockNext);
 
     expect(patientModel.checkUserWithPatientID).toHaveBeenCalledWith(mockUserId, mockBody.patient_id);
-    // expect(mockNext).toHaveBeenCalledWith(NOT_UPDATE);
   });
 
   it('Failure: should call next with error when an exception occurs', async () => {
@@ -785,13 +783,10 @@ describe('uploadDocument', () => {
   it('Success: should upload document', async () => {
     const req = mockRequest({ originalname: 'file.pdf' }, testConstants.uploadDocumentReq);
     const res = mockResponse();
-    // uploadFile.mockResolvedValue(testConstants.uploadSecureUrl);
     patientModel.saveDocument.mockResolvedValue();
 
     await patientController.uploadDocument(req, res, mockNext);
-
-    // expect(patientModel.saveDocument).toHaveBeenCalled();
-    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.CREATED);
+;
   });
 
   it('Failure: should call next if no file provided', async () => {
@@ -821,14 +816,11 @@ describe('updateDocument', () => {
     );
     const res = mockResponse();
     patientModel.checkDocumentExists.mockResolvedValue(true);
-    // uploadFile.mockResolvedValue(testConstants.uploadSecureUrl);
     patientModel.checkUserWithPatientID.mockResolvedValue(true);
     patientModel.modifyDocument.mockResolvedValue();
 
     await patientController.updateDocument(req, res, mockNext);
 
-    // expect(patientModel.modifyDocument).toHaveBeenCalled();
-    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.CREATED);
   });
 
   it('Failure: should call next if document does not exist', async () => {

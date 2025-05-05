@@ -194,7 +194,6 @@ const ageGroupWiseData = (is_admin) => {
 
 
 
-// **********************************************************
 
 const removeAdminAuthority = async (isAdmin, email) => {
   try {

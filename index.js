@@ -28,7 +28,6 @@ app.use(cors(corsOptions));
 registerRoutes(app);
 app.use(errorHandler);
 
-
 const { env: { PORT } } = process;
 const port = PORT || 3000;
 

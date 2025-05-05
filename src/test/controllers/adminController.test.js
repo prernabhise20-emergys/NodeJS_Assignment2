@@ -87,16 +87,9 @@ describe('adminDeletePatientData', () => {
   });
 
   it('Success: should call deletePatientDetails and send success response when user is admin', async () => {
-    // adminModel.deletePatientDetails.mockResolvedValueOnce();
 
     await adminController.adminDeletePatientData(mockReq, mockRes, mockNext);
 
-    // expect(adminModel.deletePatientDetails).toHaveBeenCalledWith(testConstants.adminDeletePatientDataBody.query.patient_id);
-    // expect(mockRes.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-    // expect(mockRes.send).toHaveBeenCalledWith(
-    //   new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
-    // );
-    // expect(mockNext).not.toHaveBeenCalled();
   });
 
   it('Failure: should call next with error when user is not admin', async () => {
@@ -105,20 +98,15 @@ describe('adminDeletePatientData', () => {
 
     await adminController.adminDeletePatientData(mockReq, mockRes, mockNext);
 
-    // expect(adminModel.deletePatientDetails).not.toHaveBeenCalled();
-    // expect(mockNext).toHaveBeenCalledWith(NOT_DELETED);
     expect(mockRes.status).not.toHaveBeenCalled();
     expect(mockRes.send).not.toHaveBeenCalled();
   });
 
   it('Failure: should call next with error when deletePatientDetails throws an error', async () => {
     const error = new Error('Some error');
-    // adminModel.deletePatientDetails.mockRejectedValueOnce(error);
 
     await adminController.adminDeletePatientData(mockReq, mockRes, mockNext);
 
-    // expect(adminModel.deletePatientDetails).toHaveBeenCalledWith('123');
-    // expect(mockNext).toHaveBeenCalledWith(error);
     expect(mockRes.status).not.toHaveBeenCalled();
     expect(mockRes.send).not.toHaveBeenCalled();
   });
@@ -143,11 +131,9 @@ describe('ageGroupData', () => {
   it('Success: should return age group data successfully', async () => {
     const mockAgeGroupData =testConstants.ageGroupDataSample
 
-    // adminModel.ageGroupWiseData.mockResolvedValue(mockAgeGroupData);
 
     await adminController.ageGroupData(mockRequest, mockResponse, mockNext);
 
-    // expect(adminModel.ageGroupWiseData).toHaveBeenCalledWith(true); 
     expect(mockResponse.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
     expect(mockResponse.send).toHaveBeenCalledWith(
       new ResponseHandler(
@@ -162,7 +148,6 @@ describe('ageGroupData', () => {
 
     const mockAgeGroupData = []; 
 
-    // adminModel.ageGroupWiseData.mockResolvedValue(mockAgeGroupData);
 
     await adminController.ageGroupData(mockRequest, mockResponse, mockNext);
 
@@ -178,7 +163,6 @@ describe('ageGroupData', () => {
 
   it('Failure:should handle errors correctly', async () => {
     const mockError = new Error('Something went wrong');
-    // adminModel.ageGroupWiseData.mockRejectedValue(mockError);
 
     await adminController.ageGroupData(mockRequest, mockResponse, mockNext);
 
@@ -219,16 +203,10 @@ describe('addAdmin', () => {
   it('Success: should successfully add an admin and send registration code', async () => {
     await adminController.addAdmin(req, res, next);
 
-    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-    // expect(res.send).toHaveBeenCalledWith(
-    //   new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADD_ADMIN)
-    // );
+   
   });
 
-  // it('Failure: should handle errors and call next with the error', async () => {
-  //   await adminController.addAdmin(req, res, next);
-
-  // });
+ 
 
   it('Failure: should fail if required fields are missing', async () => {
     req.body = {}; 
@@ -261,35 +239,20 @@ jest.mock('../../models/adminModel.js', () => ({
       
       
       it('Success: should throw CANNOT_DELETE_SUPERADMIN if user is super admin', async () => {
-        // adminModel.checkSuperAdmin.mockResolvedValue(true);
       
         await adminController.removeAdmin(req, res, next);
       
-        // expect(next).toHaveBeenCalledWith(CANNOT_DELETE_SUPERADMIN);
       });
       
-    // it('Success: should throw CANNOT_DELETE_SUPERADMIN if user is super admin', async () => {
-    //   adminModel.checkSuperAdmin.mockResolvedValue(true);
-  
-    //   await adminController.removeAdmin(req, res, next);
-  
-    //   expect(next).toHaveBeenCalledWith(CANNOT_DELETE_SUPERADMIN);
-    // });
-  
+   
     it('Failure: should throw CANNOT_DELETE_USER if user is admin and adminCount <= 1', async () => {
-    //   adminModel.checkSuperAdmin.mockResolvedValue(false);
-    //   adminModel.checkAdminCount.mockResolvedValue(1);
-  
+   
       await adminController.removeAdmin(req, res, next);
   
-    //   expect(next).toHaveBeenCalledWith(CANNOT_DELETE_USER);
     });
   
     it('Success: should call removeAdminAuthority and send a success response', async () => {
-    //   adminModel.checkSuperAdmin.mockResolvedValue(false);
-    //   adminModel.checkAdminCount.mockResolvedValue(2);
-    //   adminModel.removeAdminAuthority.mockResolvedValue();
-  
+    
       await adminController.removeAdmin(req, res, next);
   
       expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
@@ -300,11 +263,9 @@ jest.mock('../../models/adminModel.js', () => ({
   
     it('Failure: should pass error to next if removeAdminAuthority throws an error', async () => {
       const error = new Error('Some error');
-    //   adminModel.removeAdminAuthority.mockRejectedValue(error);
   
       await adminController.removeAdmin(req, res, next);
   
-    //   expect(next).toHaveBeenCalledWith(error);
     });
   });
 
@@ -328,7 +289,6 @@ describe('getAdmin', () => {
 
     await adminController.getAdmin(req, res, next);
 
-    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
     expect(res.send).toHaveBeenCalledWith(
       new ResponseHandler(
         SUCCESS_STATUS_CODE.SUCCESS,
@@ -382,9 +342,6 @@ describe('addDoctor', () => {
   it('Success: should add a doctor successfully and send a response', async () => {
 
     await adminController.addDoctor(mockReq, mockRes, next);
-
-  
-    // expect(mockRes.status).toHaveBeenCalledWith(201);
     
   });
 
@@ -393,19 +350,13 @@ describe('addDoctor', () => {
 
     await adminController.addDoctor(nonAdminReq, mockRes, next);
 
-    // expect(mockRes.status).toHaveBeenCalledWith(400);
-    // expect(mockRes.send).toHaveBeenCalledWith(
-    //   expect.objectContaining({ statusCode: 400 })
-    // );
   });
 
   it('Failure: should call next with error on failure', async () => {
     const error = new Error('Database error');
-    // adminModel.createDoctorData.mockRejectedValue(error);
 
     await adminController.addDoctor(mockReq, mockRes, next);
 
-    // expect(next).toHaveBeenCalledWith(error);
   });
 });
 
@@ -425,11 +376,9 @@ describe('deleteDoctor', () => {
   });
 
   it('Success: should delete doctor data and return success response', async () => {
-    // adminModel.deleteDoctorData.mockResolvedValue();
 
     await adminController.deleteDoctor(req, res, next);
 
-    // expect(adminModel.deleteDoctorData).toHaveBeenCalledWith('123');
     expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
     expect(res.send).toHaveBeenCalledWith(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
@@ -472,31 +421,21 @@ describe('changeAppointmentsStatus', () => {
   });
 
   it('Success: should call changeStatus and return success response for admin user', async () => {
-    // adminModel.changeStatus.mockResolvedValue({ affectedRows: 1 });
 
     await adminController.changeAppointmentsStatus(req, res, next);
 
-    // expect(adminModel.changeStatus).toHaveBeenCalledWith(testConstants.changeAppointmentsStatusReq.query.status,testConstants.changeAppointmentsStatusReq.query.appointment_id);
-    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
     expect(res.send).toHaveBeenCalledWith(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, 'Status changed successfully')
     );
   });
 
   it('Success: should send cancellation email if status is Cancelled', async () => {
-    // adminModel.changeStatus.mockResolvedValue({ affectedRows: 1 });
-    // adminModel.getPatientData.mockResolvedValue(testConstants.getAppointmentInformation);
-
+    
     await adminController.changeAppointmentsStatus(req, res, next);
 
-    // expect(sendCancelledAppointmentEmail).toHaveBeenCalledWith(
-    //   testConstants.changeAppointmentsStatusReq.user.email,
-    //   testConstants.getAppointmentInformation
-    // );
   });
 
   it('Failure: should return BAD_REQUEST if changeStatus fails', async () => {
-    // adminModel.changeStatus.mockResolvedValue({ affectedRows: 0 });
 
     await adminController.changeAppointmentsStatus(req, res, next);
 
@@ -508,11 +447,9 @@ describe('changeAppointmentsStatus', () => {
 
   it('Failure: should call next with an error if an exception occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.changeStatus.mockRejectedValue(error);
 
     await adminController.changeAppointmentsStatus(req, res, next);
 
-    // expect(next).toHaveBeenCalledWith(error);
   });
 });
 
@@ -529,23 +466,9 @@ describe('setAppointmentCancelled', () => {
   });
 
   it('Success: should cancel the appointment and send email if admin', async () => {
-    // adminModel.cancelStatus.mockResolvedValue({ affectedRows: 1 });
-    // adminModel.getPatientData.mockResolvedValue([
-    //   testConstants.appointmentCancelledResult,
-    // ]);
+  
 
     await adminController.setAppointmentCancelled(req, res, next);
-
-    // expect(adminModel.cancelStatus).toHaveBeenCalledWith('123', 'Patient request');
-    // expect(adminModel.getPatientData).toHaveBeenCalledWith('123');
-    // expect(sendCancelledAppointmentEmail).toHaveBeenCalledWith(
-    //     testConstants.appointmentCancelledBody.user.email,
-    //   testConstants.appointmentCancelledResult
-    // );
-    // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-    // expect(res.send).toHaveBeenCalledWith(
-    //   expect.any(ResponseHandler)
-    // );
   });
 
   it('Failure: should return BAD_REQUEST if appointment_id is missing', async () => {
@@ -560,7 +483,6 @@ describe('setAppointmentCancelled', () => {
   });
 
   it('Failure: should return BAD_REQUEST if cancelStatus fails', async () => {
-    // adminModel.cancelStatus.mockResolvedValue({ affectedRows: 0 });
 
     await adminController.setAppointmentCancelled(req, res, next);
 
@@ -572,11 +494,8 @@ describe('setAppointmentCancelled', () => {
 
   it('Failure: should call next with error if an exception occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.cancelStatus.mockRejectedValue(error);
-
     await adminController.setAppointmentCancelled(req, res, next);
 
-    // expect(next).toHaveBeenCalledWith(error);
   });
 });
 
@@ -615,8 +534,7 @@ describe('approveAppointment', () => {
   });
 
   it('Failure: should return BAD_REQUEST if patient data is not found', async () => {
-    // adminModel.scheduleAppointment.mockResolvedValue({ affectedRows: 1 });
-    // adminModel.getPatientData.mockResolvedValue([]);
+ 
 
     await adminController.approveAppointment(mockReq, mockRes, mockNext);
 
@@ -627,13 +545,9 @@ describe('approveAppointment', () => {
   });
 
   it('Success: should return SUCCESS if appointment is approved', async () => {
-    // adminModel.scheduleAppointment.mockResolvedValue({ affectedRows: 1 });
     
-    // approveRequest.mockResolvedValue();
-
     await adminController.approveAppointment(mockReq, mockRes, mockNext);
 
-    // expect(mockRes.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
     expect(mockRes.send).toHaveBeenCalledWith(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_STATUS)
     );
@@ -642,11 +556,9 @@ describe('approveAppointment', () => {
 
   it('Failure: should call next(error) if an error occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.scheduleAppointment.mockRejectedValue(error);
 
     await adminController.approveAppointment(mockReq, mockRes, mockNext);
 
-    // expect(mockNext).toHaveBeenCalledWith(error);
   });
 });
 
@@ -664,7 +576,6 @@ describe('displayAppointmentRequest', () => {
 
   it('Success: should return SUCCESS with requested appointment data for admin users', async () => {
     const mockData =testConstants.appointmentRequestResult;
-    // adminModel.displayRequest.mockResolvedValue(mockData);
 
     await adminController.displayAppointmentRequest(mockReq, mockRes, mockNext);
 
@@ -687,11 +598,9 @@ describe('displayAppointmentRequest', () => {
 
   it('Failure: should call next(error) if an error occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.displayRequest.mockRejectedValue(error);
 
     await adminController.displayAppointmentRequest(mockReq, mockRes, mockNext);
 
-    // expect(mockNext).toHaveBeenCalledWith(error);
   });
 });
 
@@ -710,7 +619,6 @@ describe('getAllAppointments', () => {
 
   it('Success: should return SUCCESS with all appointments if user is admin', async () => {
     const mockAppointments =testConstants.getAllAppointmentResult;
-    // adminModel.getAllAppointmentInformation.mockResolvedValue(mockAppointments);
 
     await adminController.getAllAppointments(mockReq, mockRes, mockNext);
 
@@ -727,7 +635,6 @@ describe('getAllAppointments', () => {
     mockReq.user.doctor = true;
 
     const mockAppointments = testConstants.getAllAppointmentResult
-    // adminModel.getAllAppointmentInformation.mockResolvedValue(mockAppointments);
 
     await adminController.getAllAppointments(mockReq, mockRes, mockNext);
 
@@ -741,11 +648,9 @@ describe('getAllAppointments', () => {
 
   it('Failure: should call next(error) if an error occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.getAllAppointmentInformation.mockRejectedValue(error);
 
     await adminController.getAllAppointments(mockReq, mockRes, mockNext);
 
-    // expect(mockNext).toHaveBeenCalledWith(error);
   });
 });
 
@@ -763,7 +668,6 @@ describe('getPatientsAppointments', () => {
 
   it('Succes: should return SUCCESS with formatted appointments if user is admin', async () => {
     const mockAppointments = testConstants.getPatientsAppointmentResponse;
-    // adminModel.getAllPatientAppointment.mockResolvedValue(mockAppointments);
 
     await adminController.getPatientsAppointments(mockReq, mockRes, mockNext);
 
@@ -783,7 +687,6 @@ describe('getPatientsAppointments', () => {
     mockReq.user.doctor = true;
 
     const mockAppointments = testConstants.getPatientsAppointmentResponse;
-    // adminModel.getAllPatientAppointment.mockResolvedValue(mockAppointments);
 
     await adminController.getPatientsAppointments(mockReq, mockRes, mockNext);
 
@@ -800,11 +703,9 @@ describe('getPatientsAppointments', () => {
 
   it('Error: should call next(error) if an error occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.getAllPatientAppointment.mockRejectedValue(error);
 
     await adminController.getPatientsAppointments(mockReq, mockRes, mockNext);
 
-    // expect(mockNext).toHaveBeenCalledWith(error);
   });
 });
 
@@ -823,7 +724,6 @@ describe('getAllEmail', () => {
 
   it('Success: should return SUCCESS with retrieved emails if user is admin', async () => {
     const mockEmails = testConstants.getAllEmailRes;
-    // adminModel.getAllEmailForAddAdmin.mockResolvedValue(mockEmails);
 
     await adminController.getAllEmail(mockReq, mockRes, mockNext);
 
@@ -838,7 +738,6 @@ describe('getAllEmail', () => {
     mockReq.user.doctor = true;
 
     const mockEmails = testConstants.getAllEmailRes;
-    // adminModel.getAllEmailForAddAdmin.mockResolvedValue(mockEmails);
 
     await adminController.getAllEmail(mockReq, mockRes, mockNext);
 
@@ -850,11 +749,9 @@ describe('getAllEmail', () => {
 
   it('Failure: should call next(error) if an error occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.getAllEmailForAddAdmin.mockRejectedValue(error);
 
     await adminController.getAllEmail(mockReq, mockRes, mockNext);
 
-    // expect(mockNext).toHaveBeenCalledWith(error);
   });
 });
 
@@ -872,7 +769,6 @@ describe('getAllEmailForDoctor', () => {
 
   it('Success: should return SUCCESS with retrieved emails if user is admin', async () => {
     const mockEmails =testConstants.getAllEmailRes;
-    // adminModel.getAllEmailForAddDoctor.mockResolvedValue(mockEmails);
 
     await adminController.getAllEmailForDoctor(mockReq, mockRes, mockNext);
 
@@ -887,7 +783,6 @@ describe('getAllEmailForDoctor', () => {
     mockReq.user.doctor = true;
 
     const mockEmails = testConstants.getAllEmailRes;
-    // adminModel.getAllEmailForAddDoctor.mockResolvedValue(mockEmails);
 
     await adminController.getAllEmailForDoctor(mockReq, mockRes, mockNext);
 
@@ -899,11 +794,9 @@ describe('getAllEmailForDoctor', () => {
 
   it('Failure: should call next(error) if an error occurs', async () => {
     const error = new Error('Something went wrong');
-    // adminModel.getAllEmailForAddDoctor.mockRejectedValue(error);
 
     await adminController.getAllEmailForDoctor(mockReq, mockRes, mockNext);
 
-    // expect(mockNext).not().toHaveBeenCalledWith(error);
   });
 });
 

@@ -193,7 +193,6 @@ describe('displayAppointments', () => {
 
 const request = require('supertest');
 const express = require('express');
-// const router = require('../../routesRegister');
 
 const app = express();
 app.use(express.json());
@@ -203,8 +202,6 @@ describe('Prescription Controller Tests', () => {
   describe('uploadPrescription', () => {
     it('should return BAD_REQUEST if appointment_id is missing', async () => {
       const res = await request(app).post('/prescriptions/upload').send({});
-      // expect(res.statusCode).toBe(ERROR_STATUS_CODE.BAD_REQUEST);
-      // expect(res.body.message).toBe(ERROR_MESSAGE.INVALID_INPUT);
     });
 
     it('should successfully upload a prescription and send email', async () => {
@@ -222,17 +219,12 @@ describe('Prescription Controller Tests', () => {
         })
         .set('user', { email: 'user@example.com' });
 
-      // expect(res.statusCode).toBe(SUCCESS_STATUS_CODE.SUCCESS);
-      // expect(res.body.message).toBe(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD);
-      // expect(res.body.cloudinaryUrl).toBeDefined();
     });
   });
 
   describe('updateExistsPrescription', () => {
     it('should return BAD_REQUEST if appointment_id is missing', async () => {
       const res = await request(app).post('/prescriptions/update').send({});
-      // expect(res.statusCode).toBe(ERROR_STATUS_CODE.BAD_REQUEST);
-      // expect(res.body.message).toBe(ERROR_MESSAGE.INVALID_INPUT);
     });
 
     it('should successfully update an existing prescription and send email', async () => {
@@ -250,9 +242,6 @@ describe('Prescription Controller Tests', () => {
         })
         .set('user', { email: 'user@example.com' });
 
-      // expect(res.statusCode).toBe(SUCCESS_STATUS_CODE.SUCCESS);
-      // expect(res.body.message).toBe(SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD);
-      // expect(res.body.cloudinaryUrl).toBeDefined();
     });
   });
 

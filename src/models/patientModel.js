@@ -139,7 +139,6 @@ const getPersonalInfo = async (patient_id) => {
         (error, result) => {
           if (error) return reject(error);
 
-          // Ensure correct data types for numbers
           if (result.length > 0) {
             if (result[0].height) result[0].height = Number(result[0].height);
             if (result[0].weight) result[0].weight = Number(result[0].weight);
@@ -321,29 +320,6 @@ const deletePersonalDetails = async (patient_id) => {
   }
 };
 
-// const deletePersonalDetails = async (patient_id) => {
-//   try {
-//     const data = await new Promise((resolve, reject) => {
-//       db.query(
-//         "UPDATE personal_info SET IS_DELETED = TRUE WHERE patient_id = ?",
-//         patient_id,
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           if (result.affectedRows === 0) {
-//             return reject(error);
-//           }
-//           return resolve(result);
-//         }
-//       );
-//     });
-
-//     return data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 const deletePatientDetails = async (patient_id) => {
   try {

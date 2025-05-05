@@ -15,9 +15,7 @@ jest.mock('bcryptjs', () => ({
 describe('Admin Model Test Cases',()=>{
 
 describe('getInfo', () => {
-    // it('Failure: should throw unauthorized error if not admin', async () => {
-    //   await expect(adminModel.getInfo(false, 10, 0)).rejects.toEqual(AUTH_RESPONSES.UNAUTHORIZED_ACCESS);
-    // });
+  
   
     it('should return formatted patient data when admin', async () => {
       db.query.mockImplementation((sql, params, callback) => {
@@ -25,14 +23,11 @@ describe('getInfo', () => {
       });
   
       const result = await adminModel.getInfo(true, 10, 0);
-      // expect(result).toEqual(testConstants.getInfoResult);
     });
   });
 
   describe('getTotalCount', () => {
-    // it('should throw unauthorized error if not admin', async () => {
-    //   await expect(controller.getTotalCount(false)).rejects.toEqual(AUTH_RESPONSES.UNAUTHORIZED_ACCESS);
-    // });
+ 
   
     it('Success: should return total count if admin', async () => {
       db.query.mockImplementation((sql, callback) => {

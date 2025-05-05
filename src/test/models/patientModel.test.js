@@ -58,8 +58,7 @@ describe('Patient Model Test Cases',()=>{
         callback(null, [{ count: 1 }]);
       });
 
-      // const exists = await patientModel.checkPatientExists(1);
-      // expect(exists).toBe(true);
+   
     });
 
     it("Failure: should return false if patient does not exist", async () => {

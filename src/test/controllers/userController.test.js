@@ -1,6 +1,5 @@
 const testConstants = require("../controllers/test.constants.js")
 const userModel = require('../../models/userModel.js');
-// const { register, login, updateUser,deleteUser, getUser, forgotPassword, resetPassword,changePassword, getDoctors, createAppointment,getDoctorAvailability, searchDoctor } = require('../../controllers/userController.js');
 const userController=require('../../controllers/userController.js').default;
 const { ResponseHandler, MessageHandler } = require("../../common/utility/handlers.js");
 
@@ -39,10 +38,7 @@ describe('User controller test cases', () => {
         });
 
         it('Success: should create a new user', async () => {
-            // userModel.createUserData.mockResolvedValue({
-            //     status: SUCCESS_STATUS_CODE.SUCCESS,
-            //     message: SUCCESS_MESSAGE.REGISTER_SUCCESS,
-            // });
+          
 
             const mockResponse = new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REGISTER_SUCCESS);
 
@@ -97,9 +93,7 @@ describe('User controller test cases', () => {
                 SUCCESS_MESSAGE.LOGIN_SUCCESS_MESSAGE,
                 token
             );
-            // expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-            // expect(res.send).toHaveBeenCalledWith(mockResponse);
-            // expect(next).not.toHaveBeenCalled();
+           
         });
 
         it('Failure: should return error if user does not exist', async () => {
@@ -202,7 +196,6 @@ describe('User controller test cases', () => {
             testConstants.updateUserBody,
             testConstants.updateUserId 
           );
-        //   expect(next).toHaveBeenCalledWith(mockErrorResponse); 
           expect(res.status).not.toHaveBeenCalled(); 
           expect(res.send).not.toHaveBeenCalled(); 
         });
@@ -269,7 +262,6 @@ describe("deleteUser", () => {
 
     expect(userModel.checkAdminCount).toHaveBeenCalled();
     expect(userModel.deleteUserData).toHaveBeenCalledWith(1); 
-    // expect(next).toHaveBeenCalledWith(mockErrorResponse); 
     expect(res.status).not.toHaveBeenCalled(); 
     expect(res.send).not.toHaveBeenCalled(); 
   });
@@ -303,11 +295,7 @@ describe("getUser", () => {
   
       await userController.getUser(req, res, next);
   
-      // expect(userModel.checkAlreadyExist).toHaveBeenCalledWith(testConstants.getUserResult.email);
-    //   expect(userModel.getUserData).toHaveBeenCalledWith(1); 
-    //   expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
-    //   expect(res.send).toHaveBeenCalledWith(mockResponse);
-    //   expect(next).not.toHaveBeenCalled();
+      
     });
   
     it("Failure: should successfully retrieve deleted user information", async () => {
@@ -323,8 +311,6 @@ describe("getUser", () => {
   
       await userController.getUser(req, res, next);
   
-      // expect(userModel.checkAlreadyExist).toHaveBeenCalledWith(testConstants.getUserBody.email);
-      // expect(userModel.getDeleteUserInfo).toHaveBeenCalledWith(testConstants.getUserBody.email); 
       expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
       expect(res.send).toHaveBeenCalledWith(mockResponse);
       expect(next).not.toHaveBeenCalled(); 
@@ -339,10 +325,7 @@ describe("getUser", () => {
   
       await userController.getUser(req, res, next);
   
-      // expect(userModel.checkAlreadyExist).toHaveBeenCalledWith(testConstants.getUserBody.email);
-    //   expect(next).toHaveBeenCalledWith(mockErrorResponse); 
-    //   expect(res.status).not.toHaveBeenCalled(); 
-    //   expect(res.send).not.toHaveBeenCalled(); 
+      
     });
   
     it("Failure: should call next with an error if an unexpected error occurs", async () => {
@@ -355,11 +338,7 @@ describe("getUser", () => {
   
       await userController.getUser(req, res, next);
   
-    //   expect(userModel.checkAlreadyExist).toHaveBeenCalledWith("test@example.com");
-    //   expect(userModel.getUserData).toHaveBeenCalledWith(1);
-    //   expect(next).toHaveBeenCalledWith(mockErrorResponse); 
-    //   expect(res.status).not.toHaveBeenCalled(); 
-    //   expect(res.send).not.toHaveBeenCalled(); 
+    
     });
   });
 
@@ -386,8 +365,7 @@ describe("forgotPassword", () => {
 
     userModel.checkEmailExists.mockResolvedValue(true); 
     userModel.getName.mockResolvedValue(mockName);
-    // sendOtpToEmail.mockResolvedValue(true);
-    // bcrypt.hash.mockResolvedValue(mockHashOtp); 
+    
 
     const mockResponse = new ResponseHandler(
       SUCCESS_STATUS_CODE.SUCCESS,
@@ -399,8 +377,6 @@ describe("forgotPassword", () => {
 
     expect(userModel.checkEmailExists).toHaveBeenCalledWith(testConstants.forgotPasswordBody.email);
     expect(userModel.getName).toHaveBeenCalledWith(testConstants.forgotPasswordBody.email);
-    // expect(sendOtpToEmail).toHaveBeenCalledWith("test@example.com", mockName, mockOtp);
-    // expect(bcrypt.hash).toHaveBeenCalledWith(mockOtp, 10);
     expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
     expect(res.send).toHaveBeenCalledWith(mockResponse);
     expect(next).not.toHaveBeenCalled();
@@ -432,7 +408,6 @@ describe("forgotPassword", () => {
 
     await userController.forgotPassword(req, res, next);
 
-    // expect(next).toHaveBeenCalledWith(mockErrorResponse);
     expect(res.status).not.toHaveBeenCalled(); 
     expect(res.send).not.toHaveBeenCalled(); 
   });
@@ -441,8 +416,6 @@ describe("forgotPassword", () => {
     const mockName = testConstants.otpInformation.mockName;
     userModel.checkEmailExists.mockResolvedValue(true); 
     userModel.getName.mockResolvedValue(mockName); 
-    // sendOtpToEmail.mockResolvedValue(true); 
-    // bcrypt.hash.mockRejectedValue(new Error("Hashing error"));
 
     const mockErrorResponse = new ResponseHandler(
       ERROR_STATUS_CODE.INTERNAL_SERVER_ERROR,
@@ -451,9 +424,6 @@ describe("forgotPassword", () => {
 
     await userController.forgotPassword(req, res, next);
 
-    // expect(next).toHaveBeenCalledWith(mockErrorResponse);
-    // expect(res.status).not.toHaveBeenCalled(); 
-    // expect(res.send).not.toHaveBeenCalled();
   });
 });
 
@@ -497,9 +467,6 @@ describe("resetPassword", () => {
   
       await userController.resetPassword(req, res, next);
   
-    //   expect(next).toHaveBeenCalledWith(mockErrorResponse);
-    //   expect(res.status).not.toHaveBeenCalled();
-    //   expect(res.send).not.toHaveBeenCalled(); 
     });
   
     it("Failure: should call next with an error if email or newPassword is not provided", async () => {
@@ -511,9 +478,7 @@ describe("resetPassword", () => {
   
       await userController.resetPassword(req, res, next);
   
-    //   expect(next).toHaveBeenCalledWith(mockErrorResponse);
-    //   expect(res.status).not.toHaveBeenCalled(); 
-    //   expect(res.send).not.toHaveBeenCalled(); 
+  
     });
   });
 
@@ -546,14 +511,6 @@ describe('changePassword', () => {
 
     await userController.changePassword(req, res, next);
 
-    // expect(bcrypt.compare).toHaveBeenCalledWith('oldPassword', req.user.user_password);
-    // Assert bcrypt.hash is called to hash the new password
-    // expect(bcrypt.hash).toHaveBeenCalledWith('newPassword', 10); 
-    // Assert the correct status and response are sent
-    // expect(res.status).toHaveBeenCalledWith(200);  
-    // expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
-    //   message: 'Password updated successfully', 
-    // }));
   });
 
   it('should return an error when the old password does not match', async () => {
@@ -564,11 +521,7 @@ describe('changePassword', () => {
 
     await userController.changePassword(req, res, next);
 
-    // expect(bcrypt.compare).toHaveBeenCalledWith('wrongOldPassword', req.user.user_password);
-    // expect(res.status).toHaveBeenCalledWith(400);  
-    // expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
-    //   message: 'Incorrect old password', 
-    // }));
+ 
   });
 
   it('should call next with an error if an unexpected error occurs', async () => {
@@ -581,7 +534,6 @@ describe('changePassword', () => {
 
     await userController.changePassword(req, res, next);
 
-    // expect(next).toHaveBeenCalledWith(error);
   });
 });
 
@@ -617,7 +569,6 @@ describe('getDoctors', () => {
     
       await userController.getDoctors(req, res, next);
   
-    //   expect(next).toHaveBeenCalledWith(mockError);
     });
   });
 
@@ -799,10 +750,7 @@ describe('getDoctorAvailability', () => {
       const next = jest.fn();
   
       await userController.getDoctorAvailability(req, res, next);
-  
-    //   expect(next).toHaveBeenCalledWith(
-    //     new Error('Missing doctor_id or date in the request')
-    //   );
+ 
     });
   });
 

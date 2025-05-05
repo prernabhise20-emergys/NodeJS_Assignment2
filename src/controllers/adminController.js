@@ -148,7 +148,6 @@ const name=first_name+' '+last_name;
               const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
           const loginToken = `http://localhost:5173/account/user/login?token=${token}`
     await sendRegisterCode(email,name,adminCode,user_password,loginToken)
-    // await setAsAdmin(email);
 
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
