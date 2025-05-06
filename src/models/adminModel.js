@@ -12,7 +12,7 @@ const getInfo = async (is_admin, limit, offset) => {
     const patients = await new Promise((resolve, reject) => {
       db.query(
         `
-        SELECT DISTINCT
+        SELECT 
           p.patient_id, p.patient_name, p.gender, u.mobile_number, 
           DATE_FORMAT(p.date_of_birth, '%Y-%m-%d') as date_of_birth,  
           p.age, p.weight, p.height, p.bmi, 
@@ -20,16 +20,13 @@ const getInfo = async (is_admin, limit, offset) => {
           f.father_name, f.father_age, f.mother_name, f.mother_age, 
           f.father_country_origin, f.mother_country_origin, 
           f.mother_diabetic, f.mother_cardiac_issue, f.mother_bp, 
-          f.father_diabetic, f.father_cardiac_issue, f.father_bp, 
-          d.disease_type, d.disease_description
+          f.father_diabetic, f.father_cardiac_issue, f.father_bp
         FROM 
           personal_info p 
         LEFT JOIN 
           user_register u ON p.user_id = u.id 
         LEFT JOIN 
           family_info f ON f.patient_id = p.patient_id 
-        LEFT JOIN 
-          disease d ON d.patient_id = p.patient_id 
         WHERE 
           p.is_deleted = FALSE and u.is_deleted = FALSE
         ORDER BY 
@@ -410,11 +407,9 @@ const displayRequest = async () => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        `select a.appointment_id,p.patient_name,p.gender,p.age,d.disease_type,a.appointment_date,a.appointment_time,a.status,do.name 
+        `select a.appointment_id,p.patient_name,p.gender,p.age,a.appointment_date,a.appointment_time,a.status,do.name 
       from appointments a join personal_info p 
       on(a.patient_id=p.patient_id)
-      join disease d
-      on(d.patient_id=p.patient_id)
       join doctors do 
       on(a.doctor_id=do.doctor_id)
       where p.is_deleted=false and a.status='Pending'`,
@@ -464,13 +459,11 @@ SELECT
     p.patient_name, 
     p.gender, 
     p.age, 
-    d.disease_type, 
     a.appointment_date, 
     a.appointment_time, 
     a.status 
 FROM appointments AS a 
 JOIN personal_info AS p ON a.patient_id = p.patient_id 
-JOIN disease AS d ON d.patient_id = p.patient_id 
 WHERE p.is_deleted = FALSE 
 AND a.doctor_id = ?
 AND a.status IN ('Pending', 'Scheduled') 
@@ -495,14 +488,12 @@ const getAllPatientAppointment = async () => {
         p.patient_name, 
         p.gender, 
         p.age, 
-        d.disease_type, 
         DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
         a.appointment_time, 
         a.status, 
         do.name 
       FROM appointments a 
       JOIN personal_info p ON a.patient_id = p.patient_id 
-      JOIN disease d ON d.patient_id = p.patient_id 
       JOIN doctors do ON a.doctor_id = do.doctor_id 
       WHERE p.is_deleted = FALSE 
       AND a.status IN ('Pending', 'Scheduled') 

@@ -4,7 +4,7 @@ import {
     SUCCESS_STATUS_CODE,
     ERROR_STATUS_CODE
 } from "../common/constants/statusConstant.js";
-
+import formatDate from "../common/utility/formattedDate.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
@@ -237,27 +237,13 @@ const updateExistsPrescription = async (req, res, next) => {
     }
 };
 
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = date.toLocaleString('en-US', { month: 'short' });
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-};
-
 const changeDoctorAvailabilityStatus = async (req, res, next) => {
     try {
-        const { body: { is_available, unavailable_date } } = req;
+        const { body: { is_available, unavailable_from_date,unavailable_to_date } } = req;
         const { user: { doctor: is_doctor, userid } } = req;
 
-        if (!is_available|| !unavailable_date) {
-            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
-            );
-        }
-
         if (is_doctor) {
-            const result = await changeAvailabilityStatus(is_available, userid, unavailable_date);
+            const result = await changeAvailabilityStatus(is_available, userid,unavailable_from_date, unavailable_to_date);
 
             if (result.affectedRows > 0) {
                 return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -273,7 +259,6 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
         next(error);
     }
 };
-
 
 export default {
     changeDoctorAvailabilityStatus,

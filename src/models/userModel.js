@@ -140,7 +140,7 @@ const checkUserDeleteOrNot = (email) => {
 const loginWithUsercode = (userCode) => {
   return new Promise((resolve, reject) => {
 
-    db.query("SELECT * FROM user_register WHERE userCode = ?", [userCode], (error, results) => {
+    db.query("SELECT * FROM user_register WHERE userCode = ? and is_deleted=false", [userCode], (error, results) => {
       if (error) {
         return reject(error);
       }
@@ -384,7 +384,7 @@ const isDoctorAvailable = (doctor_id, date, time) => {
   });
 };
 
-const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
+const createDoctorAppointment = (patient_id, doctor_id, date, time,disease_type,disease_description) => {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
     VALUES (?, ?, ?, ?)`,
@@ -394,6 +394,14 @@ const createDoctorAppointment = (patient_id, doctor_id, date, time) => {
         }
         resolve(result);
       });
+
+      db.query(`INSERT INTO disease (disease_type,disease_description,patient_id) VALUES(?,?,?)`,
+          [disease_type,disease_description, patient_id], (error, result) => {
+            if (error) {
+              return reject(error);
+            }
+            resolve(result);
+          });
   });
 };
 
@@ -431,7 +439,6 @@ const checkDoctor = async (email) => {
   }
 };
 
-
 const checkDoctorAvailability = async (doctor_id, date) => {
   try {
     const results = await new Promise((resolve, reject) => {
@@ -442,6 +449,9 @@ const checkDoctorAvailability = async (doctor_id, date) => {
     a.appointment_date,
     a.appointment_time,
     a.status,
+    d.is_available,
+    d.unavailable_from_date,
+    d.unavailable_to_date,
     p.patient_id,
     p.patient_name,
     p.date_of_birth,
@@ -465,13 +475,18 @@ LEFT JOIN personal_info p
 WHERE
     d.is_deleted = false
     AND d.doctor_id = ?
+
 UNION ALL
+
 SELECT
     d.doctorInTime,
     d.doctorOutTime,
     NULL AS appointment_date,  
     NULL AS appointment_time,
     NULL AS status,
+    d.is_available,
+    d.unavailable_from_date,
+    d.unavailable_to_date,
     NULL AS patient_id,
     NULL AS patient_name,
     NULL AS date_of_birth,
@@ -494,7 +509,8 @@ AND NOT EXISTS (
         AND p.is_deleted = false
     WHERE a.doctor_id = d.doctor_id
     AND a.appointment_date = ?
-);`,
+);
+`,
         [date, doctor_id, doctor_id, date],
         (error, results) => {
           if (error) {
@@ -510,6 +526,86 @@ AND NOT EXISTS (
     throw error;
   }
 };
+
+
+// const checkDoctorAvailability = async (doctor_id, date) => {
+//   try {
+//     const results = await new Promise((resolve, reject) => {
+//       db.query(
+//         `SELECT
+//     d.doctorInTime,
+//     d.doctorOutTime,
+//     a.appointment_date,
+//     a.appointment_time,
+//     a.status,
+//     p.patient_id,
+//     p.patient_name,
+//     p.date_of_birth,
+//     p.gender,
+//     p.age,
+//     p.weight,
+//     p.height,
+//     p.bmi,
+//     p.country_of_origin,
+//     p.is_diabetic,
+//     p.cardiac_issue,
+//     p.blood_pressure
+// FROM doctors d
+// LEFT JOIN appointments a
+//     ON d.doctor_id = a.doctor_id
+//     AND a.appointment_date = ?
+//     AND a.status IN ('Scheduled', 'Pending')
+// LEFT JOIN personal_info p
+//     ON a.patient_id = p.patient_id
+//     AND p.is_deleted = false
+// WHERE
+//     d.is_deleted = false
+//     AND d.doctor_id = ?
+// UNION ALL
+// SELECT
+//     d.doctorInTime,
+//     d.doctorOutTime,
+//     NULL AS appointment_date,  
+//     NULL AS appointment_time,
+//     NULL AS status,
+//     NULL AS patient_id,
+//     NULL AS patient_name,
+//     NULL AS date_of_birth,
+//     NULL AS gender,
+//     NULL AS age,
+//     NULL AS weight,
+//     NULL AS height,
+//     NULL AS bmi,
+//     NULL AS country_of_origin,
+//     NULL AS is_diabetic,
+//     NULL AS cardiac_issue,
+//     NULL AS blood_pressure
+// FROM doctors d
+// WHERE d.doctor_id = ?
+// AND NOT EXISTS (
+//     SELECT 1
+//     FROM appointments a
+//     LEFT JOIN personal_info p
+//         ON a.patient_id = p.patient_id
+//         AND p.is_deleted = false
+//     WHERE a.doctor_id = d.doctor_id
+//     AND a.appointment_date = ?
+// );`,
+//         [date, doctor_id, doctor_id, date],
+//         (error, results) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           resolve(results);
+//         }
+//       );
+//     });
+
+//     return results;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const getSearchedDoctor = async (keyword) => {
   try {
@@ -572,19 +668,20 @@ const addAsAdmin = async (email) => {
     throw error;
   }
 };
-const getAppointmentHistory = async (id) => {
+const getAppointmentHistory = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        ` select p.patient_name, doc.name as doctorName,a.status,a.appointment_date,a.appointment_time,d.disease_type,d.disease_description
+        ` select a.appointment_id, p.patient_name, doc.name as doctorName,a.status,a.appointment_date,
+        a.appointment_time,d.disease_type,d.disease_description
 from personal_info p join disease d
 on(p.patient_id=d.patient_id)
 join appointments a 
 on(d.patient_id=a.patient_id)
 join doctors doc
 on(doc.doctor_id=a.doctor_id)
-where p.user_id=? and a.status='Completed'`,
-        id,
+where a.patient_id=?`,
+        patient_id,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);

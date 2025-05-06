@@ -5,6 +5,7 @@ import sendVerificationEmail from "../common/utility/sendVerificationEmail.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
+import formatDate from "../common/utility/formattedDate.js";
 import {
   updateUserPassword,
   getAppointmentHistory,
@@ -96,8 +97,8 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
+    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
     if (!passwordMatch) {
       throw INVALID_USER;
     }
@@ -271,7 +272,7 @@ const getDoctors = async (req, res, next) => {
 };
 
 const createAppointment = async (req, res, next) => {
-  const { body: { patient_id, doctor_id, date, time } } = req;
+  const { body: { patient_id, doctor_id, date, time,disease_type,disease_description } } = req;
   try {
     const isAvailable = await isDoctorAvailable(doctor_id, date, time);
 
@@ -282,7 +283,7 @@ const createAppointment = async (req, res, next) => {
 
     }
 
-    const result = await createDoctorAppointment(patient_id, doctor_id, date, time);
+    const result = await createDoctorAppointment(patient_id, doctor_id, date, time,disease_type,disease_description);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
     );
@@ -298,9 +299,13 @@ const getDoctorAvailability = async (req, res, next) => {
     const { body: { date } } = req;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
+console.log(availableTimes);
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
+ const is_availabile=availableTimes[0]?.is_available;
+ const  unavailable_from_date=formatDate(availableTimes[0]?. unavailable_from_date);
+ const  unavailable_to_date=formatDate(availableTimes[0]?. unavailable_to_date);
 
     const scheduleSlots = availableTimes
       .filter(row => row.appointment_time !== null && row.status === 'Scheduled')
@@ -316,6 +321,9 @@ const getDoctorAvailability = async (req, res, next) => {
         doctorOutTime,
         scheduleSlots,
         pendingSlots,
+        is_availabile,
+        unavailable_from_date,
+        unavailable_to_date
       })
     );
   } catch (error) {
@@ -345,10 +353,9 @@ const searchDoctor = async (req, res, next) => {
 
 const appointmentHistory = async (req, res, next) => {
   try {
-    const { user: { userid: id } } = req;
-    console.log(id);
+    const { query: { patient_id } } = req;
 
-    const history = await getAppointmentHistory(id);
+    const history = await getAppointmentHistory(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, history)

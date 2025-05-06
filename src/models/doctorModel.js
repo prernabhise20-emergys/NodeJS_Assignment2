@@ -74,7 +74,7 @@ const showAppointments = async (user_id) => {
           a.appointment_date,
           a.appointment_time,
           a.status,
-          COALESCE(GROUP_CONCAT(ds.disease_type SEPARATOR ', '), 'Unknown') AS disease_types,
+        ds.disease_type AS disease_types,
           MAX(pr.appointment_id) AS prescription_id
         FROM
           user_register u
@@ -93,7 +93,7 @@ const showAppointments = async (user_id) => {
           AND a.status = 'Scheduled'
           AND u.id = ?
         GROUP BY
-          p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status
+          p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time,ds.disease_type, a.status
         ORDER BY
           a.appointment_id;
       `, [user_id], (error, result) => {
@@ -183,11 +183,11 @@ const updatePrescription = async (appointment_id, url, dateIssued) => {
   }
 };
 
-const changeAvailabilityStatus = async (is_available, userid, unavailable_date) => {
+const changeAvailabilityStatus = async (is_available, userid,unavailable_from_date,unavailable_to_date) => {
   try {
       const result = await new Promise((resolve, reject) => {
-          db.query(`UPDATE doctors SET is_available = ?, unavailable_date = ? WHERE user_id = ?`,
-             [is_available, unavailable_date, userid], (error, result) => {
+          db.query(`UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date=? WHERE user_id = ?`,
+             [is_available, unavailable_from_date,unavailable_to_date, userid], (error, result) => {
               if (error) {
                   reject(error);
               } else {
