@@ -185,16 +185,11 @@ const updatePrescription = async (appointment_id, url, dateIssued) => {
 const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
   try {
       let query, params;
-console.log(is_available);
 
-      if (is_available) {
-        console.log('inner');
-        
+      if (is_available) {        
         query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
         params = [is_available, userid];
-      } else {
-       console.log(is_available, userid, unavailable_from_date, unavailable_to_date);
-       
+      } else {       
           query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
           params = [is_available, unavailable_from_date, unavailable_to_date, userid];
       }

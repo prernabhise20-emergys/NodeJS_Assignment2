@@ -356,7 +356,7 @@ const getDoctorInfo = async () => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime from doctors where is_deleted=false`,
+        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime,is_available,unavailable_from_date, unavailable_to_date from doctors where is_deleted=false`,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -368,7 +368,6 @@ const getDoctorInfo = async () => {
     throw error;
   }
 };
-
 const isDoctorAvailable = (doctor_id, date, time) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT COUNT(*) AS count
@@ -611,7 +610,7 @@ const getSearchedDoctor = async (keyword) => {
   try {
     const searchQuery = `%${keyword}%`;
     return await new Promise((resolve, reject) => {
-      db.query(` SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime 
+      db.query(` SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime,is_available,unavailable_from_date,unavailable_to_date 
           FROM doctors 
           WHERE is_deleted = false 
           AND (name LIKE ? OR specialization LIKE ?)`, [searchQuery, searchQuery], (error, results) => {
