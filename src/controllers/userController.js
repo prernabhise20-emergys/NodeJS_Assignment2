@@ -97,8 +97,8 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
     if (!passwordMatch) {
       throw INVALID_USER;
     }
@@ -304,9 +304,18 @@ console.log(availableTimes);
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
  const is_availabile=availableTimes[0]?.is_available;
- const  unavailable_from_date=formatDate(availableTimes[0]?. unavailable_from_date);
- const  unavailable_to_date=formatDate(availableTimes[0]?. unavailable_to_date);
 
+ const unavailable_from_date = availableTimes[0]?.unavailable_from_date
+  ? formatDate(availableTimes[0].unavailable_from_date)
+  : null;
+
+const unavailable_to_date = availableTimes[0]?.unavailable_to_date
+  ? formatDate(availableTimes[0].unavailable_to_date)
+  : null;
+
+//  const unavailable_from_date=formatDate(availableTimes[0]?. unavailable_from_date)||'Doctor is available';
+//  const unavailable_to_date=formatDate(availableTimes[0]?. unavailable_to_date)||'Doctor is available';
+ 
     const scheduleSlots = availableTimes
       .filter(row => row.appointment_time !== null && row.status === 'Scheduled')
       .map(row => row.appointment_time);

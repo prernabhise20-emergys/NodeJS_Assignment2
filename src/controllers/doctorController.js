@@ -239,21 +239,25 @@ const updateExistsPrescription = async (req, res, next) => {
 
 const changeDoctorAvailabilityStatus = async (req, res, next) => {
     try {
-        const { body: { is_available, unavailable_from_date,unavailable_to_date } } = req;
+        const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
         const { user: { doctor: is_doctor, userid } } = req;
 
-        if (is_doctor) {
-            const result = await changeAvailabilityStatus(is_available, userid,unavailable_from_date, unavailable_to_date);
+        if (!is_doctor) {
+            return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
+                new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.UNAUTHORIZED)
+            );
+        }
 
-            if (result.affectedRows > 0) {
-                return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                    new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
-                );
-            } else {
-                return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-                    new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
-                );
-            }
+        const result = await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
+
+        if (result.affectedRows > 0) {
+            return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
+            );
+        } else {
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+            );
         }
     } catch (error) {
         next(error);
