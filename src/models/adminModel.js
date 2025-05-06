@@ -1,13 +1,12 @@
 import db from "../db/connection.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"
-const { UNAUTHORIZED_ACCESS } = AUTH_RESPONSES;
+const { UNAUTHORIZED_ACCESS ,PATIENT_ID_NOT_EXIST} = AUTH_RESPONSES;
 
 const getInfo = async (is_admin, limit, offset) => {
   try {
     if (!is_admin) {
-      throw new Error("UNAUTHORIZED_ACCESS");
+      throw UNAUTHORIZED_ACCESS;
     }
 
     const patients = await new Promise((resolve, reject) => {
@@ -128,7 +127,7 @@ const deletePatientDetails = async (patient_id) => {
     });
 
     if (!exists) {
-      throw new Error("Patient ID does not exist or is already deleted.");
+      throw PATIENT_ID_NOT_EXIST;
     }
 
     const data = await new Promise((resolve, reject) => {
@@ -435,7 +434,7 @@ const getPatientData = async (appointment_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name,a.reason
+        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name,d.email as doctor_email,a.reason
          FROM personal_info p 
          JOIN appointments a ON (p.patient_id = a.patient_id)
          JOIN doctors d ON (a.doctor_id = d.doctor_id)

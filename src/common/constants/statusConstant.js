@@ -11,6 +11,8 @@ const SUCCESS_STATUS_CODE = {
   SUCCESS: 200,
 };
 const ERROR_MESSAGE = {
+  PATIENT_ID_NOT_EXIST:"Patient ID does not exist or is already deleted.",
+  APPOINTMENT_BOOKED:'Appointment is booked for this patient, so you cannot delete',
   LOGIN_CREDENTIAL:"Either email or userCode must be provided",
   KEYWORD_REQUIRED:"Keyword is required for searching",
   DOCTOR_NOT_AVAILABLE: "Doctor not available for the selected date or time.",
@@ -51,6 +53,8 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE = {
+  CHANGE_DOCTOR_STATUS:"Change doctor Availability Status Successfully",
+  PATIENT_COUNT_SUCCESS_MESSAGE:"Patient age wise count retrieve successfully",
   DOCTOR_INFO_SUCCESS_MESSAGE:"Doctor information retrieve successfully",
   APPOINTMENT_CANCELLED:"Appointment is cancelled successfully",
   DOCTOR_PROFILE:"Doctor profile retrived successfully",

@@ -28,6 +28,31 @@ const getUserData = async (userid) => {
   }
 };
 
+const getDoctorData = async (userid) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        ` SELECT u.email,     
+    u.first_name, 
+    u.last_name, 
+   u.mobile_number,
+   d.doctorInTime,d.doctorOutTime
+    from user_register u join doctors d
+    on(u.id=d.user_id)
+    WHERE u.is_deleted = FALSE  
+    AND u.id = ?`,
+        userid,
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
 const getDeleteUserInfo = async (email) => {
 
   try {
@@ -83,7 +108,7 @@ const createUserData = async (
       last_name,
       mobile_number
     };
-    
+
     return await new Promise((resolve, reject) => {
       db.query("insert into user_register set ?", user, (error, result) => {
         if (error) {
@@ -107,7 +132,7 @@ const checkUserDeleteOrNot = (email) => {
       if (error) {
         return reject(error);
       }
-      resolve(result.length > 0); 
+      resolve(result.length > 0);
     });
   });
 };
@@ -183,7 +208,7 @@ const updatePassword = async (email, newPassword) => {
 };
 
 
-const updateUserPassword = async (newPassword,id) => {
+const updateUserPassword = async (newPassword, id) => {
   try {
     const result = await new Promise((resolve, reject) => {
       db.query(
@@ -331,7 +356,7 @@ const getDoctorInfo = async () => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime from doctors where is_deleted=false`,
+        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime from doctors where is_deleted=false and is_available=true`,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -411,7 +436,7 @@ const checkDoctorAvailability = async (doctor_id, date) => {
   try {
     const results = await new Promise((resolve, reject) => {
       db.query(
-      `SELECT
+        `SELECT
     d.doctorInTime,
     d.doctorOutTime,
     a.appointment_date,
@@ -488,21 +513,21 @@ AND NOT EXISTS (
 
 const getSearchedDoctor = async (keyword) => {
   try {
-      const searchQuery = `%${keyword}%`;
-      return await new Promise((resolve, reject) => {
-          db.query(` SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime 
+    const searchQuery = `%${keyword}%`;
+    return await new Promise((resolve, reject) => {
+      db.query(` SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime 
           FROM doctors 
           WHERE is_deleted = false 
           AND (name LIKE ? OR specialization LIKE ?)`, [searchQuery, searchQuery], (error, results) => {
-              if (error) {
-                  reject(error);
-              } else {
-                  resolve(results);
-              }
-          });
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
       });
+    });
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
 
@@ -529,25 +554,51 @@ const setIsDoctor = async (email) => {
 };
 const addAsAdmin = async (email) => {
   try {
-      return new Promise((resolve, reject) => {
-        db.query(
-          "update user_register set is_admin=true where email=?",
-          email,
-          (error, results) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(results);
-            }
+    return new Promise((resolve, reject) => {
+      db.query(
+        "update user_register set is_admin=true where email=?",
+        email,
+        (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
           }
-        );
-      });
-    
+        }
+      );
+    });
+
   } catch (error) {
     throw error;
   }
 };
+const getAppointmentHistory = async (id) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        ` select p.patient_name, doc.name as doctorName,a.status,a.appointment_date,a.appointment_time,d.disease_type,d.disease_description
+from personal_info p join disease d
+on(p.patient_id=d.patient_id)
+join appointments a 
+on(d.patient_id=a.patient_id)
+join doctors doc
+on(doc.doctor_id=a.doctor_id)
+where p.user_id=? and a.status='Completed'`,
+        id,
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
 export {
+  getAppointmentHistory,
+  getDoctorData,
   loginWithUsercode,
   addAsAdmin,
   setIsDoctor,
@@ -572,6 +623,5 @@ export {
   deleteUserData,
   updatePassword,
   checkEmailExists,
-  updateUserPassword,
-  
+  updateUserPassword
 };

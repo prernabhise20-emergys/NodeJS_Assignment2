@@ -32,10 +32,12 @@ const createPrescription = (data, patientName, appointmentDate, age, gender, doc
             <tr>
                 <td>${data.medicines[i]}</td>
                 <td>${data.capacity[i]}</td>
-                <td>${data.dosage[i]}</td>
+                <td>${data.courseDuration[i]}</td>
                 <td>${morningTiming}</td>
                 <td>${afternoonTiming}</td>
                 <td>${eveningTiming}</td>
+                <td>${data.frequency[i]}</td>
+
             </tr>
         `;
     }
@@ -90,17 +92,18 @@ const createPrescription = (data, patientName, appointmentDate, age, gender, doc
                 <p><strong>Date of Birth:</strong> ${birthDate}</p>
                 <p><strong>Age:</strong> ${age} years</p>
                 <p><strong>Gender:</strong> ${gender}</p>
-                <p class="duration"><strong>Course_Duration:</strong> ${data.courseDuration} days</p>
             </div>
             <table>
                 <thead>
                     <tr>
                         <th>Medicine</th>
                         <th>Capacity</th>
-                        <th>Dosage</th>
+                        <th>Course Duration</th>
                         <th>Morning</th>
                         <th>Afternoon</th>
                         <th>Evening</th>
+                        <th>Frequency</th>
+
                     </tr>
                 </thead>
                 <tbody>

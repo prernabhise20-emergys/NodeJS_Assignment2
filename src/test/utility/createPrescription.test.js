@@ -33,7 +33,6 @@ describe('createPrescription', () => {
     expect(html).toContain(specialization);
     expect(html).toContain(sampleData.medicines[0]);
     expect(html).toContain(sampleData.capacity[1]);
-    expect(html).toContain('Course_Duration');
   });
 
   it('should handle morning, afternoon, and evening timings correctly', () => {

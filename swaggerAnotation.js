@@ -836,16 +836,6 @@
  *                   example: "Internal server error."
  */
 
-
-
-
-
-
-
-
-
-
-
 /**
  * @swagger
  * /api/admin/getAllInfo:

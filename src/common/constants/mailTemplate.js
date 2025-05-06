@@ -60,18 +60,18 @@ const prescriptionBody = () => {
       `
 };
 
-const approveRequestMailBody = (patientName, appointmentDate, appointmentTime, doctorName) => {
+const approveRequestMailBody = ( patient_name, appointment_date, appointment_time,name) => {
   return `
         <html>
   <body>
     <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-      <p>Dear ${patientName},</p>
+      <p>Dear ${patient_name},</p>
       <p>We are pleased to inform you that your appointment request has been approved. Here are the details:</p>
       <ul>
-        <li><strong>Patient Name:</strong> ${patientName}</li>
-        <li><strong>Date:</strong> ${appointmentDate}</li>
-        <li><strong>Time:</strong> ${appointmentTime}</li>
-        <li><strong>Doctor Name:</strong> ${doctorName}</li>
+        <li><strong>Patient Name:</strong> ${patient_name}</li>
+        <li><strong>Date:</strong> ${appointment_date}</li>
+        <li><strong>Time:</strong> ${appointment_time}</li>
+        <li><strong>Doctor Name:</strong> ${name}</li>
       </ul>
       <p>Please let us know if you have any questions or require further assistance.</p>
       <p>Thank you</p>
@@ -149,5 +149,24 @@ const sendUserCode = (email,name,code,user_password,loginToken) => {
 </html>`
 };
 
+const notifyDoctorMailBody = (name,patient_name, appointment_date, appointment_time) => {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <p>Dear Dr. ${name},</p>
+          <p>We are pleased to inform you that a new appointment has been confirmed. Here are the details:</p>
+          <ul>
+            <li><strong>Patient Name:</strong> ${patient_name}</li>
+            <li><strong>Date:</strong> ${appointment_date}</li>
+            <li><strong>Time:</strong> ${appointment_time}</li>
+          </ul>
+          <p>Please let us know if you require any additional information or assistance regarding this appointment.</p>
+          <p>Thank you</p>
+        </div>
+      </body>
+    </html>
+  `;
+};
 
-export { otpMailBody, verificationEmail, prescriptionBody, approveRequestMailBody, updatedPrescriptionBody, cancelAppointmentMailBody, sendUserCode }
+export { otpMailBody, verificationEmail, prescriptionBody,notifyDoctorMailBody, approveRequestMailBody, updatedPrescriptionBody, cancelAppointmentMailBody, sendUserCode }

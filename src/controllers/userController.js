@@ -7,7 +7,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 import {
   updateUserPassword,
-  setIsDoctor,
+  getAppointmentHistory,
   getSearchedDoctor,
   checkDoctorAvailability,
   createDoctorAppointment,
@@ -15,15 +15,12 @@ import {
   getDoctorInfo,
   getName,
   checkEmailExists,
-  checkAlreadyExist,
-  getDeleteUserInfo,
   createUserData,
   checkIfUserExists,
   loginUser,
   getUserData,
   updateUserData,
   deleteUserData,
-  checkUserDeleteOrNot,
   checkAdminCount,
   updatePassword,
   loginWithUsercode,
@@ -37,7 +34,7 @@ import {
 } from "../common/constants/statusConstant.js";
 
 dotenv.config();
-const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER,LOGIN_CREDENTIAL } =
+const { USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER, LOGIN_CREDENTIAL } =
   AUTH_RESPONSES;
 
 
@@ -53,11 +50,11 @@ const register = async (req, res, next) => {
 
     await createUserData(
       email,
-      decodedPassword,
+      user_password,
       first_name,
       last_name,
       mobile_number,
-  
+
     );
 
 
@@ -88,7 +85,7 @@ const login = async (req, res, next) => {
 
     if (userCode) {
       user = await loginWithUsercode(userCode);
-      
+
     }
 
     if (email) {
@@ -99,13 +96,8 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    // const isDeleted = await checkUserDeleteOrNot(user.email);
-    // if (isDeleted) {
-    //   throw USER_DELETED;
-    // }
-
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
     if (!passwordMatch) {
       throw INVALID_USER;
     }
@@ -116,7 +108,7 @@ const login = async (req, res, next) => {
         email: user.email,
         admin: user.is_admin,
         doctor: user.is_doctor,
-        user_password:user.user_password,
+        user_password: user.user_password,
         first_name: user.first_name,
         last_name: user.last_name,
         mobile_number: user.mobile_number,
@@ -133,7 +125,7 @@ const login = async (req, res, next) => {
     });
 
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };
 
@@ -179,7 +171,6 @@ const deleteUser = async (req, res, next) => {
     next(error);
   }
 };
-
 const getUser = async (req, res, next) => {
   try {
     const { user: { userid: id, email: emailID } } = req;
@@ -240,16 +231,16 @@ const resetPassword = async (req, res, next) => {
 };
 const changePassword = async (req, res, next) => {
   try {
-    
+
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
-    
+
     const decodedoldPassword = Buffer.from(oldPassword, 'base64').toString('utf-8');
 
     const decodedPassword = Buffer.from(newPassword, 'base64').toString('utf-8');
 
     const passwordMatch = await bcrypt.compare(decodedoldPassword, user_password);
- 
+
 
     if (!passwordMatch) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST)
@@ -257,7 +248,7 @@ const changePassword = async (req, res, next) => {
     }
 
     const hashedNewPassword = await bcrypt.hash(decodedPassword, 10);
-    
+
     await updateUserPassword(hashedNewPassword, userid);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -270,10 +261,9 @@ const changePassword = async (req, res, next) => {
 
 const getDoctors = async (req, res, next) => {
   try {
-
-    const personalInfo = await getDoctorInfo();
+    const doctorInfo = await getDoctorInfo();
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
     );
   } catch (error) {
     next(error)
@@ -308,12 +298,6 @@ const getDoctorAvailability = async (req, res, next) => {
     const { body: { date } } = req;
 
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
-
-    // if (!availableTimes || availableTimes.length === 0) {
-    //   return res.status(ERROR_STATUS_CODE.NOT_FOUND).send(
-    //     new ResponseHandler(ERROR_MESSAGE.DOCTOR_NOT_AVAILABLE)
-    //   );
-    // }
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
@@ -359,7 +343,23 @@ const searchDoctor = async (req, res, next) => {
   }
 };
 
-export default{
+const appointmentHistory = async (req, res, next) => {
+  try {
+    const { user: { userid: id } } = req;
+    console.log(id);
+
+    const history = await getAppointmentHistory(id);
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, history)
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default {
+  appointmentHistory,
   searchDoctor,
   getDoctorAvailability,
   createAppointment,

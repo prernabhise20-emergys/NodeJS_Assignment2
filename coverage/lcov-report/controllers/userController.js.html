@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.2% </span>
+                <span class="strong">90.83% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>119/125</span>
+                <span class='fraction'>119/131</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">94.11% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>16/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.2% </span>
+                <span class="strong">90.83% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>119/125</span>
+                <span class='fraction'>119/131</span>
             </div>
         
             
@@ -438,7 +438,21 @@
 <a name='L373'></a><a href='#L373'>373</a>
 <a name='L374'></a><a href='#L374'>374</a>
 <a name='L375'></a><a href='#L375'>375</a>
-<a name='L376'></a><a href='#L376'>376</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L376'></a><a href='#L376'>376</a>
+<a name='L377'></a><a href='#L377'>377</a>
+<a name='L378'></a><a href='#L378'>378</a>
+<a name='L379'></a><a href='#L379'>379</a>
+<a name='L380'></a><a href='#L380'>380</a>
+<a name='L381'></a><a href='#L381'>381</a>
+<a name='L382'></a><a href='#L382'>382</a>
+<a name='L383'></a><a href='#L383'>383</a>
+<a name='L384'></a><a href='#L384'>384</a>
+<a name='L385'></a><a href='#L385'>385</a>
+<a name='L386'></a><a href='#L386'>386</a>
+<a name='L387'></a><a href='#L387'>387</a>
+<a name='L388'></a><a href='#L388'>388</a>
+<a name='L389'></a><a href='#L389'>389</a>
+<a name='L390'></a><a href='#L390'>390</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -489,7 +503,7 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -619,7 +633,6 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -710,7 +723,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -796,6 +808,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -822,7 +850,7 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 import {
   updateUserPassword,
-  setIsDoctor,
+  getAppointmentHistory,
   getSearchedDoctor,
   checkDoctorAvailability,
   createDoctorAppointment,
@@ -830,7 +858,7 @@ import {
   getDoctorInfo,
   getName,
   checkEmailExists,
-  checkAlreadyExist,
+  getDoctorData,
   getDeleteUserInfo,
   createUserData,
   checkIfUserExists,
@@ -852,7 +880,7 @@ import {
 } from "../common/constants/statusConstant.js";
 &nbsp;
 dotenv.config();
-const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER,LOGIN_CREDENTIAL } =
+const { USER_DELETED, USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER, LOGIN_CREDENTIAL } =
   AUTH_RESPONSES;
 &nbsp;
 &nbsp;
@@ -864,15 +892,15 @@ const register = async (req, res, next) =&gt; {
     if (userExists) {
       throw USER_EXISTS;
     }
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
 &nbsp;
     await createUserData(
       email,
-      decodedPassword,
+      user_password,
       first_name,
       last_name,
       mobile_number,
-  
+&nbsp;
     );
 &nbsp;
 &nbsp;
@@ -903,7 +931,7 @@ const login = async (req, res, next) =&gt; {
 &nbsp;
     <span class="missing-if-branch" title="else path not taken" >E</span>if (userCode) {
       user = await loginWithUsercode(userCode);
-      
+&nbsp;
     }
 &nbsp;
     if (email) {
@@ -931,7 +959,7 @@ const login = async (req, res, next) =&gt; {
         email: user.email,
         admin: user.is_admin,
         doctor: user.is_doctor,
-        user_password:user.user_password,
+        user_password: user.user_password,
         first_name: user.first_name,
         last_name: user.last_name,
         mobile_number: user.mobile_number,
@@ -948,7 +976,7 @@ const login = async (req, res, next) =&gt; {
     });
 &nbsp;
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };
 &nbsp;
@@ -994,7 +1022,6 @@ const deleteUser = async (req, res, next) =&gt; {
     next(error);
   }
 };
-&nbsp;
 const getUser = async (req, res, next) =&gt; {
   try {
     const { user: { userid: id, email: emailID } } = req;
@@ -1055,16 +1082,16 @@ const resetPassword = async (req, res, next) =&gt; {
 };
 const changePassword = async (req, res, next) =&gt; {
   try {
-    
+&nbsp;
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
-    
+&nbsp;
     const decodedoldPassword = Buffer.from(oldPassword, 'base64').toString('utf-8');
 &nbsp;
     const decodedPassword = Buffer.from(newPassword, 'base64').toString('utf-8');
 &nbsp;
     const passwordMatch = await bcrypt.compare(decodedoldPassword, user_password);
- 
+&nbsp;
 &nbsp;
     if (!passwordMatch) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST)
@@ -1072,7 +1099,7 @@ const changePassword = async (req, res, next) =&gt; {
     }
 &nbsp;
     const hashedNewPassword = await bcrypt.hash(decodedPassword, 10);
-    
+&nbsp;
     await updateUserPassword(hashedNewPassword, userid);
 &nbsp;
     return res.status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -1085,10 +1112,9 @@ const changePassword = async (req, res, next) =&gt; {
 &nbsp;
 const getDoctors = async (req, res, next) =&gt; {
   try {
-&nbsp;
-    const personalInfo = await getDoctorInfo();
+    const doctorInfo = await getDoctorInfo();
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
     );
   } catch (error) {
     next(error)
@@ -1174,7 +1200,23 @@ const searchDoctor = async (req, res, next) =&gt; {
   }
 };
 &nbsp;
-export default{
+const appointmentHistory = <span class="fstat-no" title="function not covered" >as</span>ync (req, res, next) =&gt; {
+<span class="cstat-no" title="statement not covered" >  try {</span>
+    const { user: { userid: id } } = <span class="cstat-no" title="statement not covered" >req;</span>
+<span class="cstat-no" title="statement not covered" >    console.log(id);</span>
+&nbsp;
+    const history = <span class="cstat-no" title="statement not covered" >await getAppointmentHistory(id);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(</span>
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, history)
+    );
+  } catch (error) {
+<span class="cstat-no" title="statement not covered" >    next(error);</span>
+  }
+};
+&nbsp;
+export default {
+  appointmentHistory,
   searchDoctor,
   getDoctorAvailability,
   createAppointment,
@@ -1195,7 +1237,7 @@ export default{
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-05T03:31:12.603Z
+                at 2025-05-05T08:21:04.209Z
             </div>
         <script src="../prettify.js"></script>
         <script>

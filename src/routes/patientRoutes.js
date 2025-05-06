@@ -11,6 +11,7 @@ import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 
 const router = express.Router();
 const {
+  ADD_DISEASE,
   GET_FAMILY_INFO,
   GET_PERSONAL_INFO,
   ADD_PERSONAL_DATA,
@@ -131,5 +132,8 @@ router.get(
   patientController.downloadDocument
 );
 
+router.post(
+  ADD_DISEASE,authenticateUser,patientController.addDisease
+)
 
 export default router;

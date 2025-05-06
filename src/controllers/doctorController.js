@@ -15,6 +15,7 @@ import sendUpdatePrescriptionEmail from "../common/utility/sendUpdatePrescriptio
 // import { createPrescription } from '../common/utility/createPrescription.js';
 
 import {
+    changeAvailabilityStatus,
     updatePrescription,
     getPrescriptionByAppointmentId,
     getAppointmentData,
@@ -26,17 +27,17 @@ import {
 
 const getDoctorProfile = async (req, res, next) => {
     try {
-      const {user:{ userid } }= req;
-      
-      const doctorData = await getDoctor(userid);
-  
-      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DOCTOR_PROFILE, doctorData)
-      );
+        const { user: { userid } } = req;
+
+        const doctorData = await getDoctor(userid);
+
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DOCTOR_PROFILE, doctorData)
+        );
     } catch (error) {
-      next(error)
+        next(error)
     }
-  };
+};
 const updateDoctor = async (req, res, next) => {
     try {
         const {
@@ -48,8 +49,11 @@ const updateDoctor = async (req, res, next) => {
                 doctorOutTime
             },
         } = req;
-
-        const {user:{ doctor: is_doctor ,email} }= req;
+        
+        const dname = name.split(' ')
+        const first_name = dname[0]
+        const last_name = dname[1]
+        const { user: { doctor: is_doctor, email } } = req;
 
         const data = {
             name,
@@ -59,17 +63,15 @@ const updateDoctor = async (req, res, next) => {
             doctorOutTime
         };
 
-
         if (is_doctor) {
-            await updateDoctorData(data,email);
-
+            await updateDoctorData(data, first_name, last_name, email);
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.UPDATED_DOCTOR_INFO_MESSAGE)
             );
         }
 
         return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
-            new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN,ERROR_MESSAGE.ADMIN_ACCESS)
+            new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.ADMIN_ACCESS)
         );
     } catch (error) {
         next(error);
@@ -79,17 +81,17 @@ const updateDoctor = async (req, res, next) => {
 const displayAppointments = async (req, res, next) => {
     try {
 
-        const {user:{ doctor: is_doctor, admin: is_admin ,userid:user_id}} = req;
+        const { user: { doctor: is_doctor, admin: is_admin, userid: user_id } } = req;
 
         if (is_doctor || is_admin) {
             const appointments = await showAppointments(user_id);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
             );
         } else {
             return res.status(ERROR_STATUS_CODE.INVALID).send(
-                new ResponseHandler(ERROR_STATUS_CODE.INVALID,ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
+                new ResponseHandler(ERROR_STATUS_CODE.INVALID, ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
             );
         }
     } catch (error) {
@@ -158,8 +160,8 @@ import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
 const uploadPrescription = async (req, res, next) => {
     try {
-        const {body:{ appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } }= req;
-        const {user:{ email } }= req;
+        const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration,frequency } } = req;
+        const { user: { email } } = req;
 
         const patientData = await getAppointmentData(appointment_id);
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
@@ -167,7 +169,7 @@ const uploadPrescription = async (req, res, next) => {
         const formattedAppointmentDate = formatDate(appointmentDate);
         const formattedBirthDate = formatDate(date_of_birth);
 
-        const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
+        const data = { medicines, capacity, frequency, morning, afternoon, evening, courseDuration };
 
         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
 
@@ -180,11 +182,11 @@ const uploadPrescription = async (req, res, next) => {
 
         const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
         await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
-        
+
         await sendPrescription(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
         next(error);
@@ -195,8 +197,8 @@ const uploadPrescription = async (req, res, next) => {
 
 const updateExistsPrescription = async (req, res, next) => {
     try {
-        const {body:{ appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration }} = req;
-        const {user:{ email } }= req;
+        const { body: { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } } = req;
+        const { user: { email } } = req;
 
         const patientData = await getAppointmentData(appointment_id);
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
@@ -228,7 +230,7 @@ const updateExistsPrescription = async (req, res, next) => {
         await sendUpdatePrescriptionEmail(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
         next(error);
@@ -243,8 +245,38 @@ const formatDate = (dateString) => {
     return `${day} ${month} ${year}`;
 };
 
+const changeDoctorAvailabilityStatus = async (req, res, next) => {
+    try {
+        const { body: { is_available, unavailable_date } } = req;
+        const { user: { doctor: is_doctor, userid } } = req;
 
-export default{
+        if (!is_available|| !unavailable_date) {
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
+            );
+        }
+
+        if (is_doctor) {
+            const result = await changeAvailabilityStatus(is_available, userid, unavailable_date);
+
+            if (result.affectedRows > 0) {
+                return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                    new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
+                );
+            } else {
+                return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                    new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+                );
+            }
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export default {
+    changeDoctorAvailabilityStatus,
     formatDate,
     updateExistsPrescription,
     getDoctorProfile,

@@ -8,6 +8,7 @@ import {
 const router = express.Router();
 
 const {
+  CHANGE_AVAILABILITY_STATUS,
   UPDATE_PRISCRIPTION,
   ADD_PRISCRIPTION,
   DISPLAY_APPOINTMENTS,
@@ -44,4 +45,6 @@ router.put(
   upload.single('file'),
   doctorController.updateExistsPrescription
 )
+
+router.put(CHANGE_AVAILABILITY_STATUS,authenticateUser,doctorController.changeDoctorAvailabilityStatus)
 export default router;

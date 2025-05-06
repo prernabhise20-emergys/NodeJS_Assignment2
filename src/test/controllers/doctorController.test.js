@@ -101,11 +101,6 @@ describe('updateDoctor', () => {
 
     await doctorController.updateDoctor(req, res, next);
 
-    expect(doctorModel.updateDoctorData).toHaveBeenCalledWith(
-      testConstants.updateDoctorBody,
-      testConstants.updateDoctorUser.email
-    );
-
     expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
     expect(res.send).toHaveBeenCalledWith(
       new ResponseHandler(

@@ -28,7 +28,7 @@ import {
   saveDocument,
   modifyDocument,
   checkDocumentExists,
-
+  createDiseaseInformation
 } from "../models/patientModel.js";
 const {
   DOCUMENT_NOT_FOUND,
@@ -44,16 +44,18 @@ const {
 
 const showPatientDetails = async (req, res, next) => {
   try {
-    const {user:{ userid: id }} = req;
+    const { user: { userid: id } } = req;
 
     const patientInfo = await getPatientInfo(id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, patientInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, patientInfo)
     );
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
+
+
 
 // *********************************************************************
 
@@ -385,10 +387,6 @@ const uploadDocument = async (req, res, next) => {
       throw MISSING_REQUIRED;
     }
 
-    // const moreThanLimit = await checkNumberOfDocument(patient_id)
-    // if (moreThanLimit) {
-    //   throw MORE_THAN_LIMIT;
-    // }
     const result = await uploadFile(req.file);
     const { secure_url: documentUrl } = result;
 
@@ -500,9 +498,45 @@ const downloadDocument = async (req, res, next) => {
   }
 };
 
+// const addDisease = async (req, res, next) => {
+//   try {
+//     const { patient_id } = req.query;
+//     const { disease_type, disease_description } = req.body;
+
+//     const data = { disease_type, disease_description, patient_id };
+
+//     await createDiseaseInformation(data);
+
+//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CREATED_DISEASE_INFO_MESSAGE)
+//     );
+//   } catch (error) {
+//     next(error); 
+//   }
+// };
+
+const addDisease = async (req, res, next) => {
+  try {
+    const { patient_id } = req.query;
+    const { disease_type, disease_description } = req.body;
+
+    // Prepare data to insert into the disease table
+    const data = { disease_type, disease_description, patient_id };
+
+    await createDiseaseInformation(data);
+
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CREATED_DISEASE_INFO_MESSAGE)
+    );
+  } catch (error) {
+    next(error); 
+  }
+};
+
+
 
 export default{
-
+addDisease,
   downloadDocument,
   getUploadDocument,
   getPersonalDetails,

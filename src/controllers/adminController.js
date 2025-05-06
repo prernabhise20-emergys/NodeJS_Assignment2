@@ -6,8 +6,8 @@ import {
 } from "../common/constants/statusConstant.js";
 import jwt from "jsonwebtoken";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
-import { ResponseHandler } from "../common/utility/handlers.js";
-import approveRequest from "../common/utility/approveAppointment.js"
+import { ResponseHandler } from "../common/utility/handlers.js"; 
+import { approveRequest, approveAppointmentDoctorNotify } from "../common/utility/approveAppointment.js"
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import {
@@ -34,8 +34,7 @@ import {
   getAllPatientAppointment,
   cancelStatus
 } from "../models/adminModel.js";
-const {USER_EXISTS, UNAUTHORIZED_ACCESS, NOT_DELETED, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
-
+const { APPOINTMENT_BOOKED, USER_EXISTS, UNAUTHORIZED_ACCESS, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 const getAllInfo = async (req, res, next) => {
   try {
@@ -45,11 +44,11 @@ const getAllInfo = async (req, res, next) => {
       throw UNAUTHORIZED_ACCESS;
     }
 
-    let { page,limit } = req.query;
-    
+    let { page, limit } = req.query;
+
     page = parseInt(page || 1, 10);
 
-    limit=parseInt(limit)
+    limit = parseInt(limit)
     const offset = (page - 1) * limit;
 
     const [personalInfo, totalCount] = await Promise.all([
@@ -58,6 +57,7 @@ const getAllInfo = async (req, res, next) => {
     ]);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
+      status:SUCCESS_STATUS_CODE.SUCCESS,
       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
       data: personalInfo,
       pagination: {
@@ -77,7 +77,7 @@ const adminDeletePatientData = async (req, res, next) => {
 
     const checkAppointment = await patientHaveAppointment(patient_id);
     if (checkAppointment.length > 0) {
-      throw new Error('Appointment is booked for this patient, so you cannot delete');
+      throw APPOINTMENT_BOOKED;
     }
 
     if (is_admin) {
@@ -91,7 +91,6 @@ const adminDeletePatientData = async (req, res, next) => {
         ));
     }
 
-    throw new Error('Not authorized to delete patient data');
   } catch (error) {
     next(error);
   }
@@ -114,7 +113,7 @@ const ageGroupData = async (req, res, next) => {
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,
-          SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+          SUCCESS_MESSAGE.PATIENT_COUNT_SUCCESS_MESSAGE,
           ageData
         )
       );
@@ -126,32 +125,31 @@ const ageGroupData = async (req, res, next) => {
 
 const addAdmin = async (req, res, next) => {
   try {
-    const { body: { email,user_password,first_name,last_name,mobile_number } } = req;
+    const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
 
     const userExists = await checkIfUserExists(email);
     if (userExists) {
       throw USER_EXISTS;
     }
 
-const name=first_name+' '+last_name;
-    const randomNumber = Math.floor(100 + Math.random() * 900); 
+    const name = first_name + ' ' + last_name;
+    const randomNumber = Math.floor(100 + Math.random() * 900);
     const adminCode = `ADM${randomNumber}`;
-
-    const data={
+    const data = {
       first_name,
       last_name,
       email,
       user_password,
       mobile_number
     }
-    await createAdmin(data,adminCode)
-              const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
-          const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-    await sendRegisterCode(email,name,adminCode,user_password,loginToken)
+    await createAdmin(data, adminCode)
+    const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+    const loginToken = `http://localhost:5173/account/user/login?token=${token}`
+    await sendRegisterCode(email, name, adminCode, user_password, loginToken)
 
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.ADD_ADMIN));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADD_ADMIN));
   } catch (error) {
     next(error);
   }
@@ -180,7 +178,7 @@ const removeAdmin = async (req, res, next) => {
 
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REMOVE_ADMIN));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REMOVE_ADMIN));
   } catch (error) {
     next(error);
   }
@@ -194,18 +192,18 @@ const getAdmin = async (req, res, next) => {
 
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.GET_ADMIN, user));
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.GET_ADMIN, user));
     }
     return res
       .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.ADMIN_ACCESS));
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
     next(error);
   }
 };
 
 const generateDoctorCode = async () => {
-  const randomNumber = Math.floor(100 + Math.random() * 900); 
+  const randomNumber = Math.floor(100 + Math.random() * 900);
   const newCode = `DR${randomNumber}`;
 
   return newCode;
@@ -216,9 +214,9 @@ const generateDoctorCode = async () => {
 const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
-    const { body: {specialization, contact_number, email, doctorInTime, doctorOutTime, user_password, first_name, last_name } } = req;
+    const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, user_password, first_name, last_name } } = req;
 
-    
+
     const userExists = await checkIfUserExists(email);
     if (userExists) {
       throw USER_EXISTS;
@@ -226,7 +224,7 @@ const addDoctor = async (req, res, next) => {
     const docCode = await generateDoctorCode();
 
     const data = {
-      name:first_name+' '+last_name,
+      name: first_name + ' ' + last_name,
       specialization,
       contact_number,
       email,
@@ -248,15 +246,15 @@ const addDoctor = async (req, res, next) => {
     const result = await createDoctorData(data);
 
     if (result) {
-          const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
-          const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-      await sendRegisterCode(data.email, data.name,data.doctorCode,data.user_password,loginToken);
+      const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+      const loginToken = `http://localhost:5173/account/user/login?token=${token}`
+      await sendRegisterCode(data.email, data.name, data.doctorCode, data.user_password, loginToken);
     }
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id:result.insertId })
+      new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
     );
-    
+
   } catch (error) {
     next(error);
   }
@@ -270,7 +268,7 @@ const deleteDoctor = async (req, res, next) => {
     await deleteDoctorData(doctor_id);
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
   } catch (error) {
     next(error);
   }
@@ -279,13 +277,13 @@ const deleteDoctor = async (req, res, next) => {
 const changeAppointmentsStatus = async (req, res, next) => {
   try {
     const { query: { status, appointment_id } } = req;
-    const { user: { admin: is_admin, email } } = req;
+    const { user: { admin: is_admin, doctor: is_doctor, email } } = req;
     if (!status || !appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.INVALID_INPUT)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
       );
     }
-    if (is_admin) {
+    if (is_admin || is_doctor) {
       const result = await changeStatus(status, appointment_id);
 
       if (result.affectedRows > 0) {
@@ -295,14 +293,14 @@ const changeAppointmentsStatus = async (req, res, next) => {
           const appointmentDate = data[0].appointment_date;
           const appointmentTime = data[0].appointment_time;
           const doctorName = data[0].name;
-          await sendCancelledAppointmentEmail(email,patientName,appointmentDate,appointmentTime,doctorName)
+          await sendCancelledAppointmentEmail(email, patientName, appointmentDate, appointmentTime, doctorName)
         }
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.CHANGE_STATUS)
+          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_STATUS)
         );
       } else {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.NOT_CHANGE_STATUS)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
     }
@@ -313,31 +311,31 @@ const changeAppointmentsStatus = async (req, res, next) => {
 
 const setAppointmentCancelled = async (req, res, next) => {
   try {
-    const { query: {appointment_id } } = req;
+    const { query: { appointment_id } } = req;
     const { user: { admin: is_admin, email } } = req;
-    const{body:{reason}}=req
+    const { body: { reason } } = req
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.INVALID_INPUT)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
       );
     }
     if (is_admin) {
-      
-      const result = await cancelStatus( appointment_id,reason);
+
+      const result = await cancelStatus(appointment_id, reason);
 
       if (result.affectedRows) {
-      
-          const data = await getPatientData(appointment_id);
-        const {patient_name,appointment_date,appointment_time,name,reason}=data[0]
 
-          await sendCancelledAppointmentEmail(email,reason,patient_name,appointment_date,appointment_time,name)
+        const data = await getPatientData(appointment_id);
+        const { patient_name, appointment_date, appointment_time, name, reason } = data[0]
+
+        await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name)
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.APPOINTMENT_CANCELLED)
+          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_CANCELLED)
         );
       } else {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.FAILED_TO_CANCEL)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_CANCEL)
         );
       }
     }
@@ -353,7 +351,7 @@ const approveAppointment = async (req, res, next) => {
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.INVALID_INPUT)
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
       );
     }
     if (is_admin) {
@@ -362,20 +360,24 @@ const approveAppointment = async (req, res, next) => {
 
       if (!data || data.length === 0) {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.NOT_CHANGE_STATUS)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
-const {patient_name,appointment_date,appointment_time,name}=data[0];
+      console.log(data);
+
+      const { patient_name, appointment_date, appointment_time, name, doctor_email } = data[0];
+
+      const { user: { email } } = req;
 
       if (result.affectedRows == 1) {
-        await approveRequest(email, patient_name, appointment_date, appointment_time,name);
-
+        await approveRequest(email, patient_name, appointment_date, appointment_time, name);
+        await approveAppointmentDoctorNotify(name, patient_name, appointment_date, appointment_time, doctor_email);
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.CHANGE_STATUS)
+          new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_STATUS)
         );
       } else {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.NOT_CHANGE_STATUS)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
     }
@@ -392,11 +394,11 @@ const displayAppointmentRequest = async (req, res, next) => {
 
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.REQUESTED_APPOINTMENT, user));
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REQUESTED_APPOINTMENT, user));
     }
     return res
       .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST,ERROR_MESSAGE.ADMIN_ACCESS));
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.ADMIN_ACCESS));
   } catch (error) {
     next(error);
   }
@@ -411,7 +413,7 @@ const getAllAppointments = async (req, res, next) => {
 
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ALL_APPOINTMENTS, {
           appointments
         })
       );
@@ -434,7 +436,7 @@ const getPatientsAppointments = async (req, res, next) => {
       }));
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.ALL_APPOINTMENTS, { appointments: formattedAppointments })
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ALL_APPOINTMENTS, { appointments: formattedAppointments })
       );
     }
   } catch (error) {
@@ -451,7 +453,7 @@ const getAllEmail = async (req, res, next) => {
       const emails = await getAllEmailForAddAdmin();
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }
   } catch (error) {
@@ -467,7 +469,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
       const emails = await getAllEmailForAddDoctor();
 
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS,SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.EMAIL_RETRIVE, emails)
       );
     }
   } catch (error) {
@@ -475,7 +477,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
   }
 };
 
-export default{
+export default {
   setAppointmentCancelled,
   getAllEmailForDoctor,
   getAllEmail,

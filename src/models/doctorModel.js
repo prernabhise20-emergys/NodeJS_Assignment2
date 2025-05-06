@@ -27,25 +27,37 @@ const getDoctor = async (userid) => {
   }
 };
 
-const updateDoctorData = async (data, email) => {
+const updateDoctorData = async (data, first_name, last_name, email) => {
   try {
-    const updateData = {
-      ...data,
-    };
+    const doctorData = { ...data };
 
-    return new Promise((resolve, reject) => {
-      db.query("UPDATE doctors SET ? WHERE email = ?",
-        [updateData, email], (error, result) => {
+    return await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE doctors SET ? WHERE email = ?",
+        [doctorData, email],
+        (error, result) => {
           if (error) {
             return reject(error);
           }
-          return resolve(result);
-        });
+
+          db.query(
+            "UPDATE user_register SET first_name = ?, last_name = ? WHERE email = ?",
+            [first_name, last_name, email],
+            (error, result) => {
+              if (error) {
+                return reject(error);
+              }
+              resolve(result);
+            }
+          );
+        }
+      );
     });
   } catch (error) {
     throw error;
   }
 };
+
 
 const showAppointments = async (user_id) => {
   try {
@@ -170,7 +182,28 @@ const updatePrescription = async (appointment_id, url, dateIssued) => {
     throw error;
   }
 };
+
+const changeAvailabilityStatus = async (is_available, userid, unavailable_date) => {
+  try {
+      const result = await new Promise((resolve, reject) => {
+          db.query(`UPDATE doctors SET is_available = ?, unavailable_date = ? WHERE user_id = ?`,
+             [is_available, unavailable_date, userid], (error, result) => {
+              if (error) {
+                  reject(error);
+              } else {
+                  resolve(result);
+              }
+          });
+      });
+
+      return result;
+  } catch (error) {
+      throw error;
+  }
+};
+
 export {
+  changeAvailabilityStatus,
   getPrescriptionByAppointmentId,
   updatePrescription,
   getDoctor,
