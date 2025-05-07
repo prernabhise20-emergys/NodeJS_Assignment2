@@ -98,8 +98,8 @@ const login = async (req, res, next) => {
       throw INVALID_USER;
     }
 
-    const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
-    const passwordMatch = await bcrypt.compare(decodedPassword, user.user_password);
+    // const decodedPassword = Buffer.from(user_password, 'base64').toString('utf-8');
+    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
     if (!passwordMatch) {
       throw INVALID_USER;
     }
@@ -389,7 +389,7 @@ const rescheduleAppointment=async(req,res,next)=>{
 
     const result = await updateDoctorAppointment(patient_id, doctor_id, date, time,disease_type,disease_description,appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_RESCHEDULE)
     );
 
   } catch (error) {
@@ -401,7 +401,7 @@ const getAppointmentData=async(req,res,next)=>{
     const{query:{appointment_id}}=req;
     const doctorInfo = await getAppointmentInfo(appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_INFO_SUCCESS_MESSAGE, doctorInfo)
     );
   } catch (error) {
     next(error)

@@ -53,6 +53,8 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE = {
+  APPOINTMENT_INFO_SUCCESS_MESSAGE:"Appointment information is retrieve sucessfully",
+  APPOINTMENT_RESCHEDULE:"Appointment is reschedule successfully",
   CHANGE_DOCTOR_STATUS:"Change doctor Availability Status Successfully",
   PATIENT_COUNT_SUCCESS_MESSAGE:"Patient age wise count retrieve successfully",
   DOCTOR_INFO_SUCCESS_MESSAGE:"Doctor information retrieve successfully",

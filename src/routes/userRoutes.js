@@ -8,6 +8,7 @@ import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 const router = express.Router();
 
 const {
+  APPOINTMENT_DATA,
   RESCHEDULE_APPOINTMENT,
   APPOINTMENT_HISTORY,
   CHANGE_PASSWORD,
@@ -82,4 +83,5 @@ router.get(SEARCH_DOCTOR,authenticateUser,userController.searchDoctor)
 router.put(CHANGE_PASSWORD,authenticateUser,userController.changePassword)
 router.get(APPOINTMENT_HISTORY,authenticateUser,userController.appointmentHistory)
 router.put(RESCHEDULE_APPOINTMENT,authenticateUser,userController.rescheduleAppointment)
+router.get(APPOINTMENT_DATA,authenticateUser,userController.getAppointmentData)
 export default router;
