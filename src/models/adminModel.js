@@ -655,7 +655,30 @@ const patientHaveAppointment = async (patient_id) => {
     );
   });
 };
+const checkPrescription=async(appointment_id)=>{
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        "SELECT appointment_id FROM prescriptions WHERE appointment_id= ?",
+        appointment_id,
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(results);
+        }
+      );
+    });
+
+    return result.length > 0;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 export {
+  checkPrescription,
   checkIfUserExists,
   patientHaveAppointment,
   createAdmin,

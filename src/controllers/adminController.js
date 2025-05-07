@@ -11,6 +11,7 @@ import { approveRequest, approveAppointmentDoctorNotify } from "../common/utilit
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import {
+  checkPrescription,
   checkIfUserExists,
   createAdmin,
   patientHaveAppointment,
@@ -282,6 +283,17 @@ const changeAppointmentsStatus = async (req, res, next) => {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
       );
+    }
+
+    if(status == 'Completed'){
+
+      const check= await checkPrescription(appointment_id)
+      if(!check){
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.PRESCRIPTION_NOT_EXISTS)
+        );
+      }
+      
     }
     if (is_admin || is_doctor) {
       const result = await changeStatus(status, appointment_id);
