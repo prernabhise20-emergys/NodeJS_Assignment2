@@ -643,7 +643,8 @@ const getAppointmentInfo = async (appointment_id) => {
           a.status, 
           a.appointment_date, 
           a.appointment_time, 
-          GROUP_CONCAT(d.disease_type) AS disease_types
+          GROUP_CONCAT(d.disease_type) AS disease_types,
+          GROUP_CONCAT(d.disease_description) AS disease_description
         FROM appointments a 
         LEFT JOIN disease d ON d.patient_id = a.patient_id
         WHERE a.appointment_id = ?
