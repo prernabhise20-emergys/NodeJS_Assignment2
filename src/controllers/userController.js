@@ -7,6 +7,8 @@ import { AUTH_RESPONSES } from "../common/constants/response.js";
 import sendOtpToEmail from "../common/utility/otpMail.js";
 import formatDate from "../common/utility/formattedDate.js";
 import {
+  getAppointmentInfo,
+  updateDoctorAppointment,
   updateUserPassword,
   getAppointmentHistory,
   getSearchedDoctor,
@@ -86,7 +88,6 @@ const login = async (req, res, next) => {
 
     if (userCode) {
       user = await loginWithUsercode(userCode);
-
     }
 
     if (email) {
@@ -373,7 +374,42 @@ const appointmentHistory = async (req, res, next) => {
   }
 };
 
+const rescheduleAppointment=async(req,res,next)=>{
+  const { body: { patient_id, doctor_id, date, time,disease_type,disease_description } } = req;
+  const{query:{appointment_id}}=req;
+  try {
+    // const isAvailable = await isDoctorAvailable(doctor_id, date, time);
+
+    // if (!isAvailable) {
+    //   return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+    //     new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.BOOK_SLOT)
+    //   );
+
+    // }
+
+    const result = await updateDoctorAppointment(patient_id, doctor_id, date, time,disease_type,disease_description,appointment_id);
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
+    );
+
+  } catch (error) {
+    next(error);
+  }
+}
+const getAppointmentData=async(req,res,next)=>{
+  try {
+    const{query:{appointment_id}}=req;
+    const doctorInfo = await getAppointmentInfo(appointment_id);
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
+    );
+  } catch (error) {
+    next(error)
+  }
+}
 export default {
+  getAppointmentData,
+  rescheduleAppointment,
   appointmentHistory,
   searchDoctor,
   getDoctorAvailability,

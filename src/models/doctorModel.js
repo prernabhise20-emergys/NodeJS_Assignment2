@@ -189,7 +189,8 @@ const changeAvailabilityStatus = async (is_available, userid, unavailable_from_d
       if (is_available) {        
         query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
         params = [is_available, userid];
-      } else {       
+      } else {
+       
           query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
           params = [is_available, unavailable_from_date, unavailable_to_date, userid];
       }

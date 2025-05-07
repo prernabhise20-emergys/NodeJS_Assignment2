@@ -363,7 +363,6 @@ const approveAppointment = async (req, res, next) => {
           new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
-      console.log(data);
 
       const { patient_name, appointment_date, appointment_time, name, doctor_email } = data[0];
 

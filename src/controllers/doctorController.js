@@ -250,7 +250,7 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
 
         const result = await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
 
-        if (result.affectedRows > 0) {
+        if (result) {
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
             );
