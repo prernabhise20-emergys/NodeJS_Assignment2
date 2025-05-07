@@ -386,7 +386,6 @@ const uploadDocument = async (req, res, next) => {
     if (!document_type || !patient_id) {
       throw MISSING_REQUIRED;
     }
-console.log(patient_id);
 
     const result = await uploadFile(req.file,patient_id);
     const { secure_url: documentUrl } = result;
@@ -467,61 +466,25 @@ const updateDocument = async (req, res, next) => {
   }
 };
 
-import cloudinaryBaseUrl from '../common/constants/pathConstant.js'
-
+import cloudinary from 'cloudinary';
 const downloadDocument = async (req, res, next) => {
-  try {
+  
+   const url= cloudinary.v2.api
+  .resource_by_asset_id('9ff8fde9227d0262c99652104e3e1a33')
+  .then(console.log)
 
-    const {query:{ patient_id }} = req;
-    const {body:{ document_type }} = req;
-
-    if (!patient_id || !document_type) {
-      throw MISSING_REQUIRED;
-    }
-
-    const document = await getDocumentByPatientIdAndType(
-      patient_id,
-      document_type
-    );
-
-
-    if (!document) {
-      throw DOCUMENT_NOT_FOUND;
-    }
-
-    const documentUrl = cloudinaryBaseUrl + document.document_url;
-
-    return res.redirect(documentUrl);
-
-  } catch (error) {
-
-    next(error)
-  }
+  return res.status(SUCCESS_STATUS_CODE.CREATED).send(
+    new ResponseHandler(SUCCESS_STATUS_CODE.CREATED,SUCCESS_MESSAGE.DOCUMENT_UPLOAD, url)
+  );
+   
 };
 
-// const addDisease = async (req, res, next) => {
-//   try {
-//     const { patient_id } = req.query;
-//     const { disease_type, disease_description } = req.body;
-
-//     const data = { disease_type, disease_description, patient_id };
-
-//     await createDiseaseInformation(data);
-
-//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CREATED_DISEASE_INFO_MESSAGE)
-//     );
-//   } catch (error) {
-//     next(error); 
-//   }
-// };
 
 const addDisease = async (req, res, next) => {
   try {
     const { patient_id } = req.query;
     const { disease_type, disease_description } = req.body;
 
-    // Prepare data to insert into the disease table
     const data = { disease_type, disease_description, patient_id };
 
     await createDiseaseInformation(data);

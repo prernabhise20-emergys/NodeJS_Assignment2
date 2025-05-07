@@ -357,7 +357,6 @@ const getDoctorInfo = async () => {
     return new Promise((resolve, reject) => {
       db.query(
         `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime,is_available,unavailable_from_date, unavailable_to_date from doctors where is_deleted=false`,
-        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime,is_available,unavailable_from_date,unavailable_to_date from doctors where is_deleted=false`,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
