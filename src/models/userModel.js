@@ -36,7 +36,7 @@ const getDoctorData = async (userid) => {
     u.first_name, 
     u.last_name, 
    u.mobile_number,
-   d.doctorInTime,d.doctorOutTime
+   d.doctorInTime,d.doctorOutTime,d.is_available,d.unavailable_from_date,d.unavailable_to_date
     from user_register u join doctors d
     on(u.id=d.user_id)
     WHERE u.is_deleted = FALSE  
