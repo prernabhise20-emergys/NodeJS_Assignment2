@@ -386,8 +386,9 @@ const uploadDocument = async (req, res, next) => {
     if (!document_type || !patient_id) {
       throw MISSING_REQUIRED;
     }
+console.log(patient_id);
 
-    const result = await uploadFile(req.file);
+    const result = await uploadFile(req.file,patient_id);
     const { secure_url: documentUrl } = result;
 
     const documentPath = documentUrl.split("raw/upload/")[1];
