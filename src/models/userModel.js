@@ -356,7 +356,7 @@ const getDoctorInfo = async () => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime from doctors where is_deleted=false`,
+        `SELECT doctor_id, name, specialization,doctorInTime, doctorOutTime,is_available,unavailable_from_date,unavailable_to_date from doctors where is_deleted=false`,
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
@@ -527,86 +527,6 @@ AND NOT EXISTS (
   }
 };
 
-
-// const checkDoctorAvailability = async (doctor_id, date) => {
-//   try {
-//     const results = await new Promise((resolve, reject) => {
-//       db.query(
-//         `SELECT
-//     d.doctorInTime,
-//     d.doctorOutTime,
-//     a.appointment_date,
-//     a.appointment_time,
-//     a.status,
-//     p.patient_id,
-//     p.patient_name,
-//     p.date_of_birth,
-//     p.gender,
-//     p.age,
-//     p.weight,
-//     p.height,
-//     p.bmi,
-//     p.country_of_origin,
-//     p.is_diabetic,
-//     p.cardiac_issue,
-//     p.blood_pressure
-// FROM doctors d
-// LEFT JOIN appointments a
-//     ON d.doctor_id = a.doctor_id
-//     AND a.appointment_date = ?
-//     AND a.status IN ('Scheduled', 'Pending')
-// LEFT JOIN personal_info p
-//     ON a.patient_id = p.patient_id
-//     AND p.is_deleted = false
-// WHERE
-//     d.is_deleted = false
-//     AND d.doctor_id = ?
-// UNION ALL
-// SELECT
-//     d.doctorInTime,
-//     d.doctorOutTime,
-//     NULL AS appointment_date,  
-//     NULL AS appointment_time,
-//     NULL AS status,
-//     NULL AS patient_id,
-//     NULL AS patient_name,
-//     NULL AS date_of_birth,
-//     NULL AS gender,
-//     NULL AS age,
-//     NULL AS weight,
-//     NULL AS height,
-//     NULL AS bmi,
-//     NULL AS country_of_origin,
-//     NULL AS is_diabetic,
-//     NULL AS cardiac_issue,
-//     NULL AS blood_pressure
-// FROM doctors d
-// WHERE d.doctor_id = ?
-// AND NOT EXISTS (
-//     SELECT 1
-//     FROM appointments a
-//     LEFT JOIN personal_info p
-//         ON a.patient_id = p.patient_id
-//         AND p.is_deleted = false
-//     WHERE a.doctor_id = d.doctor_id
-//     AND a.appointment_date = ?
-// );`,
-//         [date, doctor_id, doctor_id, date],
-//         (error, results) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           resolve(results);
-//         }
-//       );
-//     });
-
-//     return results;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
 const getSearchedDoctor = async (keyword) => {
   try {
     const searchQuery = `%${keyword}%`;
@@ -693,7 +613,58 @@ where a.patient_id=?`,
     throw error;
   }
 }
+
+const updateDoctorAppointment=async(patient_id, doctor_id, date, time,disease_type,disease_description,appointment_id)=>{
+  return new Promise((resolve, reject) => {
+    db.query(`UPDATE appointments set appointment_date=?, appointment_time=?, patient_id=?, status='Pending', doctor_id=? where appointment_id=?`,
+      [date, time, patient_id, doctor_id, appointment_id], (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      });
+
+      db.query(`INSERT INTO disease (disease_type,disease_description,patient_id) VALUES(?,?,?)`,
+          [disease_type,disease_description, patient_id], (error, result) => {
+            if (error) {
+              return reject(error);
+            }
+            resolve(result);
+          });
+  });
+}
+
+const getAppointmentInfo = async (appointment_id) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      db.query(
+        `SELECT 
+          a.appointment_id, 
+          a.status, 
+          a.appointment_date, 
+          a.appointment_time, 
+          GROUP_CONCAT(d.disease_type) AS disease_types
+        FROM appointments a 
+        LEFT JOIN disease d ON d.patient_id = a.patient_id
+        WHERE a.appointment_id = ?
+        GROUP BY a.appointment_id, a.status, a.appointment_date, a.appointment_time`,
+        [appointment_id],
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 export {
+  getAppointmentInfo,
+  updateDoctorAppointment,
   getAppointmentHistory,
   getDoctorData,
   loginWithUsercode,

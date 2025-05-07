@@ -58,7 +58,8 @@ const ROUTE_CONSTANTS = {
   CHANGE_PASSWORD:"/changePassword",
   APPOINTMENT_HISTORY:"/appointmentHistory",
   ADD_DISEASE:"/addDisease",
-  CHANGE_AVAILABILITY_STATUS:"/changeAvailabilityStatus"
+  CHANGE_AVAILABILITY_STATUS:"/changeAvailabilityStatus",
+  RESCHEDULE_APPOINTMENT:"/rescheduleAppointment"
 };
 
 export default ROUTE_CONSTANTS;

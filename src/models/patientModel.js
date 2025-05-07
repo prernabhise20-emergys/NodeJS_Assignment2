@@ -12,7 +12,7 @@ SELECT p.patient_id, p.patient_name, r.first_name, r.last_name, p.gender, r.mobi
        f.father_country_origin, f.mother_country_origin, 
        f.father_diabetic, f.father_cardiac_issue, f.father_bp, f.mother_diabetic,
        f.mother_cardiac_issue, f.mother_bp,
-       do.document_type, do.document_url, 
+       do.document_type, do.document_url,a.appointment_id, 
        a.status AS appointment_status, 
        a.doctor_id AS doctor_id
 FROM personal_info p
