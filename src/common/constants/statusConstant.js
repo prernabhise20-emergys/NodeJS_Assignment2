@@ -49,7 +49,8 @@ const ERROR_MESSAGE = {
   CANNOT_DELETE_SUPERADMIN:"Cannot delete the superadmin",
   CANNOT_ADD_DOCTOR:"User not found. Please register the user before adding as a doctor.",
   FAILED_TO_CANCEL:"Failed to cancelled appointment",
-  WRONG_PASSWORD:"Please enter a correct old password"
+  WRONG_PASSWORD:"Please enter a correct old password",
+  PRESCRIPTION_NOT_EXISTS:"Prescription not uploaded by the doctor. Status cannot be marked as completed."
 };
 
 const SUCCESS_MESSAGE = {
