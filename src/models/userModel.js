@@ -690,7 +690,7 @@ const getAppointmentInfo = async (appointment_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        `SELECT 
+        ` SELECT 
           a.appointment_id, 
           a.status, 
           a.appointment_date, 
@@ -699,10 +699,11 @@ const getAppointmentInfo = async (appointment_id) => {
           GROUP_CONCAT(d.disease_description) AS disease_description,
           doc.doctor_id,
           doc.name
-        FROM appointments a 
+        from personal_info p join
+      appointments a on p.patient_id=a.patient_id
         LEFT JOIN disease d ON d.patient_id = a.patient_id
         join doctors doc on a.doctor_id=doc.doctor_id
-        WHERE a.appointment_id = ?
+        WHERE a.appointment_id = ? and d.is_deleted=false
         GROUP BY a.appointment_id, a.status, a.appointment_date, a.appointment_time`,
         [appointment_id],
         (error, result) => {

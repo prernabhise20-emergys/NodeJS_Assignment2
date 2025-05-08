@@ -253,7 +253,7 @@ const getUserInformation = async (appointment_ids) => {
                JOIN personal_info p ON u.id = p.user_id
                JOIN appointments a ON p.patient_id = a.patient_id
                JOIN doctors d ON a.doctor_id = d.doctor_id
-               WHERE a.appointment_id IN (?);`, 
+               WHERE a.appointment_id IN (?) and p.is_deleted=false`, 
               [appointment_ids],
               (error, result) => {
                   if (error) {
