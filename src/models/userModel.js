@@ -644,6 +644,21 @@ const updateDoctorAppointment = async (doctor_id, date, time, disease_type, dise
       });
     };
 
+    const updatedisease = (patient_id) => {
+      return new Promise((resolve, reject) => {
+        db.query(
+          `UPDATE disease SET is_deleted=true WHERE patient_id=?`,
+          patient_id,
+          (error, result) => {
+            if (error) {
+              return reject(error);
+            }
+            resolve(result);
+          }
+        );
+      });
+    };
+
     const insertDisease = (patient_id) => {
       return new Promise((resolve, reject) => {
         db.query(
@@ -661,6 +676,7 @@ const updateDoctorAppointment = async (doctor_id, date, time, disease_type, dise
 
     const patient_id = await getPatientId();
     await updateAppointment();
+    await updatedisease(patient_id)
     await insertDisease(patient_id);
 
     return { success: true, message: "Appointment and disease details updated successfully" };

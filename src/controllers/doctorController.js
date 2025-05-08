@@ -253,7 +253,7 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
         await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
 
         const cancelAppointment = await markCancelled(unavailable_from_date, unavailable_to_date);
-console.log(cancelAppointment[0].appointment_id);
+console.log(formatDate(cancelAppointment[0].appointment_date));
 
         if (cancelAppointment.length > 0) {
             const { email, patient_name, appointment_date, appointment_time, name } = cancelAppointment[0];

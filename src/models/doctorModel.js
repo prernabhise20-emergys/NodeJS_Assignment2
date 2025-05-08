@@ -233,9 +233,7 @@ const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
                           if (updateError) {
                               return reject(updateError);
                           }
-                          for(let i=0;i<3;i++){
                           resolve(getUserInformation(ids)); 
-                          }
                       }
                   );
               }
