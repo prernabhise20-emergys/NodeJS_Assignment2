@@ -599,7 +599,7 @@ join appointments a
 on(d.patient_id=a.patient_id)
 join doctors doc
 on(doc.doctor_id=a.doctor_id)
-where a.patient_id=?`,
+where a.patient_id=? and d.is_deleted=false`,
         patient_id,
         (error, result) => {
           if (error) return reject(error);
