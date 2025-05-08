@@ -9,5 +9,5 @@ cloudinary.v2.config({
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
-
-export {cloudinary,upload}
+const uploads = multer({ dest: 'uploads/' });
+export {cloudinary,upload,uploads}

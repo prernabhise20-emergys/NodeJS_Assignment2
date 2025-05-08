@@ -7,6 +7,7 @@ import { user_schemas } from "../common/constants/schemaConstant.js"
 const router = express.Router();
 
 const {
+  DOWNLOAD_DOCUMENT,
   CANCELLED_APPOINTMENT,
   ALL_EMAIL_DOCTOR,
   ALL_EMAIL_ADMIN,
@@ -50,7 +51,10 @@ router.get(ALL_APPOINTMENTS, authenticateUser, adminController.getAllAppointment
 router.get(APPOINTMENTS, authenticateUser, adminController.getPatientsAppointments)
 router.get(ALL_EMAIL_ADMIN, authenticateUser, adminController.getAllEmail)
 router.get(ALL_EMAIL_DOCTOR, authenticateUser, adminController.getAllEmailForDoctor)
-router.put(CANCELLED_APPOINTMENT, authenticateUser, schemaValidator(user_schemas.cancelledAppointmentSchema), adminController.setAppointmentCancelled
-)
-
+router.put(CANCELLED_APPOINTMENT, authenticateUser, schemaValidator(user_schemas.cancelledAppointmentSchema), adminController.setAppointmentCancelled)
+router.get(
+  DOWNLOAD_DOCUMENT,
+  authenticateUser,
+  adminController.downloadDocument
+);
 export default router;

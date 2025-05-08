@@ -28,7 +28,6 @@ const {
   UPDATE_DOCUMENT,
   GET_UPLOAD_INFO,
   GET_DISEASE_INFO,
-  DOWNLOAD_DOCUMENT
 } = ROUTE_CONSTANTS;
 
 router.get(
@@ -124,12 +123,6 @@ router.put(
   authenticateUser,
   upload.single('file'),
   patientController.updateDocument
-);
-
-router.get(
-  DOWNLOAD_DOCUMENT,
-  authenticateUser,
-  patientController.downloadDocument
 );
 
 router.post(

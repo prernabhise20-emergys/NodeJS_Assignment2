@@ -6,6 +6,7 @@
     "generateDoc": "node swagger.js"
   },
   "dependencies": {
+    "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "Buffer": "^0.0.0",
     "cloudinary": "^2.5.1",

@@ -612,26 +612,63 @@ where a.patient_id=?`,
     throw error;
   }
 }
-
-const updateDoctorAppointment=async(patient_id, doctor_id, date, time,disease_type,disease_description,appointment_id)=>{
-  return new Promise((resolve, reject) => {
-    db.query(`UPDATE appointments set appointment_date=?, appointment_time=?, patient_id=?, status='Pending', doctor_id=? where appointment_id=?`,
-      [date, time, patient_id, doctor_id, appointment_id], (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(result);
+const updateDoctorAppointment = async (doctor_id, date, time, disease_type, disease_description, appointment_id) => {
+  try {
+    const getPatientId = () => {
+      return new Promise((resolve, reject) => {
+        db.query(`SELECT patient_id FROM appointments WHERE appointment_id=?`, [appointment_id], (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          if (result.length > 0) {
+            resolve(result[0].patient_id);
+          } else {
+            reject(new Error("No patient found for the given appointment ID"));
+          }
+        });
       });
+    };
 
-      db.query(`INSERT INTO disease (disease_type,disease_description,patient_id) VALUES(?,?,?)`,
-          [disease_type,disease_description, patient_id], (error, result) => {
+    const updateAppointment = () => {
+      return new Promise((resolve, reject) => {
+        db.query(
+          `UPDATE appointments SET appointment_date=?, appointment_time=?, status='Pending', doctor_id=? WHERE appointment_id=?`,
+          [date, time, doctor_id, appointment_id],
+          (error, result) => {
             if (error) {
               return reject(error);
             }
             resolve(result);
-          });
-  });
-}
+          }
+        );
+      });
+    };
+
+    const insertDisease = (patient_id) => {
+      return new Promise((resolve, reject) => {
+        db.query(
+          `INSERT INTO disease (disease_type, disease_description, patient_id) VALUES (?, ?, ?)`,
+          [disease_type, disease_description, patient_id],
+          (error, result) => {
+            if (error) {
+              return reject(error);
+            }
+            resolve(result);
+          }
+        );
+      });
+    };
+
+    const patient_id = await getPatientId();
+    await updateAppointment();
+    await insertDisease(patient_id);
+
+    return { success: true, message: "Appointment and disease details updated successfully" };
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const getAppointmentInfo = async (appointment_id) => {
   try {
@@ -643,9 +680,11 @@ const getAppointmentInfo = async (appointment_id) => {
           a.appointment_date, 
           a.appointment_time, 
           GROUP_CONCAT(d.disease_type) AS disease_types,
-          GROUP_CONCAT(d.disease_description) AS disease_description
+          GROUP_CONCAT(d.disease_description) AS disease_description,
+          doc.name
         FROM appointments a 
         LEFT JOIN disease d ON d.patient_id = a.patient_id
+        join doctors doc on a.doctor_id=doc.doctor_id
         WHERE a.appointment_id = ?
         GROUP BY a.appointment_id, a.status, a.appointment_date, a.appointment_time`,
         [appointment_id],

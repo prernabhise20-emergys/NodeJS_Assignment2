@@ -375,7 +375,7 @@ const appointmentHistory = async (req, res, next) => {
 };
 
 const rescheduleAppointment=async(req,res,next)=>{
-  const { body: { patient_id, doctor_id, date, time,disease_type,disease_description } } = req;
+  const { body: { doctor_id, date, time,disease_type,disease_description } } = req;
   const{query:{appointment_id}}=req;
   try {
     // const isAvailable = await isDoctorAvailable(doctor_id, date, time);
@@ -387,7 +387,7 @@ const rescheduleAppointment=async(req,res,next)=>{
 
     // }
 
-    const result = await updateDoctorAppointment(patient_id, doctor_id, date, time,disease_type,disease_description,appointment_id);
+    const result = await updateDoctorAppointment( doctor_id, date, time,disease_type,disease_description,appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_RESCHEDULE)
     );

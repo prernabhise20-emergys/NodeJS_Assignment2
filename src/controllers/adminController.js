@@ -10,6 +10,9 @@ import { ResponseHandler } from "../common/utility/handlers.js";
 import { approveRequest, approveAppointmentDoctorNotify } from "../common/utility/approveAppointment.js"
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
+import axios from 'axios';
+import fs from 'fs';
+
 import {
   checkPrescription,
   checkIfUserExists,
@@ -210,7 +213,25 @@ const generateDoctorCode = async () => {
   return newCode;
 };
 
+import xlsx from 'xlsx';
 
+const parseExcelFile = (req,res,next) => {
+  console.log('excel');
+  
+  console.log(req.filepath);
+  
+  // const filePath='../../downloaded_file.xlsx'
+  const workbook = xlsx.readFile(filepath);
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  return xlsx.utils.sheet_to_json(sheet);
+};
+const insertDoctorsIntoDB = async (doctors) => {
+  for (const doctor of doctors) {
+    await createDoctorData(doctor);
+  }
+  console.log('added');
+  
+};
 
 const addDoctor = async (req, res, next) => {
   try {
@@ -455,7 +476,6 @@ const getPatientsAppointments = async (req, res, next) => {
   }
 };
 
-
 const getAllEmail = async (req, res, next) => {
   try {
     const { user: { admin, doctor } } = req;
@@ -487,8 +507,37 @@ const getAllEmailForDoctor = async (req, res, next) => {
     next(error);
   }
 };
+const downloadDocument = async (req, res, next) => {
+  try {
+    const response1 = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/v1234567890/Add_Doctor_Template/dmvrmpfsgnrd5rrojham.xlsx';
+    const filePath = './downloaded_file.xlsx'
+    const response = await axios({
+      method: 'GET',
+      url: response1,
+      responseType: 'stream'
+    });
 
+    const writer = fs.createWriteStream(filePath);
+
+    response.data.pipe(writer);
+
+    writer.on('finish', () => {
+      console.log('Download completed', filePath);
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.TEMPLATE_DOWNLOAD, filePath)
+      );
+    });
+
+    writer.on('error', (error) => {
+      console.error('Error', error);
+    });
+
+  } catch (error) {
+    next(error)
+  }
+};
 export default {
+  downloadDocument,
   setAppointmentCancelled,
   getAllEmailForDoctor,
   getAllEmail,

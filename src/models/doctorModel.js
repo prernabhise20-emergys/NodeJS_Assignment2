@@ -184,34 +184,102 @@ const updatePrescription = async (appointment_id, url, dateIssued) => {
 };
 const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
   try {
-      let query, params;
+    let query, params;
 
-      if (is_available) {        
-        query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
-        params = [is_available, userid];
-      } else {
-       
-          query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
-          params = [is_available, unavailable_from_date, unavailable_to_date, userid];
-      }
+    if (is_available) {
+      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
+      params = [is_available, userid];
+    } else {
 
-      const result = await new Promise((resolve, reject) => {
-          db.query(query, params, (error, result) => {
-              if (error) {
-                  reject(error);
-              } else {
-                  resolve(result);
-              }
-          });
+      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
+      params = [is_available, unavailable_from_date, unavailable_to_date, userid];
+    }
+
+    const row = await new Promise((resolve, reject) => {
+      db.query(query, params, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
       });
+    });
 
-      return result;
+    return row;
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
+const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
 
+  try {
+    let id=[];
+    return new Promise((resolve, reject) => {
+     const r1= db.query(
+        `select appointment_id from appointments
+WHERE appointment_date BETWEEN ? AND ?;
+`,
+        [unavailable_from_date, unavailable_to_date],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          result.forEach((row) => {
+            id=row.appointment_id;
+            console.log(id)
+          });
+          
+        }
+      );
+      db.query(
+        `UPDATE appointments
+SET status='Cancelled'
+WHERE appointment_date BETWEEN ? AND ?;
+`,
+        [unavailable_from_date, unavailable_to_date],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          console.log(id);
+          
+          resolve(getUserInformation(id));
+    
+
+        }
+      );
+
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+const getUserInformation=async(appointment_id)=>{
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT p.patient_name,u.email, a.appointment_date, a.appointment_time, d.name,d.email as doctor_email
+        from user_register u join
+          personal_info p on(u.id=p.user_id)
+         JOIN appointments a ON (p.patient_id = a.patient_id)
+         JOIN doctors d ON (a.doctor_id = d.doctor_id)
+         WHERE a.appointment_id = ?`,
+         appointment_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 export {
+  markCancelled,
   changeAvailabilityStatus,
   getPrescriptionByAppointmentId,
   updatePrescription,
