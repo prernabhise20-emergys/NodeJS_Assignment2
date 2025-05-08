@@ -250,30 +250,31 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
             );
         }
 
-      await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
+        await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
 
-         const cancelAppointment= await markCancelled( unavailable_from_date, unavailable_to_date)
-console.log(cancelAppointment[0]);
+        const cancelAppointment = await markCancelled(unavailable_from_date, unavailable_to_date);
+console.log(cancelAppointment[0].appointment_id);
 
-// const{email,patient_name, appointment_date, appointment_time, name}=cancelAppointment[0]
-// const reason='doctor unavailabiltiy'
-// console.log(email, patient_name, appointment_date, appointment_time, name);
+        if (cancelAppointment.length > 0) {
+            const { email, patient_name, appointment_date, appointment_time, name } = cancelAppointment[0];
+            const reason = 'doctor unavailability';
 
-         if(cancelAppointment){
-            // await sendCancelledAppointmentEmail(email,reason, patient_name, appointment_date, appointment_time, name)
+            await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
          
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
             );
         }
-            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
-            );
+        
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+            new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        );
         
     } catch (error) {
         next(error);
     }
 };
+
 
 export default {
     changeDoctorAvailabilityStatus,
