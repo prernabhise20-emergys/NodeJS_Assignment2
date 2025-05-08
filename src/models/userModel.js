@@ -368,12 +368,12 @@ const getDoctorInfo = async () => {
     throw error;
   }
 };
-const isDoctorAvailable = (doctor_id, date, time) => {
+const isDoctorAvailable = (doctor_id, date, patient_id) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT COUNT(*) AS count
     FROM appointments
-    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND appointment_time = ? and status in('Scheduled','Pending')`,
-      [doctor_id, date, time], (error, results) => {
+    WHERE doctor_id = ? AND DATE(appointment_date) = ? AND patient_id = ? and status in('Scheduled','Pending')`,
+      [doctor_id, date, patient_id], (error, results) => {
         if (error) {
           return reject(error);
         }

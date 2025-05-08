@@ -275,7 +275,7 @@ const getDoctors = async (req, res, next) => {
 const createAppointment = async (req, res, next) => {
   const { body: { patient_id, doctor_id, date, time,disease_type,disease_description } } = req;
   try {
-    const isAvailable = await isDoctorAvailable(doctor_id, date, time);
+    const isAvailable = await isDoctorAvailable(doctor_id, date,patient_id);
 
     if (!isAvailable) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
