@@ -684,26 +684,24 @@ const updateDoctorAppointment = async (doctor_id, date, time, disease_type, dise
     throw error;
   }
 };
-
-
 const getAppointmentInfo = async (appointment_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        ` SELECT 
+        `SELECT 
           a.appointment_id, 
           a.status, 
-          a.appointment_date, 
+          DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
           a.appointment_time, 
           GROUP_CONCAT(d.disease_type) AS disease_types,
           GROUP_CONCAT(d.disease_description) AS disease_description,
           doc.doctor_id,
           doc.name
-        from personal_info p join
-      appointments a on p.patient_id=a.patient_id
-        LEFT JOIN disease d ON d.patient_id = a.patient_id
-        join doctors doc on a.doctor_id=doc.doctor_id
-        WHERE a.appointment_id = ? and d.is_deleted=false
+        FROM personal_info p
+        JOIN appointments a ON p.patient_id = a.patient_id
+        LEFT JOIN disease d ON d.patient_id = a.patient_id AND d.is_deleted = false
+        JOIN doctors doc ON a.doctor_id = doc.doctor_id
+        WHERE a.appointment_id = ?
         GROUP BY a.appointment_id, a.status, a.appointment_date, a.appointment_time`,
         [appointment_id],
         (error, result) => {
@@ -717,6 +715,39 @@ const getAppointmentInfo = async (appointment_id) => {
     throw error;
   }
 };
+
+
+// const getAppointmentInfo = async (appointment_id) => {
+//   try {
+//     const data = await new Promise((resolve, reject) => {
+//       db.query(
+//         ` SELECT 
+//           a.appointment_id, 
+//           a.status, 
+//           a.appointment_date, 
+//           a.appointment_time, 
+//           GROUP_CONCAT(d.disease_type) AS disease_types,
+//           GROUP_CONCAT(d.disease_description) AS disease_description,
+//           doc.doctor_id,
+//           doc.name
+//         from personal_info p join
+//       appointments a on p.patient_id=a.patient_id
+//         LEFT JOIN disease d ON d.patient_id = a.patient_id
+//         join doctors doc on a.doctor_id=doc.doctor_id
+//         WHERE a.appointment_id = ? and d.is_deleted=false
+//         GROUP BY a.appointment_id, a.status, a.appointment_date, a.appointment_time`,
+//         [appointment_id],
+//         (error, result) => {
+//           if (error) return reject(error);
+//           return resolve(result);
+//         }
+//       );
+//     });
+//     return data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 
 export {
