@@ -61,6 +61,11 @@ const showPatientDetails = async (req, res, next) => {
 const getPersonalDetails = async (req, res, next) => {
   try {
     const { params: { patient_id } } = req;
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const familyInfo = await getPersonalInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -88,7 +93,11 @@ const createPersonalInfo = async (req, res, next) => {
 
       },
     } = req;
-
+    if(!patient_name|| !date_of_birth|| !gender||!weight||!height||!country_of_origin||!is_diabetic||!cardiac_issue||!blood_pressure){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const { user: { userid: id, email } } = req;
     const data = {
       patient_name,
@@ -129,7 +138,11 @@ const updatePersonalInfo = async (req, res, next) => {
         patient_id,
       },
     } = req;
-
+    if(!patient_name|| !date_of_birth|| !gender||!weight||!height||!country_of_origin||!is_diabetic||!cardiac_issue||!blood_pressure||!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const is_diabetic = diabetic === true || diabetic === 1;
     const cardiac_issue = cardiac === true || cardiac === 1;
     const blood_pressure = pressure === true || pressure === 1;
@@ -168,7 +181,11 @@ const deletePersonalInfo = async (req, res, next) => {
   try {
     const { user: { userid: id, admin: is_admin } } = req;
     const { params: { patient_id } } = req;
-
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deletePersonalDetails(patient_id);
@@ -188,6 +205,11 @@ const deletePersonalInfo = async (req, res, next) => {
 const getFamilyDetails = async (req, res, next) => {
   try {
     const { params: { patient_id } } = req;
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const familyInfo = await getFamilyInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -201,7 +223,11 @@ const getFamilyDetails = async (req, res, next) => {
 const addFamilyInfo = async (req, res, next) => {
   try {
     const { body: { familyDetails } } = req;
-
+    if(!familyDetails){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     await insertFamilyInfo(familyDetails);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADDED_FAMILY_MESSAGE)
@@ -230,7 +256,11 @@ const updateFamilyInfoDetails = async (req, res, next) => {
         patient_id,
       },
     } = req;
-
+    if(!father_name|| !father_age|| !father_country_origin||!mother_name||!mother_age||!mother_country_origin||!mother_diabetic||!mother_cardiac_issue||!mother_bp||!father_cardiac_issue||!father_diabetic||!father_bp||!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     mother_diabetic === true || mother_diabetic === 1 ? true : false;
     mother_cardiac_issue === true || mother_cardiac_issue === 1 ? true : false;
     mother_bp === true || mother_bp === 1 ? true : false;
@@ -272,7 +302,11 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
   try {
     const { params: { patient_id } } = req;
     const { user: { userid: id, admin: is_admin } } = req;
-
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
       await deleteFamilyInfo(patient_id);
@@ -291,6 +325,11 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
 const getDiseaseDetails = async (req, res, next) => {
   try {
     const { params: { patient_id } } = req;
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const personalInfo = await getDiseaseInfo(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -304,7 +343,11 @@ const getDiseaseDetails = async (req, res, next) => {
 const addDiseaseInfo = async (req, res, next) => {
   try {
     const { body: { diseaseDetails } } = req;
-
+    if(!diseaseDetails){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     await addDiseaseData(diseaseDetails);
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
@@ -321,6 +364,11 @@ const updateDiseaseInfo = async (req, res, next) => {
     const {
       body: { disease_type, disease_description, patient_id },
     } = req;
+    if(!disease_type||!disease_description||!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const { user: { userid: id, admin: is_admin } } = req;
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
 
@@ -343,6 +391,12 @@ const deleteDiseaseInfo = async (req, res, next) => {
   try {
     const { params: { patient_id } } = req;
     const { user: { userid: id, admin: is_admin } } = req;
+
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
@@ -470,7 +524,11 @@ const addDisease = async (req, res, next) => {
   try {
     const { patient_id } = req.query;
     const { disease_type, disease_description } = req.body;
-
+    if(!disease_type||!disease_description||!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const data = { disease_type, disease_description, patient_id };
 
     await createDiseaseInformation(data);

@@ -52,7 +52,11 @@ const updateDoctor = async (req, res, next) => {
                 doctorOutTime
             },
         } = req;
-        
+        if(!name|| !specialization|| !doctorInTime||!doctorOutTime||!contact_number){
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+            );
+          }
         const dname = name.split(' ')
         const first_name = dname[0]
         const last_name = dname[1]
@@ -163,9 +167,13 @@ import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
 const uploadPrescription = async (req, res, next) => {
     try {
-        const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration,frequency } } = req;
+        const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, frequency } } = req;
         const { user: { email } } = req;
-
+        if(!medicines|| !capacity|| !morning||!afternoon||!evening||!courseDuration||frequency||!appointment_id){
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+            );
+          }
         const patientData = await getAppointmentData(appointment_id);
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
 
@@ -202,7 +210,11 @@ const updateExistsPrescription = async (req, res, next) => {
     try {
         const { body: { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } } = req;
         const { user: { email } } = req;
-
+        if(!medicines|| !capacity|| !dosage||!morning||!afternoon||!appointment_id||!evening||!courseDuration){
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+            );
+          }
         const patientData = await getAppointmentData(appointment_id);
         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
 
@@ -240,48 +252,15 @@ const updateExistsPrescription = async (req, res, next) => {
     }
 };
 
-// const changeDoctorAvailabilityStatus = async (req, res, next) => {
-//     try {
-//         const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
-//         const { user: { doctor: is_doctor, userid } } = req;
-
-//         if (!is_doctor) {
-//             return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
-//                 new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.UNAUTHORIZED)
-//             );
-//         }
-
-//         await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
-
-//         const cancelAppointment = await markCancelled(unavailable_from_date, unavailable_to_date);
-// console.log(formatDate(cancelAppointment[0].appointment_date));
-
-//         if (cancelAppointment.length > 0) {
-//             const { email, patient_name, appointment_date, appointment_time, name } = cancelAppointment[0];
-//             const reason = 'doctor unavailability';
-
-//             await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
-         
-//             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
-//             );
-//         }
-        
-//         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-//             new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
-//         );
-        
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
-
 const changeDoctorAvailabilityStatus = async (req, res, next) => {
     try {
         const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
         const { user: { doctor: is_doctor, userid } } = req;
-
+        if(!is_available|| !unavailable_from_date|| !unavailable_to_date){
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+            );
+          }
         if (!is_doctor) {
             return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
                 new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.UNAUTHORIZED)
@@ -314,13 +293,19 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
     }
 };
 
-const addObservation=async(req,res,next)=>{
-    const{query:{appointment_id}}=req;
-const{body:{observation}}=req;
-    await addObservationData(observation,appointment_id);
+const addObservation = async (req, res, next) => {
+    const { query: { appointment_id } } = req;
+    const { body: { observation } } = req;
+
+    if(!appointment_id||!observation){
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+        );
+      }
+    await addObservationData(observation, appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
-      );
+    );
 }
 export default {
     addObservation,

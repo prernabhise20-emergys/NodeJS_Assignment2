@@ -78,7 +78,11 @@ const adminDeletePatientData = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
     const { query: { patient_id } } = req;
-
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const checkAppointment = await patientHaveAppointment(patient_id);
     if (checkAppointment.length > 0) {
       throw APPOINTMENT_BOOKED;
@@ -135,7 +139,14 @@ const addAdmin = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-
+    if(!email|| !first_name|| !last_name||!mobile_number){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
+    const password=await generatePassword(first_name)
+    console.log(password);
+    
     const name = first_name + ' ' + last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900);
     const adminCode = `ADM${randomNumber}`;
@@ -143,7 +154,7 @@ const addAdmin = async (req, res, next) => {
       first_name,
       last_name,
       email,
-      user_password,
+      user_password:password,
       mobile_number
     }
     await createAdmin(data, adminCode)
@@ -212,38 +223,31 @@ const generateDoctorCode = async () => {
 
   return newCode;
 };
+const generatePassword = async (first_name) => {
+  const randomNumber = Math.floor(100000 + Math.random() * 900000);
+  const newCode = `${first_name}@${randomNumber}`;
 
+  return newCode;
+};
 import xlsx from 'xlsx';
-
-const parseExcelFile = (req,res,next) => {
-  console.log('excel');
-  
-  console.log(req.filepath);
-  
-  // const filePath='../../downloaded_file.xlsx'
-  const workbook = xlsx.readFile(filepath);
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  return xlsx.utils.sheet_to_json(sheet);
-};
-const insertDoctorsIntoDB = async (doctors) => {
-  for (const doctor of doctors) {
-    await createDoctorData(doctor);
-  }
-  console.log('added');
-  
-};
 
 const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
-    const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, user_password, first_name, last_name } } = req;
+    const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name } } = req;
 
-
+    if(!specialization|| !contact_number|| !email||!doctorInTime||!doctorOutTime||!first_name||!last_name){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const userExists = await checkIfUserExists(email);
     if (userExists) {
       throw USER_EXISTS;
     }
     const docCode = await generateDoctorCode();
+const password=await generatePassword(first_name)
+console.log(password);
 
     const data = {
       name: first_name + ' ' + last_name,
@@ -253,7 +257,7 @@ const addDoctor = async (req, res, next) => {
       doctorInTime,
       doctorOutTime,
       doctorCode: docCode,
-      user_password,
+      user_password:password,
       first_name,
       last_name
     };
@@ -306,16 +310,16 @@ const changeAppointmentsStatus = async (req, res, next) => {
       );
     }
 
-    if(status == 'Completed'){
+    // if(status == 'Completed'){
 
-      const check= await checkPrescription(appointment_id)
-      if(!check){
-        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.PRESCRIPTION_NOT_EXISTS)
-        );
-      }
+    //   const check= await checkPrescription(appointment_id)
+    //   if(!check){
+    //     return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+    //       new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.PRESCRIPTION_NOT_EXISTS)
+    //     );
+    //   }
       
-    }
+    // }
     if (is_admin || is_doctor) {
       const result = await changeStatus(status, appointment_id);
 
@@ -348,7 +352,7 @@ const setAppointmentCancelled = async (req, res, next) => {
     const { user: { admin: is_admin, email } } = req;
     const { body: { reason } } = req
 
-    if (!appointment_id) {
+    if (!appointment_id||!reason) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
       );
@@ -440,6 +444,11 @@ const getAllAppointments = async (req, res, next) => {
   try {
     const { user: { admin, doctor } } = req;
     const { query: { doctor_id } } = req;
+    if(!doctor_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     if (admin || doctor) {
       const appointments = await getAllAppointmentInformation(doctor_id);
 
@@ -509,7 +518,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
 };
 const downloadDocument = async (req, res, next) => {
   try {
-    const response1 = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/v1234567890/Add_Doctor_Template/dmvrmpfsgnrd5rrojham.xlsx';
+    const response1 = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/v1234567890/Add_Doctor_Template/vjrcziw86bglyemrf4ao.xlsx';
     const filePath = './downloaded_file.xlsx'
     const response = await axios({
       method: 'GET',

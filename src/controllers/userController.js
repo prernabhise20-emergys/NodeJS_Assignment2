@@ -45,6 +45,11 @@ const register = async (req, res, next) => {
   try {
     const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
 
+    if(!email||!user_password||!first_name||!last_name||!mobile_number){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const userExists = await checkIfUserExists(email);
     if (userExists) {
       throw USER_EXISTS;
@@ -136,6 +141,12 @@ const updateUser = async (req, res, next) => {
     const {
       body: { first_name, last_name, mobile_number },
     } = req;
+
+    if(!first_name||!last_name||!mobile_number){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const { user: { userid: id } } = req;
 
     const formData = {
@@ -196,7 +207,11 @@ const getUser = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
   try {
     const { body: { email } } = req;
-
+    if(!email){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const validEmail = await checkEmailExists(email);
@@ -223,6 +238,11 @@ const forgotPassword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   try {
     const { body: { email, newPassword } } = req;
+    if(!email||!newPassword){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     await updatePassword(email, newPassword);
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -236,6 +256,11 @@ const changePassword = async (req, res, next) => {
 
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
+    if(!oldPassword||!newPassword){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
 
     const decodedoldPassword = Buffer.from(oldPassword, 'base64').toString('utf-8');
 
@@ -273,8 +298,13 @@ const getDoctors = async (req, res, next) => {
 };
 
 const createAppointment = async (req, res, next) => {
+  try{
   const { body: { patient_id, doctor_id, date, time,disease_type,disease_description } } = req;
-  try {
+  if(!doctor_id|| !date|| !time||!disease_type||!disease_description||!patient_id){
+    return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+    );
+  }
     const isAvailable = await isDoctorAvailable(doctor_id, date,patient_id);
 
     if (!isAvailable) {
@@ -298,7 +328,11 @@ const getDoctorAvailability = async (req, res, next) => {
   try {
     const { query: { doctor_id } } = req;
     const { body: { date } } = req;
-
+    if(!doctor_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const availableTimes = await checkDoctorAvailability(doctor_id, date);
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
@@ -313,9 +347,6 @@ const unavailable_to_date = availableTimes[0]?.unavailable_to_date
   ? formatDate(availableTimes[0].unavailable_to_date)
   : null;
 
-//  const unavailable_from_date=formatDate(availableTimes[0]?. unavailable_from_date)||'Doctor is available';
-//  const unavailable_to_date=formatDate(availableTimes[0]?. unavailable_to_date)||'Doctor is available';
- 
     const scheduleSlots = availableTimes
       .filter(row => row.appointment_time !== null && row.status === 'Scheduled')
       .map(row => row.appointment_time);
@@ -363,7 +394,11 @@ const searchDoctor = async (req, res, next) => {
 const appointmentHistory = async (req, res, next) => {
   try {
     const { query: { patient_id } } = req;
-
+    if(!patient_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const history = await getAppointmentHistory(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -375,18 +410,15 @@ const appointmentHistory = async (req, res, next) => {
 };
 
 const rescheduleAppointment=async(req,res,next)=>{
+  try {
   const { body: { doctor_id, date, time,disease_type,disease_description } } = req;
   const{query:{appointment_id}}=req;
-  try {
-    // const isAvailable = await isDoctorAvailable(doctor_id, date, time);
 
-    // if (!isAvailable) {
-    //   return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-    //     new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.BOOK_SLOT)
-    //   );
-
-    // }
-
+if(!doctor_id|| !date|| !time||!disease_type||!disease_description||!appointment_id){
+  return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+    new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+  );
+}
     const result = await updateDoctorAppointment( doctor_id, date, time,disease_type,disease_description,appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_RESCHEDULE)
@@ -399,6 +431,11 @@ const rescheduleAppointment=async(req,res,next)=>{
 const getAppointmentData=async(req,res,next)=>{
   try {
     const{query:{appointment_id}}=req;
+    if(!appointment_id){
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
     const doctorInfo = await getAppointmentInfo(appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_INFO_SUCCESS_MESSAGE, doctorInfo)
