@@ -16,6 +16,7 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 // import { createPrescription } from '../common/utility/createPrescription.js';
 
 import {
+    addObservationData,
     markCancelled,
     changeAvailabilityStatus,
     updatePrescription,
@@ -313,8 +314,16 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
     }
 };
 
-
+const addObservation=async(req,res,next)=>{
+    const{query:{appointment_id}}=req;
+const{body:{observation}}=req;
+    await addObservationData(observation,appointment_id);
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
+      );
+}
 export default {
+    addObservation,
     changeDoctorAvailabilityStatus,
     formatDate,
     updateExistsPrescription,

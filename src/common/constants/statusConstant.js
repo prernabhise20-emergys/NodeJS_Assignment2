@@ -54,6 +54,7 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE = {
+  OBSERVATION_ADDED:"Observation is added successfully",
   TEMPLATE_DOWNLOAD:"Template is downloaded successfully",
   APPOINTMENT_INFO_SUCCESS_MESSAGE:"Appointment information is retrieve sucessfully",
   APPOINTMENT_RESCHEDULE:"Appointment is rescheduled successfully",

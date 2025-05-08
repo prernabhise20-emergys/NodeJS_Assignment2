@@ -268,75 +268,25 @@ const getUserInformation = async (appointment_ids) => {
   }
 };
 
-// const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
+const addObservationData=async(observation,appointment_id)=>{
 
-//   try {
-//     let id = [];
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `select appointment_id from appointments
-// WHERE appointment_date BETWEEN ? AND ?;
-// `,
-//         [unavailable_from_date, unavailable_to_date],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           result.forEach((row) => {
-//             id += row.appointment_id;
-//             console.log(id)
-//           });
-
-//         }
-//       );
-//       db.query(
-//         `UPDATE appointments
-// SET status='Cancelled'
-// WHERE appointment_date BETWEEN ? AND ?;
-// `,
-//         [unavailable_from_date, unavailable_to_date],
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           console.log(id);
-
-//           resolve(getUserInformation(id));
-
-
-//         }
-//       );
-
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// }
-
-// const getUserInformation = async (appointment_id) => {
-//   try {
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `SELECT p.patient_name,u.email, a.appointment_date, a.appointment_time, d.name,d.email as doctor_email
-//         from user_register u join
-//           personal_info p on(u.id=p.user_id)
-//          JOIN appointments a ON (p.patient_id = a.patient_id)
-//          JOIN doctors d ON (a.doctor_id = d.doctor_id)
-//          WHERE a.appointment_id = ?`,
-//         appointment_id,
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           resolve(result);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// }
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(`update appointments set observation=? where appointment_id=?`,
+        [observation,appointment_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        });
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 export {
+  addObservationData,
   markCancelled,
   changeAvailabilityStatus,
   getPrescriptionByAppointmentId,
