@@ -89,7 +89,7 @@ ds.disease_type,
         LEFT JOIN
           prescriptions pr ON pr.appointment_id = a.appointment_id  
         WHERE
-          u.is_deleted = FALSE and p.is_deleted=false
+          u.is_deleted = FALSE and p.is_deleted=false and ds.is_deleted=false
           AND a.status in('Scheduled','Pending')
           AND u.id = ?
         GROUP BY
