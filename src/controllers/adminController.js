@@ -6,15 +6,18 @@ import {
 } from "../common/constants/statusConstant.js";
 import jwt from "jsonwebtoken";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
-import { ResponseHandler } from "../common/utility/handlers.js"; 
+import { ResponseHandler } from "../common/utility/handlers.js";
 import { approveRequest, approveAppointmentDoctorNotify } from "../common/utility/approveAppointment.js"
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import axios from 'axios';
 import fs from 'fs';
+import generatedDoctorCode from '../common/utility/generatedNumber.js'
+import generatePassword from '../common/utility/generatedNumber.js'
+import response1 from '../common/constants/pathConstant.js';
+import filePath from '../common/constants/pathConstant.js'
 
 import {
-  checkPrescription,
   checkIfUserExists,
   createAdmin,
   patientHaveAppointment,
@@ -61,7 +64,7 @@ const getAllInfo = async (req, res, next) => {
     ]);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send({
-      status:SUCCESS_STATUS_CODE.SUCCESS,
+      status: SUCCESS_STATUS_CODE.SUCCESS,
       message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
       data: personalInfo,
       pagination: {
@@ -78,7 +81,7 @@ const adminDeletePatientData = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
     const { query: { patient_id } } = req;
-    if(!patient_id){
+    if (!patient_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -139,14 +142,14 @@ const addAdmin = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-    if(!email|| !first_name|| !last_name||!mobile_number){
+    if (!email || !first_name || !last_name || !mobile_number) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
     }
-    const password=await generatePassword(first_name)
+    const password = await generatePassword(first_name)
     console.log(password);
-    
+
     const name = first_name + ' ' + last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900);
     const adminCode = `ADM${randomNumber}`;
@@ -154,7 +157,7 @@ const addAdmin = async (req, res, next) => {
       first_name,
       last_name,
       email,
-      user_password:password,
+      user_password: password,
       mobile_number
     }
     await createAdmin(data, adminCode)
@@ -217,26 +220,13 @@ const getAdmin = async (req, res, next) => {
   }
 };
 
-const generateDoctorCode = async () => {
-  const randomNumber = Math.floor(100 + Math.random() * 900);
-  const newCode = `DR${randomNumber}`;
-
-  return newCode;
-};
-const generatePassword = async (first_name) => {
-  const randomNumber = Math.floor(100000 + Math.random() * 900000);
-  const newCode = `${first_name}@${randomNumber}`;
-
-  return newCode;
-};
-import xlsx from 'xlsx';
 
 const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
     const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name } } = req;
 
-    if(!specialization|| !contact_number|| !email||!doctorInTime||!doctorOutTime||!first_name||!last_name){
+    if (!specialization || !contact_number || !email || !doctorInTime || !doctorOutTime || !first_name || !last_name) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -245,9 +235,9 @@ const addDoctor = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-    const docCode = await generateDoctorCode();
-const password=await generatePassword(first_name)
-console.log(password);
+    const docCode = await generatedDoctorCode();
+    const password = await generatePassword(first_name)
+    console.log(password);
 
     const data = {
       name: first_name + ' ' + last_name,
@@ -257,11 +247,10 @@ console.log(password);
       doctorInTime,
       doctorOutTime,
       doctorCode: docCode,
-      user_password:password,
+      user_password: password,
       first_name,
       last_name
     };
-
 
     if (!is_admin) {
       return res
@@ -318,7 +307,7 @@ const changeAppointmentsStatus = async (req, res, next) => {
     //       new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.PRESCRIPTION_NOT_EXISTS)
     //     );
     //   }
-      
+
     // }
     if (is_admin || is_doctor) {
       const result = await changeStatus(status, appointment_id);
@@ -352,7 +341,7 @@ const setAppointmentCancelled = async (req, res, next) => {
     const { user: { admin: is_admin, email } } = req;
     const { body: { reason } } = req
 
-    if (!appointment_id||!reason) {
+    if (!appointment_id || !reason) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
       );
@@ -444,7 +433,7 @@ const getAllAppointments = async (req, res, next) => {
   try {
     const { user: { admin, doctor } } = req;
     const { query: { doctor_id } } = req;
-    if(!doctor_id){
+    if (!doctor_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -518,22 +507,22 @@ const getAllEmailForDoctor = async (req, res, next) => {
 };
 const downloadDocument = async (req, res, next) => {
   try {
-    const response1 = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/v1234567890/Add_Doctor_Template/vjrcziw86bglyemrf4ao.xlsx';
-    const filePath = './downloaded_file.xlsx'
+    // const response1 = 'https://res.cloudinary.com/dfd5iubc8/raw/upload/v1234567890/Add_Doctor_Template/aechvettawun2tu0zovs.xlsx';
+    // const filePath = './downloaded_file.xlsx'
     const response = await axios({
       method: 'GET',
-      url: response1,
+      url: response1.response1,
       responseType: 'stream'
     });
 
-    const writer = fs.createWriteStream(filePath);
+    const writer = fs.createWriteStream(filePath.filePath);
 
     response.data.pipe(writer);
 
     writer.on('finish', () => {
-      console.log('Download completed', filePath);
+      console.log('Download completed', filePath.filePath);
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.TEMPLATE_DOWNLOAD, filePath)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.TEMPLATE_DOWNLOAD, filePath.filePath)
       );
     });
 

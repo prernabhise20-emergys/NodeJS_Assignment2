@@ -167,9 +167,11 @@ import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
 const uploadPrescription = async (req, res, next) => {
     try {
-        const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, frequency } } = req;
+        const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes } } = req;
         const { user: { email } } = req;
-        if(!medicines|| !capacity|| !morning||!afternoon||!evening||!courseDuration||frequency||!appointment_id){
+        console.log(email);
+        
+        if(!medicines|| !capacity|| !morning||!afternoon||!evening||!courseDuration||!notes||!appointment_id){
             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
               new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
             );
@@ -180,7 +182,7 @@ const uploadPrescription = async (req, res, next) => {
         const formattedAppointmentDate = formatDate(appointmentDate);
         const formattedBirthDate = formatDate(date_of_birth);
 
-        const data = { medicines, capacity, frequency, morning, afternoon, evening, courseDuration };
+        const data = { medicines, capacity, notes, morning, afternoon, evening, courseDuration };
 
         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
 

@@ -28,6 +28,9 @@ const createPrescription = (data, patientName, appointmentDate, age, gender, doc
                     ? 'before meal'
                     : 'after meal'));
 
+                    data.notes[i]==='undefined'? ' ':data.notes[i];
+
+
         tableRows += `
             <tr>
                 <td>${data.medicines[i]}</td>
@@ -36,7 +39,7 @@ const createPrescription = (data, patientName, appointmentDate, age, gender, doc
                 <td>${morningTiming}</td>
                 <td>${afternoonTiming}</td>
                 <td>${eveningTiming}</td>
-                <td>${data.frequency[i]}</td>
+                <td>${data.notes[i]}</td>
 
             </tr>
         `;
@@ -97,12 +100,12 @@ const createPrescription = (data, patientName, appointmentDate, age, gender, doc
                 <thead>
                     <tr>
                         <th>Medicine</th>
-                        <th>Capacity</th>
-                        <th>Course Duration</th>
-                        <th>Morning</th>
-                        <th>Afternoon</th>
-                        <th>Evening</th>
-                        <th>Frequency</th>
+                        <th>Capacity(mg)</th>
+                        <th>Course Duration (days)</th>
+                        <th>Morning (dosage)</th>
+                        <th>Afternoon (dosage)</th>
+                        <th>Evening (dosage)</th>
+                        <th>Notes</th>
 
                     </tr>
                 </thead>
