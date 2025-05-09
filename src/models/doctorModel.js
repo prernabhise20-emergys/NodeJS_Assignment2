@@ -90,7 +90,7 @@ ds.disease_type,
           prescriptions pr ON pr.appointment_id = a.appointment_id  
         WHERE
           u.is_deleted = FALSE and p.is_deleted=false
-          AND a.status = 'Scheduled'
+          AND a.status in('Scheduled','Pending')
           AND u.id = ?
         GROUP BY
           p.patient_name, p.age, u.id, u.email, d.name,ds.disease_type, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status
