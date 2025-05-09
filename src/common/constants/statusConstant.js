@@ -16,7 +16,7 @@ const ERROR_MESSAGE = {
   LOGIN_CREDENTIAL:"Either email or userCode must be provided",
   KEYWORD_REQUIRED:"Keyword is required for searching",
   DOCTOR_NOT_AVAILABLE: "Doctor not available for the selected date or time.",
-  BOOK_SLOT: "The selected time slot is already booked. Please choose another time.",
+  BOOK_SLOT: "Already have an appointment for this doctor for this date.",
   EMAIL_NOT_EXISTS: "Email is not found",
   MORE_THAN_LIMIT: "Only 4 documents allow to upload",
   ID_ALREADY_EXISTS: "Patient_id already exists",
