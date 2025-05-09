@@ -12,8 +12,8 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import axios from 'axios';
 import fs from 'fs';
-import generatedDoctorCode from '../common/utility/generatedNumber.js'
-import generatePassword from '../common/utility/generatedNumber.js'
+// import generatedDoctorCode from '../common/utility/generatedNumber.js'
+// import generatePassword from '../common/utility/generatedNumber.js'
 import response1 from '../common/constants/pathConstant.js';
 import filePath from '../common/constants/pathConstant.js'
 
@@ -220,7 +220,18 @@ const getAdmin = async (req, res, next) => {
   }
 };
 
-
+const generateDoctorCode = async () => {
+    const randomNumber = Math.floor(100 + Math.random() * 900);
+    const newCode = `DR${randomNumber}`;
+  
+    return newCode;
+  };
+  const generatePassword = async (first_name) => {
+    const randomNumber = Math.floor(100000 + Math.random() * 900000);
+    const newCode = `${first_name}@${randomNumber}`;
+  
+    return newCode;
+  };
 const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
@@ -235,7 +246,7 @@ const addDoctor = async (req, res, next) => {
     if (userExists) {
       throw USER_EXISTS;
     }
-    const docCode = await generatedDoctorCode();
+    const docCode = await generateDoctorCode();
     const password = await generatePassword(first_name)
     console.log(password);
 
@@ -459,7 +470,7 @@ const getPatientsAppointments = async (req, res, next) => {
 
     if (admin || doctor) {
       const appointments = await getAllPatientAppointment();
-
+console.log(appointments)
       const formattedAppointments = appointments.map(appointment => ({
         ...appointment,
         appointment_date: new Date(appointment.appointment_date).toISOString().split('T')[0]
@@ -535,6 +546,8 @@ const downloadDocument = async (req, res, next) => {
   }
 };
 export default {
+ generateDoctorCode ,
+  
   downloadDocument,
   setAppointmentCancelled,
   getAllEmailForDoctor,

@@ -385,6 +385,8 @@ const isDoctorAvailable = (doctor_id, date, patient_id) => {
 
 const createDoctorAppointment = (patient_id, doctor_id, date, time,disease_type,disease_description) => {
   return new Promise((resolve, reject) => {
+    console.log(patient_id, doctor_id, date, time,disease_type,disease_description);
+    
     db.query(`INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
     VALUES (?, ?, ?, ?)`,
       [date, time, patient_id, doctor_id], (error, result) => {

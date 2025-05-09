@@ -16,6 +16,7 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 // import { createPrescription } from '../common/utility/createPrescription.js';
 
 import {
+    editObservationData,
     addObservationData,
     markCancelled,
     changeAvailabilityStatus,
@@ -85,13 +86,35 @@ const updateDoctor = async (req, res, next) => {
     }
 };
 
+// const displayAppointments = async (req, res, next) => {
+//     try {
+
+//         const { user: { doctor: is_doctor, admin: is_admin, userid: user_id } } = req;
+
+//         if (is_doctor || is_admin) {
+//             const appointments = await showAppointments(user_id);
+// console.log(appointments);
+
+//             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
+//             );
+//         } else {
+//             return res.status(ERROR_STATUS_CODE.INVALID).send(
+//                 new ResponseHandler(ERROR_STATUS_CODE.INVALID, ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
+//             );
+//         }
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
 const displayAppointments = async (req, res, next) => {
     try {
-
         const { user: { doctor: is_doctor, admin: is_admin, userid: user_id } } = req;
 
         if (is_doctor || is_admin) {
             const appointments = await showAppointments(user_id);
+            console.log(appointments);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
@@ -105,8 +128,6 @@ const displayAppointments = async (req, res, next) => {
         next(error);
     }
 };
-
-
 
 
 
@@ -347,7 +368,18 @@ const addObservation = async (req, res, next) => {
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
     );
 }
+
+const editObservation = async (req, res, next) => {
+    const { query: { appointment_id } } = req;
+    const { body: { observation } } = req;
+
+    await editObservationData(observation, appointment_id);
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
+    );
+}
 export default {
+    editObservation,
     addObservation,
     changeDoctorAvailabilityStatus,
     formatDate,

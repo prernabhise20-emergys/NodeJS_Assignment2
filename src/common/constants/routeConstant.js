@@ -61,7 +61,8 @@ const ROUTE_CONSTANTS = {
   CHANGE_AVAILABILITY_STATUS:"/changeAvailabilityStatus",
   RESCHEDULE_APPOINTMENT:"/rescheduleAppointment",
   APPOINTMENT_DATA:"/getAppointmentData",
-  ADD_OBSERVATION:"/addObservation"
+  ADD_OBSERVATION:"/addObservation",
+  EDIT_PRESCRIPTION:"/editObservation"
 };
 
 export default ROUTE_CONSTANTS;

@@ -74,7 +74,7 @@ const showAppointments = async (user_id) => {
           a.appointment_date,
           a.appointment_time,
           a.status,
-        ds.disease_type AS disease_types,
+ds.disease_type,
           MAX(pr.appointment_id) AS prescription_id
         FROM
           user_register u
@@ -90,10 +90,10 @@ const showAppointments = async (user_id) => {
           prescriptions pr ON pr.appointment_id = a.appointment_id  
         WHERE
           u.is_deleted = FALSE and p.is_deleted=false
-          AND a.status in('Scheduled','Pending')
+          AND a.status = 'Scheduled'
           AND u.id = ?
         GROUP BY
-          p.patient_name, p.age, u.id, u.email, d.name, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time,ds.disease_type, a.status
+          p.patient_name, p.age, u.id, u.email, d.name,ds.disease_type, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status
         ORDER BY
           a.appointment_id;
       `, [user_id], (error, result) => {
@@ -107,6 +107,7 @@ const showAppointments = async (user_id) => {
     throw error;
   }
 };
+
 
 
 const savePrescription = async (appointment_id, url, dateIssued) => {
@@ -285,7 +286,25 @@ const addObservationData=async(observation,appointment_id)=>{
     throw error;
   }
 }
+const editObservationData=async(observation,appointment_id)=>{
+
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(`update appointments set observation=? where appointment_id=?`,
+        [observation,appointment_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        });
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 export {
+  editObservationData,
   addObservationData,
   markCancelled,
   changeAvailabilityStatus,

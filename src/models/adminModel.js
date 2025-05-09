@@ -491,9 +491,11 @@ const getAllPatientAppointment = async () => {
         DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
         a.appointment_time, 
         a.status, 
-        do.name 
+        do.name ,
+        d.disease_type
       FROM appointments a 
       JOIN personal_info p ON a.patient_id = p.patient_id 
+      join disease d on a.patient_id=d.patient_id
       JOIN doctors do ON a.doctor_id = do.doctor_id 
       WHERE p.is_deleted = FALSE 
       AND a.status IN ('Pending', 'Scheduled') 
