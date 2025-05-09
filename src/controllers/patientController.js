@@ -93,11 +93,7 @@ const createPersonalInfo = async (req, res, next) => {
 
       },
     } = req;
-    if(!patient_name|| !date_of_birth|| !gender||!weight||!height||!country_of_origin||!is_diabetic||!cardiac_issue||!blood_pressure){
-      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
-      );
-    }
+
     const { user: { userid: id, email } } = req;
     const data = {
       patient_name,
@@ -138,11 +134,7 @@ const updatePersonalInfo = async (req, res, next) => {
         patient_id,
       },
     } = req;
-    if(!patient_name|| !date_of_birth|| !gender||!weight||!height||!country_of_origin||!is_diabetic||!cardiac_issue||!blood_pressure||!patient_id){
-      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
-      );
-    }
+  
     const is_diabetic = diabetic === true || diabetic === 1;
     const cardiac_issue = cardiac === true || cardiac === 1;
     const blood_pressure = pressure === true || pressure === 1;

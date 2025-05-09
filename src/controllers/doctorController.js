@@ -165,19 +165,61 @@ const displayAppointments = async (req, res, next) => {
 
 import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
+// const uploadPrescription = async (req, res, next) => {
+//     try {
+//         const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes } } = req;
+//         const { user: { email } } = req;
+//         console.log(email);
+        
+//         if(!medicines|| !capacity|| !morning||!afternoon||!evening||!courseDuration||!notes||!appointment_id){
+//             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//               new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+//             );
+//           }
+//         const patientData = await getAppointmentData(appointment_id);
+//         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
+
+//         const formattedAppointmentDate = formatDate(appointmentDate);
+//         const formattedBirthDate = formatDate(date_of_birth);
+
+//         const data = { medicines, capacity, notes, morning, afternoon, evening, courseDuration };
+
+//         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
+
+//         const result = await uploadFile({
+//             buffer: pdfBuffer,
+//             originalname: "prescription.pdf",
+//         });
+
+//         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
+
+//         const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
+//         await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
+
+//         await sendPrescription(email, result.secure_url);
+
+//         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//             new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+//         );
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+
 const uploadPrescription = async (req, res, next) => {
     try {
         const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes } } = req;
         const { user: { email } } = req;
         console.log(email);
         
-        if(!medicines|| !capacity|| !morning||!afternoon||!evening||!courseDuration||!notes||!appointment_id){
+        if (!medicines || !capacity || !morning || !afternoon || !evening || !courseDuration || !notes || !appointment_id) {
             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
             );
-          }
+        }
+
         const patientData = await getAppointmentData(appointment_id);
-        const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
+        const {patient_id, patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
 
         const formattedAppointmentDate = formatDate(appointmentDate);
         const formattedBirthDate = formatDate(date_of_birth);
@@ -185,11 +227,7 @@ const uploadPrescription = async (req, res, next) => {
         const data = { medicines, capacity, notes, morning, afternoon, evening, courseDuration };
 
         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
-
-        const result = await uploadFile({
-            buffer: pdfBuffer,
-            originalname: "prescription.pdf",
-        });
+        const result = await uploadFile({ buffer: pdfBuffer, originalname: "prescription.pdf" }, patient_id);
 
         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
 

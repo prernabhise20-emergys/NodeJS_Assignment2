@@ -3,6 +3,8 @@ import streamifier from 'streamifier';
 
 const uploadFile = (file,patient_id) => {
   return new Promise((resolve, reject) => {
+    console.log(patient_id);
+    
     const stream = cloudinary.v2.uploader.upload_stream(
       {
         asset_folder:'Patients_Upload_Documents',
