@@ -383,28 +383,38 @@ const isDoctorAvailable = (doctor_id, date, patient_id) => {
   });
 };
 
-const createDoctorAppointment = (patient_id, doctor_id, date, time,disease_type,disease_description) => {
+const createDoctorAppointment = (patient_id, doctor_id, date, time, disease_type, disease_description) => {
   return new Promise((resolve, reject) => {
-    console.log(patient_id, doctor_id, date, time,disease_type,disease_description);
-    
-    db.query(`INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id)
-    VALUES (?, ?, ?, ?)`,
-      [date, time, patient_id, doctor_id], (error, result) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(result);
-      });
+    try {
+      console.log(patient_id, doctor_id, date, time, disease_type, disease_description);
+      db.query(
+        `INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id) VALUES (?, ?, ?, ?)`,
+        [date, time, patient_id, doctor_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
 
-      db.query(`INSERT INTO disease (disease_type,disease_description,patient_id) VALUES(?,?,?)`,
-          [disease_type,disease_description, patient_id], (error, result) => {
-            if (error) {
-              return reject(error);
+          const appointment_id = result.insertId; 
+
+          db.query(
+            `INSERT INTO disease (disease_type, disease_description, patient_id, appointment_id) VALUES (?, ?, ?, ?)`,
+            [disease_type, disease_description, patient_id, appointment_id],
+            (error, diseaseResult) => {
+              if (error) {
+                return reject(error);
+              }
+              resolve(diseaseResult);
             }
-            resolve(result);
-          });
+          );
+        }
+      );
+    } catch (error) {
+      reject(error);
+    }
   });
 };
+
 
 const doctorFlag = async (email) => {
   try {
@@ -614,78 +624,100 @@ where a.patient_id=? and d.is_deleted=false`,
     throw error;
   }
 }
-const updateDoctorAppointment = async (doctor_id, date, time, disease_type, disease_description, appointment_id) => {
-  try {
-    const getPatientId = () => {
-      return new Promise((resolve, reject) => {
-        db.query(`SELECT patient_id FROM appointments WHERE appointment_id=?`, [appointment_id], (error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          if (result.length > 0) {
-            resolve(result[0].patient_id);
-          } else {
-            reject(new Error("No patient found for the given appointment ID"));
-          }
-        });
-      });
-    };
 
-    const updateAppointment = () => {
-      return new Promise((resolve, reject) => {
-        db.query(
-          `UPDATE appointments SET appointment_date=?, appointment_time=?, status='Pending', doctor_id=? WHERE appointment_id=?`,
-          [date, time, doctor_id, appointment_id],
-          (error, result) => {
-            if (error) {
-              return reject(error);
-            }
-            resolve(result);
-          }
-        );
-      });
-    };
-
-    const updatedisease = (patient_id) => {
-      return new Promise((resolve, reject) => {
-        db.query(
-          `UPDATE disease SET is_deleted=true WHERE patient_id=?`,
-          patient_id,
-          (error, result) => {
-            if (error) {
-              return reject(error);
-            }
-            resolve(result);
-          }
-        );
-      });
-    };
-
-    const insertDisease = (patient_id) => {
-      return new Promise((resolve, reject) => {
-        db.query(
-          `INSERT INTO disease (disease_type, disease_description, patient_id) VALUES (?, ?, ?)`,
-          [disease_type, disease_description, patient_id],
-          (error, result) => {
-            if (error) {
-              return reject(error);
-            }
-            resolve(result);
-          }
-        );
-      });
-    };
-
-    const patient_id = await getPatientId();
-    await updateAppointment();
-    await updatedisease(patient_id)
-    await insertDisease(patient_id);
-
-    return { success: true, message: "Appointment and disease details updated successfully" };
-  } catch (error) {
-    throw error;
-  }
+const updateDoctorAppointment = (doctor_id, date, time, disease_type, disease_description, appointment_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE appointments SET appointment_date=?, appointment_time=?, status='Pending', doctor_id=? WHERE appointment_id=?`,
+      [date, time, doctor_id, appointment_id],
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        
+        updateDisease(disease_type, disease_description, appointment_id)
+        resolve(result);
+      }
+    );
+  });
 };
+
+const updateDisease = ( disease_type, disease_description,appointment_id) => {
+
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE disease SET disease_type=?, disease_description=? WHERE appointment_id=?`,
+      [disease_type, disease_description, appointment_id],
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
+
+//   try {
+//     console.log(doctor_id, date, time, disease_type, disease_description, appointment_id);
+    
+//     // Ensure both updates are awaited properly
+//     await updateAppointment(doctor_id, date, time, appointment_id);
+//     await updateDisease(appointment_id, disease_type, disease_description);
+    
+//     console.log("Appointment and disease details updated successfully");
+    
+//   } catch (error) {
+//     console.error("Error updating appointment:", error);
+//     throw error;
+//   }
+// };
+
+
+// const updateDoctorAppointment = async (doctor_id, date, time, disease_type, disease_description, appointment_id) => {
+//   try {
+
+
+//     const updateAppointment = () => {
+//       return new Promise((resolve, reject) => {
+//         db.query(
+//           `UPDATE appointments SET appointment_date=?, appointment_time=?, status='Pending', doctor_id=? WHERE appointment_id=?`,
+//           [date, time, doctor_id, appointment_id],
+//           (error, result) => {
+//             if (error) {
+//               return reject(error);
+//             }
+//             resolve(result);
+//           }
+//         );
+//       });
+//     };
+
+//     const updatedisease = (appointment_id) => {
+//       return new Promise((resolve, reject) => {
+//         db.query(
+//           `UPDATE disease SET disease_type=?,disease_description=? WHERE appointment_id=?`,
+//           appointment_id,
+//           (error, result) => {
+//             if (error) {
+//               return reject(error);
+//             }
+//             resolve(result);
+//           }
+//         );
+//       });
+//     };
+
+
+
+//     await updateAppointment();
+//     await updatedisease(appointment_id)
+
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 const getAppointmentInfo = async (appointment_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
