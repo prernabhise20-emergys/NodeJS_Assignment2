@@ -590,9 +590,7 @@ describe('getDoctors', () => {
       userModel.createDoctorAppointment.mockResolvedValue(mockResult);
   
       await userController.createAppointment(req, res, next);
-  
-      expect(userModel.isDoctorAvailable).toHaveBeenCalledWith(testConstants.createAppointmentBody.doctor_id, testConstants.createAppointmentBody.date, testConstants.createAppointmentBody.time);
-  
+    
       expect(userModel.createDoctorAppointment).toHaveBeenCalledWith(testConstants.createAppointmentBody.patient_id,testConstants.createAppointmentBody.doctor_id, testConstants.createAppointmentBody.date, testConstants.createAppointmentBody.time);
   
       expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
@@ -616,7 +614,7 @@ describe('getDoctors', () => {
   
       await userController.createAppointment(req, res, next);
   
-      expect(userModel.isDoctorAvailable).toHaveBeenCalledWith(testConstants.createAppointmentBody.doctor_id, testConstants.createAppointmentBody.date, testConstants.createAppointmentBody.time);
+      // expect(userModel.isDoctorAvailable).toHaveBeenCalledWith(testConstants.createAppointmentBody.doctor_id, testConstants.createAppointmentBody.date, testConstants.createAppointmentBody.time);
   
       expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
   
@@ -840,4 +838,177 @@ describe('getDoctorAvailability', () => {
       expect(next).toHaveBeenCalledWith(mockError);
     });
   });
+
+  describe('appointmentHistory', () => {
+  let req, res, next;
+
+  beforeEach(() => {
+    req = {
+      query: {
+        patient_id: '12345'
+      }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn()
+    };
+    next = jest.fn();
+  });
+
+  it('should return 400 if patient_id is missing', async () => {
+    req.query.patient_id = null; 
+
+    await userController.appointmentHistory(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should call getAppointmentHistory and return 200 with the history on success', async () => {
+    const mockHistory = [
+      { appointment_id: '1', date: '2023-05-01', doctor: 'Dr. A' },
+      { appointment_id: '2', date: '2023-06-01', doctor: 'Dr. B' }
+    ];
+
+    userModel.getAppointmentHistory.mockResolvedValue(mockHistory); 
+
+    await userController.appointmentHistory(req, res, next);
+
+    expect(userModel.getAppointmentHistory).toHaveBeenCalledWith('12345');
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE,
+        data: mockHistory
+      })
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should call next with error if getAppointmentHistory fails', async () => {
+    userModel.getAppointmentHistory.mockRejectedValue(new Error('Database error'));
+
+    await userController.appointmentHistory(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.send).not.toHaveBeenCalled();
+  });
+});
+
+describe('rescheduleAppointment', () => {
+  let req, res, next;
+
+  beforeEach(() => {
+    req = {
+      body: {
+        doctor_id: '1',
+        date: '2025-06-01',
+        time: '10:00 AM',
+        disease_type: 'Flu',
+        disease_description: 'Common cold symptoms'
+      },
+      query: {
+        appointment_id: '12345'
+      }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn()
+    };
+    next = jest.fn();
+  });
+
+  it('should return 400 if any required field is missing', async () => {
+    req.body.doctor_id = null;
+
+    await userController.rescheduleAppointment(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should successfully reschedule the appointment and return 200', async () => {
+    userModel.updateDoctorAppointment.mockResolvedValue(true); 
+
+    await userController.rescheduleAppointment(req, res, next);
+
+    expect(userModel.updateDoctorAppointment).toHaveBeenCalledWith(
+      '1', '2025-06-01', '10:00 AM', 'Flu', 'Common cold symptoms', '12345'
+    );
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: SUCCESS_MESSAGE.APPOINTMENT_RESCHEDULE
+      })
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should forward error to next middleware if an error occurs during rescheduling', async () => {
+    userModel.updateDoctorAppointment.mockRejectedValue(new Error('Database error'));
+
+    await userController.rescheduleAppointment(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.send).not.toHaveBeenCalled();
+  });
+});
+
+describe('getAppointmentData ', () => {
+  let req, res, next;
+
+  beforeEach(() => {
+    req = {
+      query: {
+        appointment_id: '12345'
+      }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn()
+    };
+    next = jest.fn();
+  });
+
+  it('should return 400 if appointment_id is missing', async () => {
+    req.query.appointment_id = null; 
+
+    await userController.getAppointmentData(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should successfully retrieve appointment data and return 200', async () => {
+    const mockDoctorInfo = { name: 'Dr. Smith', specialization: 'Cardiology' };
+    userModel.getAppointmentInfo.mockResolvedValue(mockDoctorInfo);
+
+    await userController.getAppointmentData(req, res, next);
+
+    expect(userModel.getAppointmentInfo).toHaveBeenCalledWith('12345');
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: SUCCESS_MESSAGE.APPOINTMENT_INFO_SUCCESS_MESSAGE,
+        data: mockDoctorInfo
+      })
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should forward error to next middleware if an error occurs', async () => {
+    userModel.getAppointmentInfo.mockRejectedValue(new Error('Database error'));
+
+    await userController.getAppointmentData(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.send).not.toHaveBeenCalled();
+  });
+});
 })

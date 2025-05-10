@@ -556,8 +556,6 @@ const saveDocument = (documentData) => {
   });
 };
 
-// *************************************************************************************
-
 const checkNumberOfDocument = async (patient_id) => {
   try {
     const personalInfo = await new Promise((resolve, reject) => {
@@ -578,8 +576,6 @@ const checkNumberOfDocument = async (patient_id) => {
   }
 };
 
-// *******************************************************
-
 const checkDocumentExists = (document_type, patient_id) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -595,7 +591,6 @@ const checkDocumentExists = (document_type, patient_id) => {
   });
 };
 
-// *************************************************************
 
 const checkAlreadyExist = (email) => {
   return new Promise((resolve, reject) => {
@@ -672,34 +667,6 @@ const createDiseaseInformation = async (data) => {
 };
 
 
-// const createDiseaseInformation = async (data) => {
-//   const { patient_id, disease_type, disease_description } = data;
-
-//   return new Promise((resolve, reject) => {
-
-//     db.query(
-//       "UPDATE disease set is_deleted=true where patient_id=?",
-//       [ patient_id],
-//       (error, result) => {
-//         if (error) {
-//           return reject(error);
-//         }
-//         resolve(result);
-//       }
-//     );
-
-//     db.query(
-//       "INSERT INTO disease (disease_type, disease_description, patient_id) VALUES (?, ?, ?)",
-//       [disease_type, disease_description, patient_id],
-//       (error, result) => {
-//         if (error) {
-//           return reject(error);
-//         }
-//         resolve(result);
-//       }
-//     );
-//   });
-// };
 export {
   createDiseaseInformation,
   getDocumentByPatientIdAndType,

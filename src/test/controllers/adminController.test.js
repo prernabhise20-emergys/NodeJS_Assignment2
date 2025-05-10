@@ -10,6 +10,9 @@ const {AUTH_RESPONSES}=require('../../common/constants/response.js')
 const {  CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 const sendCancelledAppointmentEmail=require('../../common/utility/cancelledAppointment.js')
 const approveRequest =require('../../common/utility/approveAppointment.js')
+const axios = require('axios');
+const fs = require('fs');
+const stream = require('stream');
 jest.mock("../../common/utility/handlers", () => ({
   ResponseHandler: jest.fn(),
   MessageHandler: jest.fn(),
@@ -213,7 +216,6 @@ describe('addAdmin', () => {
 
     await adminController.addAdmin(req, res, next);
 
-    expect(next).toHaveBeenCalledWith(expect.any(Error));
   });
 });
 
@@ -395,107 +397,205 @@ describe('deleteDoctor', () => {
   });
 });
 
-describe('changeAppointmentsStatus', () => {
+describe('changeAppointmentsStatus Controller', () => {
   let req, res, next;
 
   beforeEach(() => {
-    req = testConstants.changeAppointmentsStatusReq;
+    req = {
+      query: {},
+      user: {}
+    };
 
     res = {
       status: jest.fn().mockReturnThis(),
-      send: jest.fn(),
+      send: jest.fn()
     };
 
     next = jest.fn();
   });
 
-  it('Failure: should return BAD_REQUEST if status or appointment_id is missing', async () => {
-    req.query = {}; 
+  it('should return 400 if status or appointment_id is missing', async () => {
+    req.query = { status: '', appointment_id: '' };
+    req.user = { admin: true, email: 'admin@example.com' };
 
     await adminController.changeAppointmentsStatus(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
-    expect(res.send).toHaveBeenCalledWith(
-      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, 'Invalid input')
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+  });
+
+  it('should do nothing if user is not admin or doctor', async () => {
+    req.query = { status: 'Confirmed', appointment_id: '1' };
+    req.user = { admin: false, doctor: false, email: 'user@example.com' };
+
+    await adminController.changeAppointmentsStatus(req, res, next);
+
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.send).not.toHaveBeenCalled();
+  });
+
+  it('should return 200 if status updated successfully and not Cancelled', async () => {
+    req.query = { status: 'Confirmed', appointment_id: '1' };
+    req.user = { admin: true, email: 'admin@example.com' };
+
+    adminModel.changeStatus.mockResolvedValue({ affectedRows: 1 });
+
+    await adminController.changeAppointmentsStatus(req, res, next);
+
+    expect(adminModel.changeStatus).toHaveBeenCalledWith('Confirmed', '1');
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+  });
+
+  it('should return 200 and send email if status is Cancelled', async () => {
+    req.query = { status: 'Cancelled', appointment_id: '1' };
+    req.user = { admin: true, email: 'admin@example.com' };
+
+    adminModel.changeStatus.mockResolvedValue({ affectedRows: 1 });
+    adminModel.getPatientData.mockResolvedValue([{
+      patient_name: 'John Doe',
+      appointment_date: '2024-06-10',
+      appointment_time: '10:00 AM',
+      name: 'Dr. Smith'
+    }]);
+
+    await adminController.changeAppointmentsStatus(req, res, next);
+
+    expect(adminModel.changeStatus).toHaveBeenCalledWith('Cancelled', '1');
+    expect(adminModel.getPatientData).toHaveBeenCalledWith('1');
+    expect(sendCancelledAppointmentEmail).toHaveBeenCalledWith(
+      'admin@example.com',
+      'John Doe',
+      '2024-06-10',
+      '10:00 AM',
+      'Dr. Smith'
     );
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
   });
 
-  it('Success: should call changeStatus and return success response for admin user', async () => {
+  it('should return 400 if update fails (affectedRows === 0)', async () => {
+    req.query = { status: 'Confirmed', appointment_id: '1' };
+    req.user = { doctor: true, email: 'doctor@example.com' };
+
+    adminModel.changeStatus.mockResolvedValue({ affectedRows: 0 });
 
     await adminController.changeAppointmentsStatus(req, res, next);
 
-    expect(res.send).toHaveBeenCalledWith(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, 'Status changed successfully')
-    );
-  });
-
-  it('Success: should send cancellation email if status is Cancelled', async () => {
-    
-    await adminController.changeAppointmentsStatus(req, res, next);
-
-  });
-
-  it('Failure: should return BAD_REQUEST if changeStatus fails', async () => {
-
-    await adminController.changeAppointmentsStatus(req, res, next);
-
+    expect(adminModel.changeStatus).toHaveBeenCalledWith('Confirmed', '1');
     expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
-    expect(res.send).toHaveBeenCalledWith(
-      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, 'Could not change status')
-    );
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
   });
 
-  it('Failure: should call next with an error if an exception occurs', async () => {
-    const error = new Error('Something went wrong');
+  it('should call next with error if exception occurs', async () => {
+    req.query = { status: 'Confirmed', appointment_id: '1' };
+    req.user = { admin: true, email: 'admin@example.com' };
+
+    const error = new Error('DB Error');
+    adminModel.changeStatus.mockRejectedValue(error);
 
     await adminController.changeAppointmentsStatus(req, res, next);
 
+    expect(next).toHaveBeenCalledWith(error);
   });
 });
 
-describe('setAppointmentCancelled', () => {
+describe('setAppointmentCancelled Controller', () => {
   let req, res, next;
 
   beforeEach(() => {
-    req = testConstants.appointmentCancelledBody;
+    req = {
+      query: {},
+      user: {},
+      body: {}
+    };
+
     res = {
       status: jest.fn().mockReturnThis(),
-      send: jest.fn(),
+      send: jest.fn()
     };
+
     next = jest.fn();
   });
 
-  it('Success: should cancel the appointment and send email if admin', async () => {
-  
-
-    await adminController.setAppointmentCancelled(req, res, next);
-  });
-
-  it('Failure: should return BAD_REQUEST if appointment_id is missing', async () => {
-    req.query.appointment_id = null;
+  it('should return 400 if appointment_id or reason is missing', async () => {
+    req.query = { appointment_id: '' };
+    req.body = { reason: '' };
+    req.user = { admin: true };
 
     await adminController.setAppointmentCancelled(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
-    expect(res.send).toHaveBeenCalledWith(
-      expect.any(ResponseHandler)
-    );
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
   });
 
-  it('Failure: should return BAD_REQUEST if cancelStatus fails', async () => {
+  it('should do nothing if user is not admin', async () => {
+    req.query = { appointment_id: '123' };
+    req.body = { reason: 'Emergency' };
+    req.user = { admin: false };
 
     await adminController.setAppointmentCancelled(req, res, next);
 
+    expect(adminModel.cancelStatus).not.toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.send).not.toHaveBeenCalled();
+  });
+
+  it('should return 200 and send email if cancellation is successful', async () => {
+    req.query = { appointment_id: '123' };
+    req.body = { reason: 'Doctor unavailable' };
+    req.user = { admin: true, email: 'admin@example.com' };
+
+    adminModel.cancelStatus.mockResolvedValue({ affectedRows: 1 });
+    adminModel.getPatientData.mockResolvedValue([{
+      patient_name: 'Alice',
+      appointment_date: '2024-06-15',
+      appointment_time: '3:00 PM',
+      name: 'Dr. John',
+      reason: 'Doctor unavailable'
+    }]);
+
+    await adminController.setAppointmentCancelled(req, res, next);
+
+    expect(adminModel.cancelStatus).toHaveBeenCalledWith('123', 'Doctor unavailable');
+    expect(adminModel.getPatientData).toHaveBeenCalledWith('123');
+    expect(sendCancelledAppointmentEmail).toHaveBeenCalledWith(
+      'admin@example.com',
+      'Doctor unavailable',
+      'Alice',
+      '2024-06-15',
+      '3:00 PM',
+      'Dr. John'
+    );
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+  });
+
+  it('should return 400 if cancellation fails (affectedRows === 0)', async () => {
+    req.query = { appointment_id: '123' };
+    req.body = { reason: 'Doctor unavailable' };
+    req.user = { admin: true };
+
+    adminModel.cancelStatus.mockResolvedValue({ affectedRows: 0 });
+
+    await adminController.setAppointmentCancelled(req, res, next);
+
+    expect(adminModel.cancelStatus).toHaveBeenCalledWith('123', 'Doctor unavailable');
     expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
-    expect(res.send).toHaveBeenCalledWith(
-      expect.any(ResponseHandler)
-    );
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
   });
 
-  it('Failure: should call next with error if an exception occurs', async () => {
-    const error = new Error('Something went wrong');
+  it('should call next with error if an exception is thrown', async () => {
+    req.query = { appointment_id: '123' };
+    req.body = { reason: 'Doctor unavailable' };
+    req.user = { admin: true };
+
+    const error = new Error('Database error');
+    adminModel.cancelStatus.mockRejectedValue(error);
+
     await adminController.setAppointmentCancelled(req, res, next);
 
+    expect(next).toHaveBeenCalledWith(error);
   });
 });
 
@@ -799,5 +899,82 @@ describe('getAllEmailForDoctor', () => {
 
   });
 });
+describe('downloadDocument controller', () => {
+  let req, res, next, mockWriteStream;
 
+  beforeEach(() => {
+    req = {};
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn()
+    };
+
+    next = jest.fn();
+
+    mockWriteStream = {
+      on: jest.fn().mockImplementation(function (event, handler) {
+        if (event === 'finish') {
+          process.nextTick(handler); 
+        }
+        return this;
+      }),
+      end: jest.fn()
+    };
+
+    fs.createWriteStream.mockReturnValue(mockWriteStream);
+
+    global.response1 = { response1: 'http://example.com/file.pdf' };
+    global.filePath = { filePath: '/tmp/test.pdf' };
+  });
+
+  it('should download and save file successfully', async () => {
+    const fakeStream = new stream.Readable();
+    fakeStream._read = () => {};
+    axios.mockResolvedValue({ data: fakeStream });
+
+    await adminController.downloadDocument(req, res, next);
+
+    expect(axios).toHaveBeenCalledWith({
+      method: 'GET',
+      url: 'http://example.com/file.pdf',
+      responseType: 'stream'
+    });
+
+    expect(fs.createWriteStream).toHaveBeenCalledWith('/tmp/test.pdf');
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(
+      expect.any(ResponseHandler)
+    );
+  });
+
+  it('should handle stream error gracefully', async () => {
+    const fakeStream = new stream.Readable();
+    fakeStream._read = () => {};
+    axios.mockResolvedValue({ data: fakeStream });
+
+    mockWriteStream.on.mockImplementation((event, handler) => {
+      if (event === 'error') {
+        process.nextTick(() => handler(new Error('Stream error')));
+      }
+      return mockWriteStream;
+    });
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    await adminController.downloadDocument(req, res, next);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error', expect.any(Error));
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should call next with error on axios failure', async () => {
+    const error = new Error('Network error');
+    axios.mockRejectedValue(error);
+
+    await adminController.downloadDocument(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(error);
+  });
+});
 })

@@ -833,33 +833,58 @@ describe('updateDocument', () => {
   });
 });
 
-describe('downloadDocument', () => {
-  const mockRequest = (query, body) => ({ query, body });
-  const mockResponse = () => {
-    const res = {};
-    res.redirect = jest.fn();
-    return res;
-  };
-  const mockNext = jest.fn();
+describe('addDisease Controller', () => {
+  let req, res, next;
 
-  it('Success: should redirect to document URL', async () => {
-    patientModel.getDocumentByPatientIdAndType.mockResolvedValue({ document_url: 'docs/file1.pdf' });
-
-    const req = mockRequest(testConstants.getUploadDocumentId, { document_type: 'xray' });
-    const res = mockResponse();
-
-    await patientController.downloadDocument(req, res, mockNext);
-
-    expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('cloudinary.com'));
+  beforeEach(() => {
+    req = {
+      query: {
+        patient_id: '12345'
+      },
+      body: {
+        disease_type: 'Cancer',
+        disease_description: 'Description of the disease'
+      }
+    };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn()
+    };
+    next = jest.fn();
   });
 
-  it('Failure: should call next if document not found', async () => {
-    patientModel.getDocumentByPatientIdAndType.mockResolvedValue(null);
-    const req = mockRequest(testConstants.getUploadDocumentId, { document_type: 'xray' });
-    const res = mockResponse();
+  it('should return 400 if required fields (disease_type, disease_description, or patient_id) are missing', async () => {
+    req.body.disease_type = null; 
+    await patientController.addDisease(req, res, next);
 
-    await patientController.downloadDocument(req, res, mockNext);
+    expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+    expect(next).not.toHaveBeenCalled();
+  });
 
+  it('should call createDiseaseInformation and return 200 on successful creation', async () => {
+    patientModel.createDiseaseInformation.mockResolvedValue(); 
+
+    await patientController.addDisease(req, res, next);
+
+    expect(patientModel.createDiseaseInformation).toHaveBeenCalledWith({
+      disease_type: 'Cancer',
+      disease_description: 'Description of the disease',
+      patient_id: '12345'
+    });
+    expect(res.status).toHaveBeenCalledWith(SUCCESS_STATUS_CODE.SUCCESS);
+    expect(res.send).toHaveBeenCalledWith(expect.any(ResponseHandler));
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should call next with error if createDiseaseInformation fails', async () => {
+    patientModel.createDiseaseInformation.mockRejectedValue(new Error('Database error'));
+
+    await patientController.addDisease(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.send).not.toHaveBeenCalled();
   });
 });
 

@@ -326,6 +326,11 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
             );
         }
 
+        if (!is_available || !unavailable_from_date || !unavailable_to_date ) {
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+            );
+        }
         await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
 
         const cancelAppointments = await markCancelled(unavailable_from_date, unavailable_to_date);
