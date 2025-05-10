@@ -453,11 +453,7 @@ const approveAppointment = async (req, res, next) => {
           new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
-    } else {
-      return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
-        new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.NOT_ADMIN)
-      );
-    }
+    } 
   } catch (error) {
     next(error);
   }
