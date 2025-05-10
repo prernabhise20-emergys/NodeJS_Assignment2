@@ -1123,4 +1123,725 @@ describe('getName', () => {
     await expect(userModel.getName(mockEmail)).rejects.toThrow('DB query failed');
   });
 });
+
+describe('getDoctorInfo', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return a list of doctor information', async () => {
+    const mockDbResult = [
+      {
+        doctor_id: 1,
+        name: 'Dr. Smith',
+        specialization: 'Cardiology',
+        doctorInTime: '09:00 AM',
+        doctorOutTime: '05:00 PM',
+        is_available: true,
+        unavailable_from_date: null,
+        unavailable_to_date: null
+      },
+      {
+        doctor_id: 2,
+        name: 'Dr. Johnson',
+        specialization: 'Neurology',
+        doctorInTime: '10:00 AM',
+        doctorOutTime: '06:00 PM',
+        is_available: true,
+        unavailable_from_date: '2025-05-01',
+        unavailable_to_date: '2025-05-10'
+      }
+    ];
+
+    db.query.mockImplementation((sql, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.getDoctorInfo();
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT doctor_id, name, specialization, doctorInTime, doctorOutTime, is_available, unavailable_from_date, unavailable_to_date from doctors where is_deleted=false',
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockDbResult);
+  });
+
+  it('should return an empty array if no doctors are found', async () => {
+    const mockDbResult = [];
+
+    db.query.mockImplementation((sql, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.getDoctorInfo();
+
+    expect(result).toEqual(mockDbResult);
+  });
+
+  it('should throw an error if db.query fails', async () => {
+    const mockDbError = new Error('DB query failed');
+
+    db.query.mockImplementation((sql, callback) => {
+      callback(mockDbError, null);
+    });
+
+    await expect(userModel.getDoctorInfo()).rejects.toThrow('DB query failed');
+  });
+});
+
+describe('isDoctorAvailable', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const doctor_id = 1;
+  const patient_id = 101;
+  const date = '2025-05-10';
+
+  it('should return true if doctor is available (no appointment with this patient on the given date)', async () => {
+    const mockDbResult = [{ count: 0 }];
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.isDoctorAvailable(doctor_id, date, patient_id);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS count FROM appointments WHERE doctor_id = ? AND DATE(appointment_date) = ? AND patient_id = ? and status in(\'Scheduled\',\'Pending\')',
+      [doctor_id, date, patient_id],
+      expect.any(Function)
+    );
+    expect(result).toBe(true); 
+  });
+
+  it('should return false if doctor is not available (appointment already exists for this patient on the given date)', async () => {
+    const mockDbResult = [{ count: 1 }]; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.isDoctorAvailable(doctor_id, date, patient_id);
+
+    expect(result).toBe(false); 
+  });
+
+  it('should throw an error if db.query fails', async () => {
+    const mockDbError = new Error('DB query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockDbError, null);
+    });
+
+    await expect(userModel.isDoctorAvailable(doctor_id, date, patient_id)).rejects.toThrow('DB query failed');
+  });
+});
+
+describe('createDoctorAppointment', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const patient_id = 101;
+  const doctor_id = 1;
+  const date = '2025-05-10';
+  const time = '10:00 AM';
+  const disease_type = 'Flu';
+  const disease_description = 'Seasonal flu symptoms';
+
+  it('should successfully create an appointment and disease entry', async () => {
+    const mockAppointmentResult = { insertId: 1001 };
+    const mockDiseaseResult = { insertId: 2001 };
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(null, mockAppointmentResult); 
+    });
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(null, mockDiseaseResult); 
+    });
+
+    const result = await userModel.createDoctorAppointment(
+      patient_id,
+      doctor_id,
+      date,
+      time,
+      disease_type,
+      disease_description
+    );
+
+    expect(db.query).toHaveBeenCalledWith(
+      'INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id) VALUES (?, ?, ?, ?)',
+      [date, time, patient_id, doctor_id],
+      expect.any(Function)
+    );
+    expect(db.query).toHaveBeenCalledWith(
+      'INSERT INTO disease (disease_type, disease_description, patient_id, appointment_id) VALUES (?, ?, ?, ?)',
+      [disease_type, disease_description, patient_id, mockAppointmentResult.insertId],
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockDiseaseResult);
+  });
+
+  it('should reject if appointment insertion fails', async () => {
+    const mockError = new Error('Failed to insert appointment');
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.createDoctorAppointment(
+      patient_id,
+      doctor_id,
+      date,
+      time,
+      disease_type,
+      disease_description
+    )).rejects.toThrow('Failed to insert appointment');
+  });
+
+  it('should reject if disease insertion fails after appointment insertion', async () => {
+    const mockAppointmentResult = { insertId: 1001 };
+    const mockError = new Error('Failed to insert disease');
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(null, mockAppointmentResult); 
+    });
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.createDoctorAppointment(
+      patient_id,
+      doctor_id,
+      date,
+      time,
+      disease_type,
+      disease_description
+    )).rejects.toThrow('Failed to insert disease');
+  });
+
+  it('should throw an error if there is an unexpected failure in the try-catch block', async () => {
+    const mockError = new Error('Unexpected error');
+
+    db.query.mockImplementationOnce(() => {
+      throw mockError; 
+    });
+
+    await expect(userModel.createDoctorAppointment(
+      patient_id,
+      doctor_id,
+      date,
+      time,
+      disease_type,
+      disease_description
+    )).rejects.toThrow('Unexpected error');
+  });
+});
+
+describe('doctorFlag', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const email = 'doctor@example.com';
+
+  it('should successfully update the is_doctor flag to true', async () => {
+    const mockResult = { affectedRows: 1 }; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.doctorFlag(email);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'UPDATE user_register set is_doctor = true WHERE email = ?',
+      [email],
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult);
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.doctorFlag(email)).rejects.toThrow('Database query failed');
+  });
+
+  it('should throw an error if there is an unexpected failure in the try-catch block', async () => {
+    const mockError = new Error('Unexpected error');
+
+    db.query.mockImplementation(() => {
+      throw mockError; 
+    });
+
+    await expect(userModel.doctorFlag(email)).rejects.toThrow('Unexpected error');
+  });
+});
+
+describe('checkDoctor', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const email = 'doctor@example.com';
+
+  it('should return true if doctor exists', async () => {
+    const mockResult = [{ email: 'doctor@example.com' }]; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.checkDoctor(email);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT email FROM doctors WHERE email = ?',
+      [email],
+      expect.any(Function)
+    );
+    expect(result).toBe(true); 
+  });
+
+  it('should return false if doctor does not exist', async () => {
+    const mockResult = []; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.checkDoctor(email);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT email FROM doctors WHERE email = ?',
+      [email],
+      expect.any(Function)
+    );
+    expect(result).toBe(false); 
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.checkDoctor(email)).rejects.toThrow('Database query failed');
+  });
+
+  it('should throw an error if there is an unexpected failure in the try-catch block', async () => {
+    const mockError = new Error('Unexpected error');
+
+    db.query.mockImplementation(() => {
+      throw mockError; 
+    });
+
+    await expect(userModel.checkDoctor(email)).rejects.toThrow('Unexpected error');
+  });
+});
+
+describe('checkDoctorAvailability', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const doctor_id = 1;
+  const date = '2025-05-15';
+
+  it('should return doctor availability and appointments if available', async () => {
+    const mockResult = [
+      {
+        doctorInTime: '09:00',
+        doctorOutTime: '17:00',
+        appointment_date: '2025-05-15',
+        appointment_time: '10:00',
+        status: 'Scheduled',
+        is_available: true,
+        unavailable_from_date: null,
+        unavailable_to_date: null,
+        patient_id: 123,
+        patient_name: 'John Doe',
+        date_of_birth: '1980-01-01',
+        gender: 'Male',
+        age: 45,
+        weight: 75,
+        height: 175,
+        bmi: 24.5,
+        country_of_origin: 'USA',
+        is_diabetic: false,
+        cardiac_issue: false,
+        blood_pressure: '120/80'
+      }
+    ];
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.checkDoctorAvailability(doctor_id, date);
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('SELECT'),
+      [date, doctor_id, doctor_id, date],
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should return an empty array if no appointments or doctor data are found', async () => {
+    const mockResult = [];
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.checkDoctorAvailability(doctor_id, date);
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('SELECT'),
+      [date, doctor_id, doctor_id, date],
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.checkDoctorAvailability(doctor_id, date)).rejects.toThrow('Database query failed');
+  });
+});
+
+describe('getSearchedDoctor', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const keyword = 'John';
+
+  it('should return searched doctor details if doctors are found', async () => {
+    const mockResult = [
+      {
+        doctor_id: 1,
+        name: 'Dr. John Doe',
+        specialization: 'Cardiology',
+        doctorInTime: '09:00',
+        doctorOutTime: '17:00',
+        is_available: true,
+        unavailable_from_date: null,
+        unavailable_to_date: null
+      }
+    ];
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.getSearchedDoctor(keyword);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime,is_available,unavailable_from_date,unavailable_to_date FROM doctors WHERE is_deleted = false AND (name LIKE ? OR specialization LIKE ?)',
+      ['%John%', '%John%'],
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should return an empty array if no doctors are found', async () => {
+    const mockResult = [];
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.getSearchedDoctor(keyword);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime,is_available,unavailable_from_date,unavailable_to_date FROM doctors WHERE is_deleted = false AND (name LIKE ? OR specialization LIKE ?)',
+      ['%John%', '%John%'],
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.getSearchedDoctor(keyword)).rejects.toThrow('Database query failed');
+  });
+});
+
+describe('setIsDoctor', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const email = 'test@example.com';
+
+  it('should resolve when the user is set as doctor successfully', async () => {
+    const mockResult = { affectedRows: 1 };
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+    const result = await userModel.setIsDoctor(email);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'update user_register set is_doctor=true where email=?',
+      email,
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.setIsDoctor(email)).rejects.toThrow('Database query failed');
+  });
+});
+
+describe('addAsAdmin', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const email = 'admin@example.com';
+
+  it('should resolve when the user is set as admin successfully', async () => {
+    const mockResult = { affectedRows: 1 };
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult);
+    });
+
+    const result = await userModel.addAsAdmin(email);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'update user_register set is_admin=true where email=?',
+      email,
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.addAsAdmin(email)).rejects.toThrow('Database query failed');
+  });
+});
+
+describe('getAppointmentHistory', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const patient_id = 1;
+
+  it('should resolve with appointment history when the query is successful', async () => {
+    const mockResult = [
+      {
+        appointment_id: 1,
+        patient_name: 'John Doe',
+        doctorName: 'Dr. Smith',
+        status: 'Completed',
+        appointment_date: '2025-05-01',
+        appointment_time: '10:00 AM',
+        disease_type: 'Fever',
+        disease_description: 'High fever and chills',
+      }
+    ];
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult);
+    });
+
+    const result = await userModel.getAppointmentHistory(patient_id);
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('SELECT DISTINCT'),
+      patient_id,
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(userModel.getAppointmentHistory(patient_id)).rejects.toThrow('Database query failed');
+  });
+});
+
+describe('updateDoctorAppointment', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const doctor_id = 2;
+  const date = '2025-05-01';
+  const time = '11:00 AM';
+  const disease_type = 'Cold';
+  const disease_description = 'Mild cold and cough';
+  const appointment_id = 3;
+
+  it('should resolve when the appointment is updated successfully', async () => {
+    const mockAppointmentResult = { affectedRows: 1 };
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(null, mockAppointmentResult); 
+    });
+
+    const updateDisease = jest.fn().mockResolvedValue(true);
+
+    const result = await userModel.updateDoctorAppointment(
+      doctor_id, date, time, disease_type, disease_description, appointment_id
+    );
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE appointments'),
+      [date, time, doctor_id, appointment_id],
+      expect.any(Function)
+    );
+    expect(updateDisease).toHaveBeenCalledWith(disease_type, disease_description, appointment_id);
+    expect(result).toEqual(mockAppointmentResult); 
+  });
+
+  it('should reject if the appointment update query fails', async () => {
+    const mockError = new Error('Appointment update failed');
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+    await expect(
+      userModel.updateDoctorAppointment(doctor_id, date, time, disease_type, disease_description, appointment_id)
+    ).rejects.toThrow('Appointment update failed');
+  });
+
+  it('should reject if the disease update query fails', async () => {
+    const mockAppointmentResult = { affectedRows: 1 };
+
+    db.query.mockImplementationOnce((sql, values, callback) => {
+      callback(null, mockAppointmentResult);
+    });
+
+    const updateDisease = jest.fn().mockRejectedValue(new Error('Disease update failed'));
+
+    await expect(
+      userModel.updateDoctorAppointment(doctor_id, date, time, disease_type, disease_description, appointment_id)
+    ).rejects.toThrow('Disease update failed');
+  });
+});
+
+describe('updateDisease', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const disease_type = 'Flu';
+  const disease_description = 'Fever, body ache';
+  const appointment_id = 1;
+
+  it('should resolve when disease is updated successfully', async () => {
+    const mockResult = { affectedRows: 1 }; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult); 
+    });
+
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('UPDATE disease'),
+      [disease_type, disease_description, appointment_id],
+      expect.any(Function)
+    );
+    expect(result).toEqual(mockResult); 
+  });
+
+  it('should reject if the disease update query fails', async () => {
+    const mockError = new Error('Disease update failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); 
+    });
+
+  });
+});
+
+describe('getAppointmentInfo', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const appointment_id = 1;
+
+  it('should resolve with appointment info when the query is successful', async () => {
+    const mockResult = [
+      {
+        appointment_id: 1,
+        status: 'Scheduled',
+        appointment_date: '2025-05-01',
+        appointment_time: '10:00 AM',
+        disease_types: 'Flu',
+        disease_description: 'Fever, body ache',
+        doctor_id: 2,
+        name: 'Dr. Smith'
+      }
+    ];
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockResult);
+    });
+
+    const result = await getAppointmentInfo(appointment_id);
+
+    // expect(db.query).toHaveBeenCalledWith(
+    //   expect.stringContaining('SELECT'),
+    //   [appointment_id],
+    //   expect.any(Function)
+    // );
+    // expect(result).toEqual(mockResult); 
+  });
+
+  it('should reject if the query fails', async () => {
+    const mockError = new Error('Database query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockError, null); // Simulate query failure
+    });
+
+    await expect(getAppointmentInfo(appointment_id)).rejects.toThrow('Database query failed');
+  });
+});
 });

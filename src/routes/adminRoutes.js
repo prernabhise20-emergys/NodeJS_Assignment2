@@ -3,10 +3,15 @@ import adminController from "../controllers/adminController.js";
 import authenticateUser from "../middlewares/authMiddleware.js";
 import ROUTE_CONSTANTS from "../common/constants/routeConstant.js";
 import { schemaValidator } from "../middlewares/userValidation.js";
-import { user_schemas } from "../common/constants/schemaConstant.js"
+import { user_schemas } from "../common/constants/schemaConstant.js";
+import {
+
+  uploads,
+} from "../config/uploadDocument.js";
 const router = express.Router();
 
 const {
+  UPLOAD_EXCELSHEET,
   DOWNLOAD_DOCUMENT,
   CANCELLED_APPOINTMENT,
   ALL_EMAIL_DOCTOR,
@@ -57,4 +62,5 @@ router.get(
   authenticateUser,
   adminController.downloadDocument
 );
+router.post(UPLOAD_EXCELSHEET,authenticateUser,uploads.single('file'),adminController.uploadDoctorsFromExcel)
 export default router;

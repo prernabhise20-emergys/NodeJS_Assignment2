@@ -4,6 +4,7 @@ import {
   SUCCESS_STATUS_CODE,
   ERROR_STATUS_CODE
 } from "../common/constants/statusConstant.js";
+import xlsx from 'xlsx';
 import jwt from "jsonwebtoken";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
@@ -12,6 +13,7 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import axios from 'axios';
 import fs from 'fs';
+import Buffer from "Buffer";
 // import generatedDoctorCode from '../common/utility/generatedNumber.js'
 // import generatePassword from '../common/utility/generatedNumber.js'
 import response1 from '../common/constants/pathConstant.js';
@@ -537,7 +539,190 @@ const downloadDocument = async (req, res, next) => {
     next(error)
   }
 };
+const uploadDoctorsFromExcel = async (req, res, next) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).send(new ResponseHandler(400, "No file uploaded"));
+    }
+
+    const workbook = xlsx.readFile(file.path);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const records = xlsx.utils.sheet_to_json(sheet, { defval: '' });
+
+    const errors = [];
+    const insertedDoctors = [];
+
+    for (const [index, row] of records.entries()) {
+      const {
+        first_name,
+        last_name,
+        contact_number,
+        email,
+        specialization,
+        doctorInTime,
+        doctorOutTime
+      } = row;
+
+      console.log(`Row ${index + 2}:`, {
+        first_name,
+        last_name,
+        contact_number,
+        email,
+        specialization,
+        doctorInTime,
+        doctorOutTime
+      });
+
+      if (![first_name, last_name, email, contact_number, specialization, doctorInTime, doctorOutTime].every(Boolean)) {
+        errors.push({ row: index + 2, email: email || 'N/A', error: 'Missing required fields' });
+        continue;
+      }
+
+      if (await checkIfUserExists(email)) {
+        errors.push({ row: index + 2, email, error: 'User already exists' });
+        continue;
+      }
+const doctorCode = String(contact_number).padStart(4, '0').slice(-4);
+const user_password = `${first_name.toLowerCase()}@${doctorCode}`;
+
+      const doctorData = {
+        name: `${first_name} ${last_name}`,
+        specialization,
+        contact_number,
+        email,
+        doctorInTime: convertToTimeFormat(doctorInTime),
+        doctorOutTime: convertToTimeFormat(doctorOutTime),
+        doctorCode,
+        user_password,
+        first_name,
+        last_name
+      };
+
+      try {
+        const result = await createDoctorData(doctorData);
+        insertedDoctors.push({ email, doctor_id: result.insertId });
+
+        const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+        const loginToken = `http://localhost:5173/account/user/login?token=${token}`;
+
+        await sendRegisterCode(email, doctorData.name, doctorCode, user_password, loginToken);
+      } catch (err) {
+        errors.push({ row: index + 2, email, error: err.message });
+      }
+    }
+
+
+    return res.status(200).send(new ResponseHandler(200, "Doctors processed", {
+      inserted: insertedDoctors.length,
+      failed: errors.length,
+      errors
+    }));
+
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    next(error);
+  }
+};
+
+const convertToTimeFormat = decimalTime => {
+  const timeNum = parseFloat(decimalTime);
+  if (isNaN(timeNum)) return '00:00:00';
+
+  const hours = Math.floor(timeNum);
+  const minutes = Math.round((timeNum - hours) * 60);
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+};
+
+
+// const uploadDoctorsFromExcel = async (req, res, next) => {
+//   try {
+//     const file = req.file;
+//     if (!file) {
+//       return res.status(400).send(new ResponseHandler(400, "No file uploaded"));
+//     }
+// console.log(req.file);
+
+//     const workbook = xlsx.readFile(file.path);
+//     const sheet = workbook.Sheets[workbook.SheetNames[0]];
+//     const records = xlsx.utils.sheet_to_json(sheet, { header: 1, defval: '', range: 3 });
+
+//     const errors = [];
+//     const insertedDoctors = [];
+
+//     for (const [index, record] of records.entries()) {
+//       if (record.every(cell => !cell)) continue;
+
+//       const [ , , first_name, last_name, , contact_number, email, specialization, doctorInTime, doctorOutTime] =
+//         record.map(cell => cell?.toString().trim());
+
+//       if (![email, first_name, last_name, specialization, contact_number, doctorInTime, doctorOutTime].every(Boolean)) {
+//         errors.push({ row: index + 4, email: email || 'N/A', error: 'Missing required fields' });
+//         continue;
+//       }
+
+//       if (!validateEmail(email)) {
+//         errors.push({ row: index + 4, email, error: "Invalid email format" });
+//         continue;
+//       }
+
+//       if (await checkIfUserExists(email)) {
+//         errors.push({ row: index + 4, email, error: "User already exists" });
+//         continue;
+//       }
+
+//       const doctorCode = await generateDoctorCode();
+//       const user_password = `${first_name.toLowerCase()}@${contact_number.slice(-4)}`;
+
+//       const doctorData = {
+//         name: `${first_name} ${last_name}`,
+//         specialization,
+//         contact_number,
+//         email,
+//         doctorInTime: convertToTimeFormat(doctorInTime),
+//         doctorOutTime: convertToTimeFormat(doctorOutTime),
+//         doctorCode,
+//         user_password,
+//         first_name,
+//         last_name
+//       };
+
+//       try {
+//         const result = await createDoctorData(doctorData);
+//         insertedDoctors.push({ email, doctor_id: result.insertId });
+
+//         const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+//         const loginToken = `http://localhost:5173/account/user/login?token=${token}`;
+//         await sendRegisterCode(email, doctorData.name, doctorCode, user_password, loginToken);
+//       } catch (err) {
+//         errors.push({ row: index + 4, email, error: err.message });
+//       }
+//     }
+
+//     fs.unlinkSync(file.path); 
+
+//     return res.status(200).send(new ResponseHandler(200, "Doctors processed", {
+//       inserted: insertedDoctors.length,
+//       failed: errors.length,
+//       errors
+//     }));
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// const validateEmail = email => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
+
+// const convertToTimeFormat = decimalTime => {
+//   if (isNaN(decimalTime)) return '00:00:00';
+//   const hours = Math.floor(decimalTime);
+//   const minutes = Math.round((decimalTime - hours) * 60);
+//   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+// };
+
 export default {
+  uploadDoctorsFromExcel,
  generateDoctorCode ,
   downloadDocument,
   setAppointmentCancelled,

@@ -64,7 +64,8 @@ const ROUTE_CONSTANTS = {
   ADD_OBSERVATION:"/addObservation",
   EDIT_OBSERVATION:"/editObservation",
   DELETE_OBSERVATION:"/deleteObservation",
-  GET_OBSERVATION:"/getObservation"
+  GET_OBSERVATION:"/getObservation",
+  UPLOAD_EXCELSHEET:"/uploadDoctors"
 };
 
 export default ROUTE_CONSTANTS;
