@@ -383,25 +383,44 @@ const cancelStatus = async (appointment_id, reason) => {
   }
 };
 
+// const scheduleAppointment = async (appointment_id) => {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         `UPDATE appointments SET status ='Scheduled' WHERE appointment_id = ?`,
+//         appointment_id,
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           resolve(result);
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 const scheduleAppointment = async (appointment_id) => {
   try {
-    return new Promise((resolve, reject) => {
+    const result = await new Promise((resolve, reject) => {
       db.query(
         `UPDATE appointments SET status ='Scheduled' WHERE appointment_id = ?`,
         appointment_id,
         (error, result) => {
           if (error) {
-            return reject(error);
+            reject(error);
+          } else {
+            resolve(result);
           }
-          resolve(result);
         }
       );
     });
+    return result;
   } catch (error) {
     throw error;
   }
 };
-
 const displayRequest = async () => {
   try {
     const data = await new Promise((resolve, reject) => {
@@ -424,30 +443,54 @@ const displayRequest = async () => {
     throw error;
   }
 };
+// const getPatientData = async (appointment_id) => {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       db.query(
+//         `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name,d.email as doctor_email,a.reason
+//          FROM personal_info p 
+//          JOIN appointments a ON (p.patient_id = a.patient_id)
+//          JOIN doctors d ON (a.doctor_id = d.doctor_id)
+//          WHERE a.appointment_id = ?`,
+//         [appointment_id],
+//         (error, result) => {
+//           if (error) {
+//             return reject(error);
+//           }
+//           return resolve(result);
+//         }
+//       );
+//     });
+//   } catch (error) {
+
+//     throw error;
+//   }
+// };
+
 const getPatientData = async (appointment_id) => {
   try {
-    return new Promise((resolve, reject) => {
+    const result = await new Promise((resolve, reject) => {
       db.query(
-        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name,d.email as doctor_email,a.reason
+        `SELECT p.patient_name, a.appointment_date, a.appointment_time, d.name, d.email AS doctor_email, a.reason
          FROM personal_info p 
-         JOIN appointments a ON (p.patient_id = a.patient_id)
-         JOIN doctors d ON (a.doctor_id = d.doctor_id)
+         JOIN appointments a ON p.patient_id = a.patient_id
+         JOIN doctors d ON a.doctor_id = d.doctor_id
          WHERE a.appointment_id = ?`,
         [appointment_id],
         (error, result) => {
           if (error) {
-            return reject(error);
+            reject(error);
+          } else {
+            resolve(result);
           }
-          return resolve(result);
         }
       );
     });
+    return result;
   } catch (error) {
-
     throw error;
   }
 };
-
 const getAllAppointmentInformation = async (doctor_id) => {
   return new Promise((resolve, reject) => {
     db.query(

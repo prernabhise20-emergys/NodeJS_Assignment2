@@ -372,16 +372,61 @@ const setAppointmentCancelled = async (req, res, next) => {
   }
 };
 
+// const approveAppointment = async (req, res, next) => {
+//   try {
+//     const { query: { appointment_id } } = req;
+//     const { user: { admin: is_admin } } = req;
+
+//     if (!appointment_id) {
+//       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
+//       );
+//     }
+//     if (is_admin) {
+//       const result = await scheduleAppointment(appointment_id);
+//       const data = await getPatientData(appointment_id);
+
+//       if (!data || data.length === 0) {
+//         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//           new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+//         );
+//       }
+
+//       const { patient_name, appointment_date, appointment_time, name, doctor_email } = data[0];
+// console.log(req.user);
+
+//       const { user: { email } } = req;
+// console.log(email);
+
+//       if (result.affectedRows == 1) {
+//         await approveRequest(email, patient_name, appointment_date, appointment_time, name);
+//         await approveAppointmentDoctorNotify(name, patient_name, appointment_date, appointment_time, doctor_email);
+//         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//           new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_STATUS)
+//         );
+//       } else {
+//         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//           new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+//         );
+//       }
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+
 const approveAppointment = async (req, res, next) => {
   try {
     const { query: { appointment_id } } = req;
-    const { user: { admin: is_admin, email } } = req;
+    const { user: { admin: is_admin, email } } = req; 
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
       );
     }
+
     if (is_admin) {
       const result = await scheduleAppointment(appointment_id);
       const data = await getPatientData(appointment_id);
@@ -394,11 +439,12 @@ const approveAppointment = async (req, res, next) => {
 
       const { patient_name, appointment_date, appointment_time, name, doctor_email } = data[0];
 
-      const { user: { email } } = req;
 
-      if (result.affectedRows == 1) {
+
+      if (result) {
         await approveRequest(email, patient_name, appointment_date, appointment_time, name);
         await approveAppointmentDoctorNotify(name, patient_name, appointment_date, appointment_time, doctor_email);
+
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
           new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_STATUS)
         );
@@ -407,6 +453,10 @@ const approveAppointment = async (req, res, next) => {
           new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
         );
       }
+    } else {
+      return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
+        new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.NOT_ADMIN)
+      );
     }
   } catch (error) {
     next(error);
