@@ -55,6 +55,9 @@ const ERROR_MESSAGE = {
 };
 
 const SUCCESS_MESSAGE = {
+  OBSERVATION_GET:"Observation is retreived successfully",
+  OBSERVATION_DELETE:"Observation is deleted succesfully",
+  OBSERVATION_EDIT:"Observation is edited successfully",
   OBSERVATION_ADDED:"Observation is added successfully",
   TEMPLATE_DOWNLOAD:"Template is downloaded successfully",
   APPOINTMENT_INFO_SUCCESS_MESSAGE:"Appointment information is retrieve sucessfully",

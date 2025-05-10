@@ -8,6 +8,7 @@ import {
 const router = express.Router();
 
 const {
+  GET_OBSERVATION,
   DELETE_OBSERVATION,
   EDIT_OBSERVATION,
   ADD_OBSERVATION,
@@ -53,4 +54,5 @@ router.put(CHANGE_AVAILABILITY_STATUS,authenticateUser,doctorController.changeDo
 router.post(ADD_OBSERVATION,authenticateUser,doctorController.addObservation)
 router.put(EDIT_OBSERVATION,authenticateUser,doctorController.editObservation)
 router.delete(DELETE_OBSERVATION,authenticateUser,doctorController.deleteObservation)
+router.get(GET_OBSERVATION,authenticateUser,doctorController.getObservation)
 export default router;

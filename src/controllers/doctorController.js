@@ -16,6 +16,7 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 // import { createPrescription } from '../common/utility/createPrescription.js';
 
 import {
+    getObservationData,
     deleteObservationData,
     editObservationData,
     addObservationData,
@@ -166,74 +167,132 @@ const displayAppointments = async (req, res, next) => {
 
 import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
+
 const uploadPrescription = async (req, res, next) => {
     try {
-        const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes } } = req;
+        const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes, dosage } } = req;
         const { user: { email } } = req;
         console.log(email);
-        
-        if (!medicines || !capacity || !morning || !afternoon || !evening || !courseDuration || !notes || !appointment_id) {
+
+        if (!appointment_id || !medicines || !capacity || !morning || !afternoon || !evening || !dosage || !courseDuration || !notes) {
             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
                 new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
             );
         }
 
         const patientData = await getAppointmentData(appointment_id);
-        const {patient_id, patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
+
+
+        const { patient_id, patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
 
         const formattedAppointmentDate = formatDate(appointmentDate);
         const formattedBirthDate = formatDate(date_of_birth);
 
-        const data = { medicines, capacity, notes, morning, afternoon, evening, courseDuration };
+        const data = { medicines, capacity, dosage, notes, morning, afternoon, evening, courseDuration };
 
         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
         const result = await uploadFile({ buffer: pdfBuffer, originalname: "prescription.pdf" }, patient_id);
 
+        if (!result || !result.secure_url) {
+            return res.status(ERROR_STATUS_CODE.INTERNAL_ERROR).send(
+                new ResponseHandler(ERROR_STATUS_CODE.INTERNAL_ERROR, "Failed to upload prescription")
+            );
+        }
+
         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
 
-        const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
-        await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
-
+        await savePrescription(appointment_id, cloudinaryUniquePath, new Date().toISOString().slice(0, 19).replace("T", " "));
         await sendPrescription(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
             new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
+        console.error("Error:", error);
         next(error);
     }
 };
 
-
-
 const updateExistsPrescription = async (req, res, next) => {
     try {
-        const { body: { appointment_id, medicines, capacity, dosage, morning, afternoon, evening, courseDuration } } = req;
+        const {
+            body: {
+                appointment_id,
+                medicines,
+                capacity,
+                morning,
+                afternoon,
+                evening,
+                courseDuration,
+                notes,
+                dosage
+            }
+        } = req;
+
         const { user: { email } } = req;
-        if(!medicines|| !capacity|| !dosage||!morning||!afternoon||!appointment_id||!evening||!courseDuration){
+
+        if (
+            !appointment_id || !medicines || !capacity || !morning ||
+            !afternoon || !evening || !dosage || !courseDuration || !notes
+        ) {
             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
             );
-          }
+        }
+
         const patientData = await getAppointmentData(appointment_id);
-        const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
+        const {
+            patient_id,
+            patientName,
+            date: appointmentDate,
+            age,
+            doctorName,
+            specialization,
+            gender,
+            date_of_birth
+        } = patientData;
 
         const formattedAppointmentDate = formatDate(appointmentDate);
         const formattedBirthDate = formatDate(date_of_birth);
 
-        const data = { medicines, capacity, dosage, morning, afternoon, evening, courseDuration };
+        const data = {
+            medicines,
+            capacity,
+            dosage,
+            notes,  // ✅ Ensure notes is passed to generatePdf
+            morning,
+            afternoon,
+            evening,
+            courseDuration
+        };
 
-        const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
+        const pdfBuffer = await generatePdf(
+            data,
+            patientName,
+            formattedAppointmentDate,
+            age,
+            gender,
+            doctorName,
+            specialization,
+            formattedBirthDate
+        );
 
-        const result = await uploadFile({
-            buffer: pdfBuffer,
-            originalname: "prescription.pdf",
-        });
+        const result = await uploadFile(
+            {
+                buffer: pdfBuffer,
+                originalname: "prescription.pdf"
+            },
+            patient_id
+        );
+
+        if (!result || !result.secure_url) {
+            return res.status(ERROR_STATUS_CODE.INTERNAL_ERROR).send(
+                new ResponseHandler(ERROR_STATUS_CODE.INTERNAL_ERROR, "Failed to upload prescription")
+            );
+        }
 
         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
-
         const existingPrescription = await getPrescriptionByAppointmentId(appointment_id);
-
         const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
 
         if (existingPrescription) {
@@ -245,12 +304,16 @@ const updateExistsPrescription = async (req, res, next) => {
         await sendUpdatePrescriptionEmail(email, result.secure_url);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, {
+                cloudinaryUrl: cloudinaryUniquePath
+            })
         );
     } catch (error) {
+        console.error("Error in updateExistsPrescription:", error); // ✅ Log for debugging
         next(error);
     }
 };
+
 
 const changeDoctorAvailabilityStatus = async (req, res, next) => {
     try {
@@ -311,7 +374,7 @@ console.log(observation);
 
     await editObservationData(observation, appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_EDIT)
     );
 }
 
@@ -320,10 +383,20 @@ const deleteObservation = async (req, res, next) => {
 
     await deleteObservationData( appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_DELETE)
+    );
+}
+
+const getObservation = async (req, res, next) => {
+    const { query: { appointment_id } } = req;
+
+   const observation= await getObservationData( appointment_id);
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_GET,observation)
     );
 }
 export default {
+    getObservation,
     deleteObservation,
     editObservation,
     addObservation,

@@ -322,7 +322,26 @@ const deleteObservationData=async(appointment_id)=>{
     throw error;
   }
 }
+
+const getObservationData=async(appointment_id)=>{
+  try {
+    
+    return new Promise((resolve, reject) => {
+      db.query(`select appointment_id,observation from appointments where appointment_id=?`,
+        appointment_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        });
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 export {
+  getObservationData,
   deleteObservationData,
   editObservationData,
   addObservationData,
