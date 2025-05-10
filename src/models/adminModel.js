@@ -168,11 +168,10 @@ const ageGroupWiseData = (is_admin) => {
         user_register u ON p.user_id = u.id 
         JOIN 
           family_info f ON f.patient_id = p.patient_id 
-        JOIN 
-          disease d ON d.patient_id = p.patient_id 
+       
      
         WHERE 
-        p.is_deleted=false and u.is_deleted=false and f.is_deleted=false and d.is_deleted=false 
+        p.is_deleted=false and u.is_deleted=false and f.is_deleted=false  
         GROUP BY ageGroup;
     `,
         (error, result) => {
@@ -483,23 +482,24 @@ ORDER BY a.appointment_id
 const getAllPatientAppointment = async () => {
   return new Promise((resolve, reject) => {
     db.query(
-      ` SELECT 
-        a.appointment_id, 
-        p.patient_name, 
-        p.gender, 
-        p.age, 
-        DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
-        a.appointment_time, 
-        a.status, 
-        do.name ,
-        d.disease_type
-      FROM appointments a 
-      JOIN personal_info p ON a.patient_id = p.patient_id 
-      join disease d on a.patient_id=d.patient_id
-      JOIN doctors do ON a.doctor_id = do.doctor_id 
-      WHERE p.is_deleted = FALSE and d.is_deleted=false
-      AND a.status IN ('Pending', 'Scheduled') 
-      ORDER BY a.appointment_id`,
+      `SELECT DISTINCT 
+    a.appointment_id, 
+    p.patient_name, 
+    p.gender, 
+    p.age, 
+    DATE_FORMAT(a.appointment_date, '%Y-%m-%d') AS appointment_date, 
+    a.appointment_time, 
+    a.status, 
+    do.name ,
+    d.disease_type
+FROM appointments a 
+JOIN personal_info p ON a.patient_id = p.patient_id 
+JOIN disease d ON a.patient_id = d.patient_id
+JOIN doctors do ON a.doctor_id = do.doctor_id 
+WHERE p.is_deleted = FALSE 
+AND a.status IN ('Pending', 'Scheduled') 
+ORDER BY a.appointment_id;
+`,
       (error, results) => {
         if (error) {
           return reject(error);

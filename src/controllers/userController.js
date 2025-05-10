@@ -44,6 +44,7 @@ const { USER_EXISTS, INVALID_USER, CANNOT_DELETE_USER, LOGIN_CREDENTIAL } =
 const register = async (req, res, next) => {
   try {
     const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
+console.log('body',req.body);
 
     if(!email||!user_password||!first_name||!last_name||!mobile_number){
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -58,7 +59,7 @@ const register = async (req, res, next) => {
 
     await createUserData(
       email,
-      user_password,
+      decodedPassword,
       first_name,
       last_name,
       mobile_number,

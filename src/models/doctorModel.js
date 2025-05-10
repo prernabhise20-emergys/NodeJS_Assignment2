@@ -63,7 +63,7 @@ const showAppointments = async (user_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(`
-           SELECT
+          SELECT
           p.patient_name,
           u.id AS user_id,
           p.age,
@@ -289,6 +289,8 @@ const addObservationData=async(observation,appointment_id)=>{
 const editObservationData=async(observation,appointment_id)=>{
 
   try {
+    console.log(observation,appointment_id);
+    
     return new Promise((resolve, reject) => {
       db.query(`update appointments set observation=? where appointment_id=?`,
         [observation,appointment_id],
@@ -303,7 +305,25 @@ const editObservationData=async(observation,appointment_id)=>{
     throw error;
   }
 }
+const deleteObservationData=async(appointment_id)=>{
+   try {
+    
+    return new Promise((resolve, reject) => {
+      db.query(`update appointments set observation=null where appointment_id=?`,
+        appointment_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        });
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 export {
+  deleteObservationData,
   editObservationData,
   addObservationData,
   markCancelled,

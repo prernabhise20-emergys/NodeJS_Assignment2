@@ -148,7 +148,7 @@ const addAdmin = async (req, res, next) => {
       );
     }
     const password = await generatePassword(first_name)
-    console.log(password);
+    console.log("Admin Password:",password);
 
     const name = first_name + ' ' + last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900);
@@ -248,7 +248,7 @@ const addDoctor = async (req, res, next) => {
     }
     const docCode = await generateDoctorCode();
     const password = await generatePassword(first_name)
-    console.log(password);
+    console.log("Doctor Password:",password);
 
     const data = {
       name: first_name + ' ' + last_name,
@@ -310,16 +310,7 @@ const changeAppointmentsStatus = async (req, res, next) => {
       );
     }
 
-    // if(status == 'Completed'){
-
-    //   const check= await checkPrescription(appointment_id)
-    //   if(!check){
-    //     return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-    //       new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.PRESCRIPTION_NOT_EXISTS)
-    //     );
-    //   }
-
-    // }
+   
     if (is_admin || is_doctor) {
       const result = await changeStatus(status, appointment_id);
 
@@ -547,7 +538,6 @@ const downloadDocument = async (req, res, next) => {
 };
 export default {
  generateDoctorCode ,
-  
   downloadDocument,
   setAppointmentCancelled,
   getAllEmailForDoctor,

@@ -16,6 +16,7 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 // import { createPrescription } from '../common/utility/createPrescription.js';
 
 import {
+    deleteObservationData,
     editObservationData,
     addObservationData,
     markCancelled,
@@ -86,27 +87,6 @@ const updateDoctor = async (req, res, next) => {
     }
 };
 
-// const displayAppointments = async (req, res, next) => {
-//     try {
-
-//         const { user: { doctor: is_doctor, admin: is_admin, userid: user_id } } = req;
-
-//         if (is_doctor || is_admin) {
-//             const appointments = await showAppointments(user_id);
-// console.log(appointments);
-
-//             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
-//             );
-//         } else {
-//             return res.status(ERROR_STATUS_CODE.INVALID).send(
-//                 new ResponseHandler(ERROR_STATUS_CODE.INVALID, ERROR_MESSAGE.UNAUTHORIZED_ACCESS_MESSAGE)
-//             );
-//         }
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 
 const displayAppointments = async (req, res, next) => {
     try {
@@ -185,47 +165,6 @@ const displayAppointments = async (req, res, next) => {
 //   };
 
 import { generatePdf } from "../common/utility/prescriptionPdf.js";
-
-// const uploadPrescription = async (req, res, next) => {
-//     try {
-//         const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes } } = req;
-//         const { user: { email } } = req;
-//         console.log(email);
-        
-//         if(!medicines|| !capacity|| !morning||!afternoon||!evening||!courseDuration||!notes||!appointment_id){
-//             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-//               new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
-//             );
-//           }
-//         const patientData = await getAppointmentData(appointment_id);
-//         const { patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
-
-//         const formattedAppointmentDate = formatDate(appointmentDate);
-//         const formattedBirthDate = formatDate(date_of_birth);
-
-//         const data = { medicines, capacity, notes, morning, afternoon, evening, courseDuration };
-
-//         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
-
-//         const result = await uploadFile({
-//             buffer: pdfBuffer,
-//             originalname: "prescription.pdf",
-//         });
-
-//         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
-
-//         const dateIssued = new Date().toISOString().slice(0, 19).replace("T", " ");
-//         await savePrescription(appointment_id, cloudinaryUniquePath, dateIssued);
-
-//         await sendPrescription(email, result.secure_url);
-
-//         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//             new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
-//         );
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 
 const uploadPrescription = async (req, res, next) => {
     try {
@@ -317,11 +256,7 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
     try {
         const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
         const { user: { doctor: is_doctor, userid } } = req;
-        if(!is_available|| !unavailable_from_date|| !unavailable_to_date){
-            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
-            );
-          }
+       
         if (!is_doctor) {
             return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
                 new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.UNAUTHORIZED)
@@ -372,13 +307,24 @@ const addObservation = async (req, res, next) => {
 const editObservation = async (req, res, next) => {
     const { query: { appointment_id } } = req;
     const { body: { observation } } = req;
+console.log(observation);
 
     await editObservationData(observation, appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
     );
 }
+
+const deleteObservation = async (req, res, next) => {
+    const { query: { appointment_id } } = req;
+
+    await deleteObservationData( appointment_id);
+    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
+    );
+}
 export default {
+    deleteObservation,
     editObservation,
     addObservation,
     changeDoctorAvailabilityStatus,
