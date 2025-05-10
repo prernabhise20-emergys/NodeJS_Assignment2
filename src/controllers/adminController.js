@@ -419,7 +419,7 @@ const setAppointmentCancelled = async (req, res, next) => {
 const approveAppointment = async (req, res, next) => {
   try {
     const { query: { appointment_id } } = req;
-    const { user: { admin: is_admin, email } } = req; 
+    const { user: { admin: is_admin, email,doctor:is_doctor } } = req; 
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -427,7 +427,7 @@ const approveAppointment = async (req, res, next) => {
       );
     }
 
-    if (is_admin) {
+    if (is_admin||is_doctor) {
       const result = await scheduleAppointment(appointment_id);
       const data = await getPatientData(appointment_id);
 
