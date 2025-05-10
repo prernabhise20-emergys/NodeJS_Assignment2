@@ -394,11 +394,13 @@ const searchDoctor = async (req, res, next) => {
 const appointmentHistory = async (req, res, next) => {
   try {
     const { query: { patient_id } } = req;
-    if(!patient_id){
+
+    if (!patient_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
     }
+
     const history = await getAppointmentHistory(patient_id);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -408,6 +410,8 @@ const appointmentHistory = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 const rescheduleAppointment=async(req,res,next)=>{
   try {

@@ -599,19 +599,18 @@ const addAsAdmin = async (email) => {
     throw error;
   }
 };
+
 const getAppointmentHistory = async (patient_id) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        ` select a.appointment_id, p.patient_name, doc.name as doctorName,a.status,a.appointment_date,
-        a.appointment_time,d.disease_type,d.disease_description
-from personal_info p join disease d
-on(p.patient_id=d.patient_id)
-join appointments a 
-on(d.patient_id=a.patient_id)
-join doctors doc
-on(doc.doctor_id=a.doctor_id)
-where a.patient_id=? and d.is_deleted=false`,
+        `SELECT DISTINCT a.appointment_id, p.patient_name, doc.name AS doctorName, a.status, a.appointment_date,
+                a.appointment_time, d.disease_type, d.disease_description
+        FROM personal_info p
+        JOIN disease d ON p.patient_id = d.patient_id
+        JOIN appointments a ON d.patient_id = a.patient_id
+        JOIN doctors doc ON doc.doctor_id = a.doctor_id
+        WHERE a.patient_id = ?`,
         patient_id,
         (error, result) => {
           if (error) return reject(error);
@@ -619,12 +618,12 @@ where a.patient_id=? and d.is_deleted=false`,
         }
       );
     });
+
     return data;
   } catch (error) {
     throw error;
   }
-}
-
+};
 const updateDoctorAppointment = (doctor_id, date, time, disease_type, disease_description, appointment_id) => {
   return new Promise((resolve, reject) => {
     db.query(

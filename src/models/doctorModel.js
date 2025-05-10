@@ -58,44 +58,44 @@ const updateDoctorData = async (data, first_name, last_name, email) => {
   }
 };
 
-
 const showAppointments = async (user_id) => {
   try {
     return new Promise((resolve, reject) => {
       db.query(`
           SELECT
-          p.patient_name,
-          u.id AS user_id,
-          p.age,
-          u.email,
-          d.name AS doctor_name,
-          d.specialization,
-          a.appointment_id,
-          a.appointment_date,
-          a.appointment_time,
-          a.status,
-ds.disease_type,
-          MAX(pr.appointment_id) AS prescription_id
-        FROM
-          user_register u
-        JOIN
-          doctors d ON u.id = d.user_id
-        JOIN
-          appointments a ON d.doctor_id = a.doctor_id
-        JOIN
-          personal_info p ON a.patient_id = p.patient_id
-        LEFT JOIN
-          disease ds ON ds.patient_id = p.patient_id
-        LEFT JOIN
-          prescriptions pr ON pr.appointment_id = a.appointment_id  
-        WHERE
-          u.is_deleted = FALSE and p.is_deleted=false and ds.is_deleted=false
-          AND a.status in('Scheduled','Pending')
-          AND u.id = ?
-        GROUP BY
-          p.patient_name, p.age, u.id, u.email, d.name,ds.disease_type, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status
-        ORDER BY
-          a.appointment_id;
+            p.patient_name,
+            u.id AS user_id,
+            p.age,
+            u.email,
+            d.name AS doctor_name,
+            d.specialization,
+            a.appointment_id,
+            a.appointment_date,
+            a.appointment_time,
+            a.status,
+            ds.disease_type,
+            MAX(pr.appointment_id) AS prescription_id,
+            a.observation  -- Add the observation column
+          FROM
+            user_register u
+          JOIN
+            doctors d ON u.id = d.user_id
+          JOIN
+            appointments a ON d.doctor_id = a.doctor_id
+          JOIN
+            personal_info p ON a.patient_id = p.patient_id
+          LEFT JOIN
+            disease ds ON ds.patient_id = p.patient_id
+          LEFT JOIN
+            prescriptions pr ON pr.appointment_id = a.appointment_id  
+          WHERE
+            u.is_deleted = FALSE and p.is_deleted = FALSE and ds.is_deleted = FALSE
+            AND a.status IN ('Scheduled', 'Pending')
+            AND u.id = ?
+          GROUP BY
+            p.patient_name, p.age, u.id, u.email, d.name, ds.disease_type, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status, a.observation
+          ORDER BY
+            a.appointment_id;
       `, [user_id], (error, result) => {
         if (error) {
           return reject(error);
@@ -107,8 +107,6 @@ ds.disease_type,
     throw error;
   }
 };
-
-
 
 const savePrescription = async (appointment_id, url, dateIssued) => {
   try {
