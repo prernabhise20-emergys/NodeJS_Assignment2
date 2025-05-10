@@ -986,4 +986,141 @@ describe('displayAdmin', () => {
     await expect(userModel.displayAdmin()).rejects.toThrow('DB query failed');
   });
 });
+
+describe('checkAdminCount', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return the count of admin users', async () => {
+    const mockDbResult = [{ adminCount: 5 }];
+
+    db.query.mockImplementation((sql, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.checkAdminCount();
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT COUNT(*) AS adminCount FROM user_register WHERE is_admin = TRUE',
+      expect.any(Function)
+    );
+    expect(result).toBe(5);
+  });
+
+  it('should return 0 if there are no admin users', async () => {
+    const mockDbResult = [{ adminCount: 0 }];
+
+    db.query.mockImplementation((sql, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.checkAdminCount();
+
+    expect(result).toBe(0);
+  });
+
+  it('should throw an error if db.query fails', async () => {
+    const mockDbError = new Error('DB query failed');
+
+    db.query.mockImplementation((sql, callback) => {
+      callback(mockDbError, null);
+    });
+
+    await expect(userModel.checkAdminCount()).rejects.toThrow('DB query failed');
+  });
+});
+
+
+describe('checkEmailExists', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const mockEmail = 'user@example.com';
+
+  it('should return true if email exists and user is not deleted', async () => {
+    const mockDbResult = [{ id: 1 }]; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.checkEmailExists(mockEmail);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT id FROM user_register WHERE is_deleted= false and email = ?',
+      [mockEmail],
+      expect.any(Function)
+    );
+    expect(result).toBe(true);
+  });
+
+  it('should return false if email does not exist', async () => {
+    const mockDbResult = []; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.checkEmailExists(mockEmail);
+
+    expect(result).toBe(false);
+  });
+
+  it('should throw an error if db.query fails', async () => {
+    const mockDbError = new Error('DB query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockDbError, null);
+    });
+
+    await expect(userModel.checkEmailExists(mockEmail)).rejects.toThrow('DB query failed');
+  });
+});
+
+describe('getName', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const mockEmail = 'user@example.com';
+
+  it('should return first name if user exists and is not deleted', async () => {
+    const mockDbResult = [{ first_name: 'John' }]; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    const result = await userModel.getName(mockEmail);
+
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT first_name FROM user_register WHERE is_deleted = false AND email = ?',
+      [mockEmail],
+      expect.any(Function)
+    );
+    expect(result).toBe('John');
+  });
+
+  it('should throw "User not found" error if user does not exist', async () => {
+    const mockDbResult = []; 
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(null, mockDbResult);
+    });
+
+    await expect(userModel.getName(mockEmail)).rejects.toThrow('User not found');
+  });
+
+  it('should throw an error if db.query fails', async () => {
+    const mockDbError = new Error('DB query failed');
+
+    db.query.mockImplementation((sql, values, callback) => {
+      callback(mockDbError, null);
+    });
+
+    await expect(userModel.getName(mockEmail)).rejects.toThrow('DB query failed');
+  });
+});
 });
