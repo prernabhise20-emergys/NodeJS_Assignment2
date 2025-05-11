@@ -312,43 +312,75 @@ const updateExistsPrescription = async (req, res, next) => {
     }
 };
 
-
 const changeDoctorAvailabilityStatus = async (req, res, next) => {
     try {
         const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
         const { user: { doctor: is_doctor, userid } } = req;
-       
+
         if (!is_doctor) {
             return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
                 new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.UNAUTHORIZED)
             );
         }
 
-      
-        await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
+        await changeAvailabilityStatus(is_available, userid, unavailable_from_date || null, unavailable_to_date || null);
 
-        const cancelAppointments = await markCancelled(unavailable_from_date, unavailable_to_date);
+        if (!is_available && unavailable_from_date && unavailable_to_date) {
+            const cancelAppointments = await markCancelled(unavailable_from_date, unavailable_to_date);
 
-        if (cancelAppointments.length > 0) {
-            await Promise.all(cancelAppointments.map(async (appointment) => {
-                const { email, patient_name, appointment_date, appointment_time, name } = appointment;
-                const reason = 'Doctor unavailability';
-                await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
-            }));
-
-            return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
-            );
+            if (cancelAppointments.length > 0) {
+                await Promise.all(cancelAppointments.map(async (appointment) => {
+                    const { email, patient_name, appointment_date, appointment_time, name } = appointment;
+                    const reason = 'Doctor unavailability';
+                    await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
+                }));
+            }
         }
 
-        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-            new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
         );
 
     } catch (error) {
         next(error);
     }
 };
+// const changeDoctorAvailabilityStatus = async (req, res, next) => {
+//     try {
+//         const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
+//         const { user: { doctor: is_doctor, userid } } = req;
+//        console.log(unavailable_from_date,unavailable_to_date)
+//         if (!is_doctor) {
+//             return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
+//                 new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.UNAUTHORIZED)
+//             );
+//         }
+
+      
+//         await changeAvailabilityStatus(is_available, userid, unavailable_from_date||null, unavailable_to_date||null);
+
+//         const cancelAppointments = await markCancelled(unavailable_from_date, unavailable_to_date);
+
+//         if (cancelAppointments.length > 0) {
+//             await Promise.all(cancelAppointments.map(async (appointment) => {
+//                 const { email, patient_name, appointment_date, appointment_time, name } = appointment;
+//                 const reason = 'Doctor unavailability';
+//                 await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
+//             }));
+
+//             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
+//             );
+//         }
+
+//         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//             new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+//         );
+
+//     } catch (error) {
+//         next(error);
+//     }
+// };
 
 const addObservation = async (req, res, next) => {
     const { query: { appointment_id } } = req;
