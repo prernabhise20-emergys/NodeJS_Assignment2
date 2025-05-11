@@ -342,15 +342,11 @@ const changeAppointmentsStatus = async (req, res, next) => {
 const setAppointmentCancelled = async (req, res, next) => {
   try {
     const { query: { appointment_id } } = req;
-    const { user: { admin: is_admin, email } } = req;
+    const { user: { admin: is_admin, email,doctor:is_doctor } } = req;
     const { body: { reason } } = req
 
-    if (!appointment_id || !reason) {
-      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.INVALID_INPUT)
-      );
-    }
-    if (is_admin) {
+   
+    if (is_admin||is_doctor) {
 
       const result = await cancelStatus(appointment_id, reason);
 
@@ -373,6 +369,8 @@ const setAppointmentCancelled = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 const approveAppointment = async (req, res, next) => {
   try {
