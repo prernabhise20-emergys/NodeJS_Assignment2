@@ -181,26 +181,42 @@ const updatePrescription = async (appointment_id, url, dateIssued) => {
     throw error;
   }
 };
+
 const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
   try {
-    let query, params;
+    const totalDoctors = await new Promise((resolve, reject) => {
+      db.query('SELECT COUNT(*) AS total FROM doctors WHERE is_deleted = false', (error, result) => {
+        if (error) return reject(error);
+        resolve(result[0].total);
+      });
+    });
 
+    const unavailableDoctors = await new Promise((resolve, reject) => {
+      db.query('SELECT COUNT(*) AS unavailable FROM doctors WHERE is_available = false AND is_deleted = false', (error, result) => {
+        if (error) return reject(error);
+        resolve(result[0].unavailable);
+      });
+    });
+
+    const maxUnavailableDoctors = Math.floor(totalDoctors * 0.5); 
+
+    if (!is_available && unavailableDoctors >= maxUnavailableDoctors) {
+      throw new Error('You cannot take leave as 50% of doctors are already unavailable.');
+    }
+
+    let query, params;
     if (is_available) {
-      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
+      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? AND is_deleted = false`;
       params = [is_available, userid];
     } else {
-
-      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
+      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? AND is_deleted = false`;
       params = [is_available, unavailable_from_date, unavailable_to_date, userid];
     }
 
     const row = await new Promise((resolve, reject) => {
       db.query(query, params, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
+        if (error) reject(error);
+        resolve(result);
       });
     });
 
@@ -209,6 +225,35 @@ const changeAvailabilityStatus = async (is_available, userid, unavailable_from_d
     throw error;
   }
 };
+
+// const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
+//   try {
+//     let query, params;
+
+//     if (is_available) {
+//       query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
+//       params = [is_available, userid];
+//     } else {
+
+//       query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
+//       params = [is_available, unavailable_from_date, unavailable_to_date, userid];
+//     }
+
+//     const row = await new Promise((resolve, reject) => {
+//       db.query(query, params, (error, result) => {
+//         if (error) {
+//           reject(error);
+//         } else {
+//           resolve(result);
+//         }
+//       });
+//     });
+
+//     return row;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 
 const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
