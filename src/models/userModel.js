@@ -8,12 +8,16 @@ const getUserData = async (userid) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        `  SELECT email,     
-    first_name, 
-    last_name, 
-    mobile_number
-    from user_register
-    WHERE is_deleted = FALSE 
+        `  SELECT u.email,     
+    u.first_name, 
+    u.last_name, 
+    u.mobile_number,
+    d.is_available,
+    d.unavailable_from_date,
+    d.unavailable_to_date
+    from user_register u join doctors d
+    on u.id=d.user_id
+    WHERE u.is_deleted = FALSE 
     AND id = ?`,
         userid,
         (error, result) => {
