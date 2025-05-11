@@ -85,7 +85,7 @@ const showAppointments = async (user_id) => {
           JOIN
             personal_info p ON a.patient_id = p.patient_id
           LEFT JOIN
-            disease ds ON ds.patient_id = p.patient_id
+            disease ds ON a.appointment_id = ds.appointment_id
           LEFT JOIN
             prescriptions pr ON pr.appointment_id = a.appointment_id  
           WHERE
