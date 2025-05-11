@@ -90,7 +90,7 @@ const showAppointments = async (user_id) => {
             prescriptions pr ON pr.appointment_id = a.appointment_id  
           WHERE
             u.is_deleted = FALSE and p.is_deleted = FALSE and ds.is_deleted = FALSE
-            AND a.status IN ('Scheduled', 'Pending')
+            AND a.status IN ('Scheduled', 'Pending','Completed')
             AND u.id = ?
           GROUP BY
             p.patient_name, p.age, u.id, u.email, d.name, ds.disease_type, d.specialization, a.appointment_id, a.appointment_date, a.appointment_time, a.status, a.observation
