@@ -386,7 +386,6 @@ const isDoctorAvailable = (doctor_id, date, patient_id) => {
 const createDoctorAppointment = (patient_id, doctor_id, date, time, disease_type, disease_description) => {
   return new Promise((resolve, reject) => {
     try {
-      console.log(patient_id, doctor_id, date, time, disease_type, disease_description);
       db.query(
         `INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id) VALUES (?, ?, ?, ?)`,
         [date, time, patient_id, doctor_id],
@@ -657,65 +656,7 @@ const updateDisease = ( disease_type, disease_description,appointment_id) => {
   });
 };
 
-//   try {
-//     console.log(doctor_id, date, time, disease_type, disease_description, appointment_id);
-    
-//     // Ensure both updates are awaited properly
-//     await updateAppointment(doctor_id, date, time, appointment_id);
-//     await updateDisease(appointment_id, disease_type, disease_description);
-    
-//     console.log("Appointment and disease details updated successfully");
-    
-//   } catch (error) {
-//     console.error("Error updating appointment:", error);
-//     throw error;
-//   }
-// };
 
-
-// const updateDoctorAppointment = async (doctor_id, date, time, disease_type, disease_description, appointment_id) => {
-//   try {
-
-
-//     const updateAppointment = () => {
-//       return new Promise((resolve, reject) => {
-//         db.query(
-//           `UPDATE appointments SET appointment_date=?, appointment_time=?, status='Pending', doctor_id=? WHERE appointment_id=?`,
-//           [date, time, doctor_id, appointment_id],
-//           (error, result) => {
-//             if (error) {
-//               return reject(error);
-//             }
-//             resolve(result);
-//           }
-//         );
-//       });
-//     };
-
-//     const updatedisease = (appointment_id) => {
-//       return new Promise((resolve, reject) => {
-//         db.query(
-//           `UPDATE disease SET disease_type=?,disease_description=? WHERE appointment_id=?`,
-//           appointment_id,
-//           (error, result) => {
-//             if (error) {
-//               return reject(error);
-//             }
-//             resolve(result);
-//           }
-//         );
-//       });
-//     };
-
-
-
-//     await updateAppointment();
-//     await updatedisease(appointment_id)
-
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 const getAppointmentInfo = async (appointment_id) => {
   try {
     const data = await new Promise((resolve, reject) => {

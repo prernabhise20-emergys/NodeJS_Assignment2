@@ -465,7 +465,6 @@ const getPatientsAppointments = async (req, res, next) => {
 
     if (admin || doctor) {
       const appointments = await getAllPatientAppointment();
-console.log(appointments)
       const formattedAppointments = appointments.map(appointment => ({
         ...appointment,
         appointment_date: new Date(appointment.appointment_date).toISOString().split('T')[0]

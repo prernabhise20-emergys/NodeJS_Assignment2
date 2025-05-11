@@ -95,7 +95,6 @@ const displayAppointments = async (req, res, next) => {
 
         if (is_doctor || is_admin) {
             const appointments = await showAppointments(user_id);
-            console.log(appointments);
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.SCHEDULED_APPOINTMENTS, appointments)
@@ -172,7 +171,6 @@ const uploadPrescription = async (req, res, next) => {
     try {
         const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes, dosage } } = req;
         const { user: { email } } = req;
-        console.log(email);
 
         if (!appointment_id || !medicines || !capacity || !morning || !afternoon || !evening || !dosage || !courseDuration || !notes) {
             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -326,7 +324,6 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
             );
         }
 
-      console.log(is_available, unavailable_from_date, unavailable_to_date);
       
         await changeAvailabilityStatus(is_available, userid, unavailable_from_date, unavailable_to_date);
 
@@ -336,7 +333,6 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
             await Promise.all(cancelAppointments.map(async (appointment) => {
                 const { email, patient_name, appointment_date, appointment_time, name } = appointment;
                 const reason = 'Doctor unavailability';
-                console.log(email, patient_name, appointment_date, appointment_time, name);
                 await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
             }));
 
@@ -372,7 +368,6 @@ const addObservation = async (req, res, next) => {
 const editObservation = async (req, res, next) => {
     const { query: { appointment_id } } = req;
     const { body: { observation } } = req;
-console.log(observation);
 
     await editObservationData(observation, appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(

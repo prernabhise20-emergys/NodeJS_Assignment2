@@ -300,10 +300,8 @@ const getDoctors = async (req, res, next) => {
 const createAppointment = async (req, res, next) => {
   try{
   const { body: { patient_id, doctor_id, date, time,disease_type,disease_description } } = req;
-  console.log(req.body);
   
     const isAvailable = await isDoctorAvailable(doctor_id, date,patient_id);
-console.log(isAvailable);
 
     if (!isAvailable) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -313,7 +311,6 @@ console.log(isAvailable);
     }
 
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time,disease_type,disease_description);
-    console.log(result);
     
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })

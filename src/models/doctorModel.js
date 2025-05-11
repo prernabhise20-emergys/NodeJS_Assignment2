@@ -189,7 +189,6 @@ const changeAvailabilityStatus = async (is_available, userid, unavailable_from_d
       query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
       params = [is_available, userid];
     } else {
-console.log(is_available, unavailable_from_date, unavailable_to_date);
 
       query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
       params = [is_available, unavailable_from_date, unavailable_to_date, userid];
@@ -288,7 +287,6 @@ const addObservationData=async(observation,appointment_id)=>{
 const editObservationData=async(observation,appointment_id)=>{
 
   try {
-    console.log(observation,appointment_id);
     
     return new Promise((resolve, reject) => {
       db.query(`update appointments set observation=? where appointment_id=?`,
