@@ -682,7 +682,7 @@ const getAppointmentInfo = async (appointment_id) => {
           doc.name
         FROM personal_info p
         JOIN appointments a ON p.patient_id = a.patient_id
-        LEFT JOIN disease d ON d.patient_id = a.patient_id 
+        LEFT JOIN disease d ON d.appointment_id = a.appointment_id 
         JOIN doctors doc ON a.doctor_id = doc.doctor_id
         WHERE a.appointment_id = ?
         GROUP BY a.appointment_id, a.status, a.appointment_date, a.appointment_time`,
