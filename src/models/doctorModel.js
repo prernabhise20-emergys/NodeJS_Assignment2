@@ -181,41 +181,51 @@ const updatePrescription = async (appointment_id, url, dateIssued) => {
     throw error;
   }
 };
-
 const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
   try {
-    const totalDoctors = await new Promise((resolve, reject) => {
-      db.query('SELECT COUNT(*) AS total FROM doctors WHERE is_deleted = false', (error, result) => {
-        if (error) return reject(error);
-        resolve(result[0].total);
-      });
+    let totalDoctors = 0;
+    let unavailableDoctors = 0;
+
+   if (!is_available) {
+    totalDoctors = await new Promise((resolve, reject) => {
+        db.query('SELECT COUNT(*) AS total FROM doctors WHERE is_deleted = false', (error, result) => {
+            if (error) return reject(error);
+            resolve(result[0].total);
+        });
     });
 
-    const unavailableDoctors = await new Promise((resolve, reject) => {
-      db.query('SELECT COUNT(*) AS unavailable FROM doctors WHERE is_available = false AND is_deleted = false', (error, result) => {
-        if (error) return reject(error);
-        resolve(result[0].unavailable);
-      });
+    unavailableDoctors = await new Promise((resolve, reject) => {
+        db.query('SELECT COUNT(*) AS unavailable FROM doctors WHERE is_available = false AND is_deleted = false', (error, result) => {
+            if (error) return reject(error);
+            resolve(result[0].unavailable);
+        });
     });
 
-    const maxUnavailableDoctors = Math.floor(totalDoctors * 0.5); 
+    const maxUnavailableDoctors = Math.floor(totalDoctors * 0.5);
+    console.log(maxUnavailableDoctors, unavailableDoctors);
 
-    if (!is_available && unavailableDoctors >= maxUnavailableDoctors) {
-      throw new Error('You cannot take leave as 50% of doctors are already unavailable.');
+    if (unavailableDoctors >= maxUnavailableDoctors) {
+        throw new Error('You cannot take leave as 50% of doctors are already unavailable.');
     }
+}
 
     let query, params;
     if (is_available) {
-      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? AND is_deleted = false`;
+      query = `UPDATE doctors 
+               SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL 
+               WHERE user_id = ? AND is_deleted = false`;
       params = [is_available, userid];
     } else {
-      query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? AND is_deleted = false`;
+      query = `UPDATE doctors 
+               SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? 
+               WHERE user_id = ? AND is_deleted = false`;
       params = [is_available, unavailable_from_date, unavailable_to_date, userid];
     }
 
+
     const row = await new Promise((resolve, reject) => {
       db.query(query, params, (error, result) => {
-        if (error) reject(error);
+        if (error) return reject(error);
         resolve(result);
       });
     });
@@ -225,6 +235,7 @@ const changeAvailabilityStatus = async (is_available, userid, unavailable_from_d
     throw error;
   }
 };
+
 
 // const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
 //   try {
@@ -256,6 +267,37 @@ const changeAvailabilityStatus = async (is_available, userid, unavailable_from_d
 // };
 
 
+// const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
+//   try {
+//       return new Promise((resolve, reject) => {
+//           db.query(
+//               `SELECT appointment_id FROM appointments WHERE appointment_date BETWEEN ? AND ?;`,
+//               [unavailable_from_date, unavailable_to_date],
+//               (error, result) => {
+//                   if (error) {
+//                       return reject(error);
+//                   }
+                  
+//                   const ids = result.map(row => row.appointment_id); 
+                
+
+//                   db.query(
+//                       `UPDATE appointments SET status='Cancelled' WHERE appointment_date BETWEEN ? AND ?;`,
+//                       [unavailable_from_date, unavailable_to_date],
+//                       (updateError) => {
+//                           if (updateError) {
+//                               return reject(updateError);
+//                           }
+//                           resolve(getUserInformation(ids)); 
+//                       }
+//                   );
+//               }
+//           );
+//       });
+//   } catch (error) {
+//       throw error;
+//   }
+// };
 const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
   try {
       return new Promise((resolve, reject) => {
@@ -263,21 +305,21 @@ const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
               `SELECT appointment_id FROM appointments WHERE appointment_date BETWEEN ? AND ?;`,
               [unavailable_from_date, unavailable_to_date],
               (error, result) => {
-                  if (error) {
-                      return reject(error);
-                  }
+                  if (error) return reject(error);
+
+                  const ids = result.map(row => row.appointment_id);
                   
-                  const ids = result.map(row => row.appointment_id); 
-                
+                  if (ids.length === 0) {
+                      return resolve([]);
+                  }
 
                   db.query(
                       `UPDATE appointments SET status='Cancelled' WHERE appointment_date BETWEEN ? AND ?;`,
                       [unavailable_from_date, unavailable_to_date],
                       (updateError) => {
-                          if (updateError) {
-                              return reject(updateError);
-                          }
-                          resolve(getUserInformation(ids)); 
+                          if (updateError) return reject(updateError);
+
+                          resolve(getUserInformation(ids));
                       }
                   );
               }
