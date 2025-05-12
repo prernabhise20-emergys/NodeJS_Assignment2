@@ -286,16 +286,37 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+const formattDate = (dateString) => {
+  return new Date(dateString).toISOString().split('T')[0];
+};
+
 const getDoctors = async (req, res, next) => {
   try {
     const doctorInfo = await getDoctorInfo();
+    const formattedDoctorInfo = doctorInfo.map((doctor) => ({
+      ...doctor,
+      unavailable_from_date: formattDate(doctor.unavailable_from_date),
+      unavailable_to_date: formattDate(doctor.unavailable_to_date),
+    }));
+    
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, formattedDoctorInfo)
     );
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
+
+// const getDoctors = async (req, res, next) => {
+//   try {
+//     const doctorInfo = await getDoctorInfo();
+//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
+//     );
+//   } catch (error) {
+//     next(error)
+//   }
+// };
 
 const createAppointment = async (req, res, next) => {
   try{
