@@ -43,7 +43,7 @@ import {
   getAllPatientAppointment,
   cancelStatus
 } from "../models/adminModel.js";
-const { APPOINTMENT_BOOKED, USER_EXISTS, UNAUTHORIZED_ACCESS, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
+const {NO_FILE_FOUND, APPOINTMENT_BOOKED, USER_EXISTS, UNAUTHORIZED_ACCESS, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 const getAllInfo = async (req, res, next) => {
   try {
@@ -540,7 +540,7 @@ const uploadDoctorsFromExcel = async (req, res, next) => {
   try {
     const file = req.file;
     if (!file) {
-      return res.status(400).send(new ResponseHandler(400, "No file uploaded"));
+        throw NO_FILE_FOUND;
     }
 
     const workbook = xlsx.readFile(file.path);
@@ -573,7 +573,7 @@ const uploadDoctorsFromExcel = async (req, res, next) => {
       });
 
       if (![first_name, last_name, email, contact_number, specialization, doctorInTime, doctorOutTime].every(Boolean)) {
-        errors.push({ row: index + 2, email: email || 'N/A', error: 'Missing required fields' });
+        errors.push({ row: index + 2, email: email || null});
         continue;
       }
 
@@ -618,7 +618,6 @@ const user_password = `${first_name.toLowerCase()}@${doctorCode}`;
     }));
 
   } catch (error) {
-    console.error("Unexpected error:", error);
     next(error);
   }
 };
