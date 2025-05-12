@@ -617,7 +617,7 @@ const getAppointmentHistory = async (patient_id) => {
                 a.appointment_time, d.disease_type, d.disease_description
         FROM personal_info p
         JOIN disease d ON p.patient_id = d.patient_id
-        JOIN appointments a ON d.patient_id = a.patient_id
+        JOIN appointments a ON d.appointment_id = a.appointment_id
         JOIN doctors doc ON doc.doctor_id = a.doctor_id
         WHERE a.patient_id = ?`,
         patient_id,
