@@ -184,25 +184,58 @@ const deleteUser = async (req, res, next) => {
     next(error);
   }
 };
+// const getUser = async (req, res, next) => {
+//   try {
+//     const { user: { userid: id, email: emailID } } = req;
+//     const formattedDoctorInfo = getUserData.map((id) => ({
+//       ...doctor,
+//       unavailable_from_date: formattDate(doctor.unavailable_from_date),
+//       unavailable_to_date: formattDate(doctor.unavailable_to_date),
+//     }));
+//       // const user = await getUserData(id);
+//       return res
+//         .status(SUCCESS_STATUS_CODE.SUCCESS)
+//         .send(
+//           new ResponseHandler(
+//             SUCCESS_STATUS_CODE.SUCCESS,
+//             SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
+//             formattedDoctorInfo
+//           )
+//         );
+//     }
+//    catch (error) {
+//     next(error);
+//   }
+// };
+
 const getUser = async (req, res, next) => {
   try {
     const { user: { userid: id, email: emailID } } = req;
-    
-      const user = await getUserData(id);
-      return res
-        .status(SUCCESS_STATUS_CODE.SUCCESS)
-        .send(
-          new ResponseHandler(
-            SUCCESS_STATUS_CODE.SUCCESS,
-            SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
-            user
-          )
-        );
-    }
-   catch (error) {
+
+    const getUserDataArray = await getUserData(id);
+
+    const formattedDoctorInfo = Array.isArray(getUserDataArray)
+      ? getUserDataArray.map((doctor) => ({
+          ...doctor,
+          unavailable_from_date: formattDate(doctor.unavailable_from_date),
+          unavailable_to_date: formattDate(doctor.unavailable_to_date),
+        }))
+      : [];
+
+    return res
+      .status(SUCCESS_STATUS_CODE.SUCCESS)
+      .send(
+        new ResponseHandler(
+          SUCCESS_STATUS_CODE.SUCCESS,
+          SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
+          formattedDoctorInfo
+        )
+      );
+  } catch (error) {
     next(error);
   }
 };
+
 
 const forgotPassword = async (req, res, next) => {
   try {

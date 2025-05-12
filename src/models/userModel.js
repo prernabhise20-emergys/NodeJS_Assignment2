@@ -3,32 +3,31 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
 dotenv.config();
-
 const getUserData = async (userid) => {
   try {
     const data = await new Promise((resolve, reject) => {
       db.query(
-        `  SELECT 
-    u.email,     
-    u.first_name, 
-    u.last_name, 
-    u.mobile_number,
-    d.is_available,
-    d.unavailable_from_date,
-    d.unavailable_to_date
-FROM user_register u
-LEFT JOIN doctors d ON u.id = d.user_id
-WHERE u.is_deleted = FALSE 
-AND u.id = ?;
-`,
-        userid,
+        `SELECT 
+          u.email,     
+          u.first_name, 
+          u.last_name, 
+          u.mobile_number,
+          d.is_available,
+          d.unavailable_from_date,
+          d.unavailable_to_date
+        FROM user_register u
+        LEFT JOIN doctors d ON u.id = d.user_id
+        WHERE u.is_deleted = FALSE 
+        AND u.id = ?;`,
+        [userid], 
         (error, result) => {
           if (error) return reject(error);
           return resolve(result);
         }
       );
     });
-    return data;
+
+    return data; 
   } catch (error) {
     throw error;
   }
