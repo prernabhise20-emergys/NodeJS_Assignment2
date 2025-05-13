@@ -169,4 +169,25 @@ const notifyDoctorMailBody = (name,patient_name, appointment_date, appointment_t
   `;
 };
 
-export { otpMailBody, verificationEmail, prescriptionBody,notifyDoctorMailBody, approveRequestMailBody, updatedPrescriptionBody, cancelAppointmentMailBody, sendUserCode }
+const sendLeaveRequestBody = (name, startDate, endDate, leaveReason) => {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <p>Hello,</p>
+          <p>I hope this email finds you well. I would like to formally request leave for the following period:</p>
+          <ul>
+          <li><strong>Doctor Name:</strong> Dr.${name}</li>
+            <li><strong>Start Date:</strong> ${startDate}</li>
+            <li><strong>End Date:</strong> ${endDate}</li>
+            <li><strong>Reason:</strong> ${leaveReason}</li>
+          </ul>
+          <p>Please let me know if you require any further information or if there are any formalities I need to complete. I appreciate your understanding and support.</p>
+          <p>Thank you.</p>
+        </div>
+      </body>
+    </html>
+  `;
+};
+
+export { otpMailBody,sendLeaveRequestBody, verificationEmail, prescriptionBody,notifyDoctorMailBody, approveRequestMailBody, updatedPrescriptionBody, cancelAppointmentMailBody, sendUserCode }

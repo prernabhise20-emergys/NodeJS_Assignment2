@@ -6,5 +6,12 @@ const formatDate = (dateString) => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
+const convertToTimeFormat = decimalTime => {
+  const timeNum = parseFloat(decimalTime);
+  if (isNaN(timeNum)) return '00:00:00';
 
-  export default formatDate;
+  const hours = Math.floor(timeNum);
+  const minutes = Math.round((timeNum - hours) * 60);
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+};
+  export default {formatDate,convertToTimeFormat};

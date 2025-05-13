@@ -1,7 +1,5 @@
 import db from "../db/connection.js";
 
-
-
 const getDoctor = async (userid) => {
   try {
     const data = await new Promise((resolve, reject) => {
@@ -181,185 +179,86 @@ const updatePrescription = async (appointment_id, url, dateIssued) => {
     throw error;
   }
 };
-const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
+const changeAvailabilityStatus = async (is_available, userid) => {
   try {
-    let totalDoctors = 0;
-    let unavailableDoctors = 0;
-
-   if (!is_available) {
-    totalDoctors = await new Promise((resolve, reject) => {
-        db.query('SELECT COUNT(*) AS total FROM doctors WHERE is_deleted = false', (error, result) => {
-            if (error) return reject(error);
-            resolve(result[0].total);
-        });
-    });
-
-    unavailableDoctors = await new Promise((resolve, reject) => {
-        db.query('SELECT COUNT(*) AS unavailable FROM doctors WHERE is_available = false AND is_deleted = false', (error, result) => {
-            if (error) return reject(error);
-            resolve(result[0].unavailable);
-        });
-    });
-
-    const maxUnavailableDoctors = Math.floor(totalDoctors * 0.5);
-    console.log(maxUnavailableDoctors, unavailableDoctors);
-
-    if (unavailableDoctors >= maxUnavailableDoctors) {
-        throw new Error('You cannot take leave as 50% of doctors are already unavailable.');
-    }
-}
-
-    let query, params;
-    if (is_available) {
-      query = `UPDATE doctors 
-               SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL 
-               WHERE user_id = ? AND is_deleted = false`;
-      params = [is_available, userid];
-    } else {
-      query = `UPDATE doctors 
-               SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? 
-               WHERE user_id = ? AND is_deleted = false`;
-      params = [is_available, unavailable_from_date, unavailable_to_date, userid];
-    }
-
-
-    const row = await new Promise((resolve, reject) => {
-      db.query(query, params, (error, result) => {
+    return new Promise((resolve, reject) => {
+      db.query(`UPDATE doctors 
+               SET is_available = ? 
+               WHERE user_id = ? AND is_deleted = false`, [is_available, userid], (error, result) => {
         if (error) return reject(error);
         resolve(result);
       });
     });
 
-    return row;
   } catch (error) {
     throw error;
   }
 };
 
-
-// const changeAvailabilityStatus = async (is_available, userid, unavailable_from_date, unavailable_to_date) => {
-//   try {
-//     let query, params;
-
-//     if (is_available) {
-//       query = `UPDATE doctors SET is_available = ?, unavailable_from_date = NULL, unavailable_to_date = NULL WHERE user_id = ? and is_deleted=false`;
-//       params = [is_available, userid];
-//     } else {
-
-//       query = `UPDATE doctors SET is_available = ?, unavailable_from_date = ?, unavailable_to_date = ? WHERE user_id = ? and is_deleted=false`;
-//       params = [is_available, unavailable_from_date, unavailable_to_date, userid];
-//     }
-
-//     const row = await new Promise((resolve, reject) => {
-//       db.query(query, params, (error, result) => {
-//         if (error) {
-//           reject(error);
-//         } else {
-//           resolve(result);
-//         }
-//       });
-//     });
-
-//     return row;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-
-// const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
-//   try {
-//       return new Promise((resolve, reject) => {
-//           db.query(
-//               `SELECT appointment_id FROM appointments WHERE appointment_date BETWEEN ? AND ?;`,
-//               [unavailable_from_date, unavailable_to_date],
-//               (error, result) => {
-//                   if (error) {
-//                       return reject(error);
-//                   }
-                  
-//                   const ids = result.map(row => row.appointment_id); 
-                
-
-//                   db.query(
-//                       `UPDATE appointments SET status='Cancelled' WHERE appointment_date BETWEEN ? AND ?;`,
-//                       [unavailable_from_date, unavailable_to_date],
-//                       (updateError) => {
-//                           if (updateError) {
-//                               return reject(updateError);
-//                           }
-//                           resolve(getUserInformation(ids)); 
-//                       }
-//                   );
-//               }
-//           );
-//       });
-//   } catch (error) {
-//       throw error;
-//   }
-// };
-const markCancelled = async (unavailable_from_date, unavailable_to_date) => {
+const markCancelled = async (start_date, end_date) => {
   try {
-      return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
+      console.log(start_date,end_date);
+      
+      db.query(
+        `SELECT appointment_id FROM appointments WHERE appointment_date BETWEEN ? AND ?;`,
+        [start_date, end_date],
+        (error, result) => {
+          if (error) return reject(error);
+
+          const ids = result.map(row => row.appointment_id);
+
+          if (ids.length === 0) {
+            return resolve([]);
+          }
+
           db.query(
-              `SELECT appointment_id FROM appointments WHERE appointment_date BETWEEN ? AND ?;`,
-              [unavailable_from_date, unavailable_to_date],
-              (error, result) => {
-                  if (error) return reject(error);
+            `UPDATE appointments SET status='Cancelled' WHERE appointment_date BETWEEN ? AND ?;`,
+            [start_date, end_date],
+            (updateError) => {
+              if (updateError) return reject(updateError);
 
-                  const ids = result.map(row => row.appointment_id);
-                  
-                  if (ids.length === 0) {
-                      return resolve([]);
-                  }
-
-                  db.query(
-                      `UPDATE appointments SET status='Cancelled' WHERE appointment_date BETWEEN ? AND ?;`,
-                      [unavailable_from_date, unavailable_to_date],
-                      (updateError) => {
-                          if (updateError) return reject(updateError);
-
-                          resolve(getUserInformation(ids));
-                      }
-                  );
-              }
+              resolve(getUserInformation(ids));
+            }
           );
-      });
+        }
+      );
+    });
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
 
 const getUserInformation = async (appointment_ids) => {
   try {
-      return new Promise((resolve, reject) => {
-          db.query(
-              `SELECT a.appointment_id, p.patient_name, u.email, a.appointment_date, a.appointment_time, d.name, d.email AS doctor_email
+    return new Promise((resolve, reject) => {
+      db.query(
+        `SELECT a.appointment_id, p.patient_name, u.email, a.appointment_date, a.appointment_time, d.name, d.email AS doctor_email
                FROM user_register u 
                JOIN personal_info p ON u.id = p.user_id
                JOIN appointments a ON p.patient_id = a.patient_id
                JOIN doctors d ON a.doctor_id = d.doctor_id
-               WHERE a.appointment_id IN (?) and p.is_deleted=false`, 
-              [appointment_ids],
-              (error, result) => {
-                  if (error) {
-                      return reject(error);
-                  }
-                  resolve(result);
-              }
-          );
-      });
+               WHERE a.appointment_id IN (?) and p.is_deleted=false`,
+        [appointment_ids],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
 
-const addObservationData=async(observation,appointment_id)=>{
+const addObservationData = async (observation, appointment_id) => {
 
   try {
     return new Promise((resolve, reject) => {
       db.query(`update appointments set observation=? where appointment_id=?`,
-        [observation,appointment_id],
+        [observation, appointment_id],
         (error, result) => {
           if (error) {
             return reject(error);
@@ -371,13 +270,13 @@ const addObservationData=async(observation,appointment_id)=>{
     throw error;
   }
 }
-const editObservationData=async(observation,appointment_id)=>{
+const editObservationData = async (observation, appointment_id) => {
 
   try {
-    
+
     return new Promise((resolve, reject) => {
       db.query(`update appointments set observation=? where appointment_id=?`,
-        [observation,appointment_id],
+        [observation, appointment_id],
         (error, result) => {
           if (error) {
             return reject(error);
@@ -389,9 +288,9 @@ const editObservationData=async(observation,appointment_id)=>{
     throw error;
   }
 }
-const deleteObservationData=async(appointment_id)=>{
-   try {
-    
+const deleteObservationData = async (appointment_id) => {
+  try {
+
     return new Promise((resolve, reject) => {
       db.query(`update appointments set observation=null where appointment_id=?`,
         appointment_id,
@@ -407,9 +306,9 @@ const deleteObservationData=async(appointment_id)=>{
   }
 }
 
-const getObservationData=async(appointment_id)=>{
+const getObservationData = async (appointment_id) => {
   try {
-    
+
     return new Promise((resolve, reject) => {
       db.query(`select appointment_id,observation from appointments where appointment_id=?`,
         appointment_id,
@@ -424,7 +323,166 @@ const getObservationData=async(appointment_id)=>{
     throw error;
   }
 }
+const applyForLeave = async (data, userid) => {
+  try {
+    const { start_date, end_date, leave_reason } = data;
+
+    const result = await new Promise((resolve, reject) => {
+      db.query(`SELECT doctor_id,leave_approval,name FROM doctors WHERE user_id = ?`, [userid], (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      });
+    });
+
+    const leave_approval = result[0].leave_approval;
+    const doctor_id = result[0].doctor_id;
+    const insertResult = await new Promise((resolve, reject) => {
+      db.query(
+        `INSERT INTO leave_application_details (doctor_id, start_date, end_date, leave_reason, approved_by) VALUES (?, ?, ?, ?, ?)`,
+        [doctor_id, start_date, end_date, leave_reason, leave_approval],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
+
+    return insertResult;
+  } catch (error) {
+    console.error('Error applying for leave:', error);
+    throw error;
+  }
+};
+const getApprovalInfo = async (user_id) => {
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        `
+        SELECT d2.email AS approver_email,d1.name
+        FROM doctors d1
+        JOIN doctors d2 ON d1.leave_approval = d2.doctor_id
+        WHERE d2.user_id = ?;
+        `,
+        [user_id],
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+
+          console.log(results);
+          resolve(results);
+        }
+      );
+    });
+
+    return result;
+
+  } catch (error) {
+    console.error("Error applying for leave:", error);
+    throw error;
+  }
+};
+
+const getLeaveRequest=async(userid)=>{
+  try{
+const result = await new Promise((resolve, reject) => {
+
+   
+      db.query(`SELECT doctor_id FROM doctors WHERE user_id = ?`, userid, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      });
+    });
+          const doctor_id = result[0].doctor_id;
+console.log('doctorid',doctor_id);
+    const selectResult = await new Promise((resolve, reject) => {
+
+      db.query(
+        `
+      
+  SELECT l.leave_id,d1.name,l.start_date,l.end_date,l.leave_status,l.leave_reason
+        FROM doctors d1
+        JOIN doctors d2 ON d1.leave_approval = d2.doctor_id
+        join leave_application_details l on l.doctor_id=d1.doctor_id
+        WHERE l.approved_by = ? and l.leave_status='Pending';;
+        `,
+        doctor_id,
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+
+          console.log('result',results);
+          resolve(results);
+        }
+      );
+     });
+
+   return selectResult 
+  
+  }
+  catch(error){
+    throw error;
+  }
+}
+
+const changeLeaveStatus=async(leave_id)=>{
+  try{
+ return new Promise((resolve, reject) => {
+      db.query(`update leave_application_details set leave_status='Approved' where leave_id=?`,
+       leave_id,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        });
+    });
+  }
+  catch(error){
+    throw error;
+  }
+}
+const getApproveLeaveInfo=async(leave_id)=>{
+  try{
+const selectResult = await new Promise((resolve, reject) => {
+
+      db.query(
+        `
+      
+  SELECT leave_id,start_date,end_date,leave_reason from leave_application_details where leave_id=?;
+        `,
+        leave_id,
+        (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+
+          console.log('result',results);
+          resolve(results);
+        }
+      );
+     });
+
+   return selectResult 
+  
+  }
+  catch(error){
+    throw error;
+  }
+}
 export {
+  getApproveLeaveInfo,
+  changeLeaveStatus,
+  getLeaveRequest,
+  getApprovalInfo,
+  applyForLeave,
   getObservationData,
   deleteObservationData,
   editObservationData,

@@ -51,10 +51,31 @@ const ERROR_MESSAGE = {
   FAILED_TO_CANCEL:"Failed to cancelled appointment",
   WRONG_PASSWORD:"Please enter a correct old password",
   PRESCRIPTION_NOT_EXISTS:"Prescription not uploaded by the doctor. Status cannot be marked as completed.",
-  REQUIRED_FIELDS:"All filed are required"
+  REQUIRED_FIELDS:"All filed are required",
+  FAILED_ADD_ADMIN:"Failed to add admin",
+  FAILED_REMOVE_ADMIN:"Failed to remove admin",
+  FAILED_ADD_DOCTOR:"Failed to add doctor",
+  FAILED_DELETE_DOCTOR:"Failed to delete doctor",
+  FAILED_TO_APPROVE:"Failed to approve appointment",
+  FAILED_DOCTOR_PROFILE:"Failed to retrieve doctor profile",
+  FAILED_OBSERVATION_ADDED:"Failed to add observation",
+  FAILED_OBSERVATION_EDIT:"Failed to edit observation",
+  FAILED_OBSERVATION_DELETE:"Failed to delete observation",
+  FAILED_OBSERVATION_GET:"Failed to retrieve observation",
+  FAILED_TO_RETRIEVE:"Failed to retrieve information",
+  FAILED_TO_ADD:"Failed to add information",
+  FAILED_TO_UPDATE:"Failed to update information",
+  FAILED_TO_DELETE:"Failed to delete information",
+  FAILED_LEAVE_REQUEST:"Failed to sent leave request",
+  FAILED_LEAVE_REQUEST_APPROVE:"Failed to approve leave request",
+  FAILED_LEAVE_APPROVE:"Failed to approved leave"
 };
 
 const SUCCESS_MESSAGE = {
+  LEAVE_APPROVE:"Leave is Approved",
+  LEAVE_REQUEST_APPROVE:"Leave request for approved.",
+  LEAVE_REQUEST:"Leave request is sent successfully",
+  ADD_DOCTOR:"Doctors processed",
   OBSERVATION_GET:"Observation is retreived successfully",
   OBSERVATION_DELETE:"Observation is deleted succesfully",
   OBSERVATION_EDIT:"Observation is edited successfully",

@@ -46,9 +46,16 @@ const showPatientDetails = async (req, res, next) => {
     const { user: { userid: id } } = req;
 
     const patientInfo = await getPatientInfo(id);
-    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+    if(patientInfo){
+          return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, patientInfo)
     );
+  }
+  else{
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_RETRIEVE)
+    );
+  }
   } catch (error) {
     next(error);
   }
@@ -67,10 +74,16 @@ const getPersonalDetails = async (req, res, next) => {
       );
     }
     const familyInfo = await getPersonalInfo(patient_id);
-
+if(familyInfo){
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
+  }
+  else{
+    return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_RETRIEVE)
+    );
+  }
   } catch (error) {
     next(error);
   }
@@ -108,11 +121,16 @@ const createPersonalInfo = async (req, res, next) => {
     };
 
     const result = await createPersonalDetails(data, id, email);
-
+if(result){
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_PERSONAL_INFO_MESSAGE, { patient_id: result.insertId })
     );
-
+  }
+  else{
+    return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_ADD)
+    );
+  }
   } catch (error) {
     next(error)
   }
@@ -156,11 +174,17 @@ const updatePersonalInfo = async (req, res, next) => {
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
 
     if (isValidPatient || is_admin) {
-      await updatePersonalDetails(data, patient_id);
-
+      const updatePersonalData=await updatePersonalDetails(data, patient_id);
+if(updatePersonalData){
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.UPDATE_INFO_SUCCESS_MESSAGE)
       );
+    }
+    else{
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_UPDATE)
+      );
+    }
     } else {
       throw UNAUTHORIZED_ACCESS;
     }
@@ -180,11 +204,17 @@ const deletePersonalInfo = async (req, res, next) => {
     }
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
-      await deletePersonalDetails(patient_id);
-
+    const deleteinfo=  await deletePersonalDetails(patient_id);
+if(deleteinfo){
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE)
       );
+    }
+    else{
+     return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_DELETE)
+      ); 
+    }
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -203,10 +233,16 @@ const getFamilyDetails = async (req, res, next) => {
       );
     }
     const familyInfo = await getFamilyInfo(patient_id);
-
+if(familyInfo){
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, familyInfo)
     );
+  }
+  else{
+    return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_RETRIEVE)
+    );
+  }
   } catch (error) {
     next(error)
   }
@@ -220,10 +256,17 @@ const addFamilyInfo = async (req, res, next) => {
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
     }
-    await insertFamilyInfo(familyDetails);
+    const addfamilydata=await insertFamilyInfo(familyDetails);
+    if(addfamilydata){
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADDED_FAMILY_MESSAGE)
     );
+  }
+  else{
+     return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_ADD)
+    );
+  }
   } catch (error) {
     next(error)
   }
@@ -278,11 +321,17 @@ const updateFamilyInfoDetails = async (req, res, next) => {
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
-      await updateFamilyInfo(familyData, patient_id);
-
+      const updateFamily=await updateFamilyInfo(familyData, patient_id);
+if(updateFamily){
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.FAMILY_UPDATE_SUCCESSFULLY)
       );
+    }
+    else{
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_UPDATE)
+      );
+    }
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -301,10 +350,17 @@ const deleteFamilyInfoDetails = async (req, res, next) => {
     }
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
-      await deleteFamilyInfo(patient_id);
+      const deletefamily=await deleteFamilyInfo(patient_id);
+      if(deletefamily){
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.FAMILY_DELETE_SUCCESSFULLY)
       );
+    }
+    else{
+       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_DELETE)
+      );
+    }
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -323,10 +379,16 @@ const getDiseaseDetails = async (req, res, next) => {
       );
     }
     const personalInfo = await getDiseaseInfo(patient_id);
-
+if(personalInfo){
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DISEASE_DETAILS, personalInfo)
     );
+  }
+  else{
+return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_RETRIEVE)
+    );
+  }
   } catch (error) {
     next(error)
   }
@@ -340,12 +402,17 @@ const addDiseaseInfo = async (req, res, next) => {
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
     }
-    await addDiseaseData(diseaseDetails);
-
+    const adddisease=await addDiseaseData(diseaseDetails);
+if(adddisease){
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.CREATED_DISEASE_INFO_MESSAGE)
     );
-
+  }
+  else{
+     return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_ADD)
+    );
+  }
   } catch (error) {
     next(error)
   }
@@ -366,12 +433,17 @@ const updateDiseaseInfo = async (req, res, next) => {
 
     const formData = { disease_type, disease_description };
     if (isValidPatient || is_admin) {
-      await updateDiseaseDetails(formData, patient_id);
-
+      const updateInfo=await updateDiseaseDetails(formData, patient_id);
+if(updateInfo){
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DISEASE_UPDATE_SUCCESSFULLY)
       );
-
+    }
+    else{
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_UPDATE)
+      );
+    }
     }
     throw NOT_UPDATE;
   } catch (error) {
@@ -392,11 +464,17 @@ const deleteDiseaseInfo = async (req, res, next) => {
 
     const isValidPatient = await checkUserWithPatientID(id, patient_id);
     if (isValidPatient || is_admin) {
-      await deleteDiseaseDetails(patient_id);
-
+     const deletedisease= await deleteDiseaseDetails(patient_id);
+if(deletedisease){
       return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
         new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DISEASE_DELETE_SUCCESSFULLY)
       );
+    }
+    else{
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_DELETE)
+      );
+    }
     }
     throw NOT_DELETED;
   } catch (error) {
@@ -410,9 +488,16 @@ const getUploadDocument = async (req, res, next) => {
     const { params: { patient_id } } = req;
 
     const personalInfo = await getUploadInfo(patient_id);
+    if(personalInfo){
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, personalInfo)
     );
+  }
+  else{
+    return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_RETRIEVE)
+    );
+  }
 
   } catch (error) {
     next(error)

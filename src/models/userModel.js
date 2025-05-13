@@ -234,8 +234,35 @@ const updateUserPassword = async (newPassword, id) => {
 };
 
 // ************************************************************
-const deleteUserData = async (userId) => {
+const deleteUserData = async (doctor,userId) => {
   try {
+    if(doctor){
+      const data = await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE user_register SET is_deleted = TRUE WHERE id = ?",
+        userId,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        }
+      );
+       db.query(
+        "UPDATE doctors SET is_deleted = TRUE WHERE user_id = ?",
+        userId,
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(result);
+        }
+      );
+    });
+
+    return data;
+    }
+    else{
     const data = await new Promise((resolve, reject) => {
       db.query(
         "UPDATE user_register SET is_deleted = TRUE WHERE id = ?",
@@ -250,6 +277,7 @@ const deleteUserData = async (userId) => {
     });
 
     return data;
+  }
   } catch (error) {
     throw error;
   }
@@ -362,8 +390,8 @@ const getDoctorInfo = async () => {
     return new Promise((resolve, reject) => {
       db.query(
         `SELECT doctor_id, name, specialization, doctorInTime, doctorOutTime, is_available, 
-       DATE_ADD(unavailable_from_date, INTERVAL 1 DAY) AS unavailable_from_date, 
-       DATE_ADD(unavailable_to_date, INTERVAL 1 DAY) AS unavailable_to_date
+       unavailable_from_date, 
+       unavailable_to_date
 FROM doctors 
 WHERE is_deleted = false;
 `,
@@ -393,12 +421,13 @@ const isDoctorAvailable = (doctor_id, date, patient_id) => {
   });
 };
 
-const createDoctorAppointment = (patient_id, doctor_id, date, time, disease_type, disease_description) => {
+const createDoctorAppointment = (patient_id, doctor_id, appointment_date, time, disease_type, disease_description) => {
   return new Promise((resolve, reject) => {
     try {
+      const utcDate = new Date(appointment_date).toISOString().split('T')[0];
       db.query(
         `INSERT INTO appointments (appointment_date, appointment_time, patient_id, doctor_id) VALUES (?, ?, ?, ?)`,
-        [date, time, patient_id, doctor_id],
+        [utcDate, time, patient_id, doctor_id],
         (error, result) => {
           if (error) {
             return reject(error);
@@ -413,7 +442,7 @@ const createDoctorAppointment = (patient_id, doctor_id, date, time, disease_type
               if (error) {
                 return reject(error);
               }
-              resolve(diseaseResult);
+              resolve({ appointment_id, diseaseResult });
             }
           );
         }
@@ -665,7 +694,6 @@ const updateDisease = ( disease_type, disease_description,appointment_id) => {
     );
   });
 };
-
 
 const getAppointmentInfo = async (appointment_id) => {
   try {

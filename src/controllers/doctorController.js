@@ -10,12 +10,16 @@ import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
 import sendUpdatePrescriptionEmail from "../common/utility/sendUpdatePrescriptionEmail.js";
 import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointment.js";
-
+import sendLeaveRequest from "../common/utility/sendLeaveRequest.js";
 // import xlsx from 'xlsx';
 // import puppeteer from "puppeteer";
 // import { createPrescription } from '../common/utility/createPrescription.js';
 
 import {
+    getApproveLeaveInfo,
+    changeLeaveStatus,
+    getLeaveRequest,
+    applyForLeave,
     getObservationData,
     deleteObservationData,
     editObservationData,
@@ -28,7 +32,8 @@ import {
     savePrescription,
     showAppointments,
     updateDoctorData,
-    getDoctor
+    getDoctor,
+    getApprovalInfo
 } from "../models/doctorModel.js";
 
 const getDoctorProfile = async (req, res, next) => {
@@ -36,10 +41,16 @@ const getDoctorProfile = async (req, res, next) => {
         const { user: { userid } } = req;
 
         const doctorData = await getDoctor(userid);
-
-        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DOCTOR_PROFILE, doctorData)
-        );
+        if (doctorData) {
+            return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DOCTOR_PROFILE, doctorData)
+            );
+        }
+        else {
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_DOCTOR_PROFILE)
+            );
+        }
     } catch (error) {
         next(error)
     }
@@ -55,11 +66,11 @@ const updateDoctor = async (req, res, next) => {
                 doctorOutTime
             },
         } = req;
-        if(!name|| !specialization|| !doctorInTime||!doctorOutTime||!contact_number){
+        if (!name || !specialization || !doctorInTime || !doctorOutTime || !contact_number) {
             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-              new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
             );
-          }
+        }
         const dname = name.split(' ')
         const first_name = dname[0]
         const last_name = dname[1]
@@ -87,6 +98,7 @@ const updateDoctor = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 const displayAppointments = async (req, res, next) => {
@@ -314,7 +326,7 @@ const updateExistsPrescription = async (req, res, next) => {
 
 const changeDoctorAvailabilityStatus = async (req, res, next) => {
     try {
-        const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
+        const { body: { is_available} } = req;
         const { user: { doctor: is_doctor, userid } } = req;
 
         if (!is_doctor) {
@@ -323,19 +335,7 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
             );
         }
 
-        await changeAvailabilityStatus(is_available, userid, unavailable_from_date || null, unavailable_to_date || null);
-
-        if (!is_available && unavailable_from_date && unavailable_to_date) {
-            const cancelAppointments = await markCancelled(unavailable_from_date, unavailable_to_date);
-
-            if (cancelAppointments.length > 0) {
-                await Promise.all(cancelAppointments.map(async (appointment) => {
-                    const { email, patient_name, appointment_date, appointment_time, name } = appointment;
-                    const reason = 'Doctor unavailability';
-                    await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
-                }));
-            }
-        }
+        await changeAvailabilityStatus(is_available, userid);
 
         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
             new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
@@ -345,86 +345,173 @@ const changeDoctorAvailabilityStatus = async (req, res, next) => {
         next(error);
     }
 };
-// const changeDoctorAvailabilityStatus = async (req, res, next) => {
-//     try {
-//         const { body: { is_available, unavailable_from_date, unavailable_to_date } } = req;
-//         const { user: { doctor: is_doctor, userid } } = req;
-//        console.log(unavailable_from_date,unavailable_to_date)
-//         if (!is_doctor) {
-//             return res.status(ERROR_STATUS_CODE.FORBIDDEN).send(
-//                 new ResponseHandler(ERROR_STATUS_CODE.FORBIDDEN, ERROR_MESSAGE.UNAUTHORIZED)
-//             );
-//         }
-
-      
-//         await changeAvailabilityStatus(is_available, userid, unavailable_from_date||null, unavailable_to_date||null);
-
-//         const cancelAppointments = await markCancelled(unavailable_from_date, unavailable_to_date);
-
-//         if (cancelAppointments.length > 0) {
-//             await Promise.all(cancelAppointments.map(async (appointment) => {
-//                 const { email, patient_name, appointment_date, appointment_time, name } = appointment;
-//                 const reason = 'Doctor unavailability';
-//                 await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
-//             }));
-
-//             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//                 new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_DOCTOR_STATUS)
-//             );
-//         }
-
-//         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-//             new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
-//         );
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 
 const addObservation = async (req, res, next) => {
     const { query: { appointment_id } } = req;
     const { body: { observation } } = req;
 
-    if(!appointment_id||!observation){
+    if (!appointment_id || !observation) {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+            new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
         );
-      }
-    await addObservationData(observation, appointment_id);
-    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
-    );
+    }
+    const observationadd = await addObservationData(observation, appointment_id);
+    if (observationadd) {
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_ADDED)
+        );
+    }
+    else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+            new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_OBSERVATION_ADDED)
+        );
+    }
 }
 
 const editObservation = async (req, res, next) => {
     const { query: { appointment_id } } = req;
     const { body: { observation } } = req;
 
-    await editObservationData(observation, appointment_id);
-    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_EDIT)
-    );
+    const observationedit = await editObservationData(observation, appointment_id);
+    if (observationedit) {
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_EDIT)
+        );
+    }
+    else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+            new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_OBSERVATION_EDIT)
+        );
+    }
 }
 
 const deleteObservation = async (req, res, next) => {
     const { query: { appointment_id } } = req;
 
-    await deleteObservationData( appointment_id);
-    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_DELETE)
-    );
+    const observationdelete = await deleteObservationData(appointment_id);
+    if (observationdelete) {
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_DELETE)
+        );
+    }
+    else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+            new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_OBSERVATION_DELETE)
+        );
+    }
 }
 
 const getObservation = async (req, res, next) => {
     const { query: { appointment_id } } = req;
 
-   const observation= await getObservationData( appointment_id);
-    return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_GET,observation)
-    );
+    const observation = await getObservationData(appointment_id);
+    if (observation) {
+        return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+            new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.OBSERVATION_GET, observation)
+        );
+    }
+    else {
+        return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+            new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_OBSERVATION_GET)
+        );
+    }
+}
+
+const applyLeave = async (req, res, next) => {
+    try {
+        const { body: { start_date, end_date, leave_reason } } = req;
+        const { user: { userid } } = req;
+
+        console.log(start_date, end_date, leave_reason, userid);
+
+        const data = {
+            start_date,
+            end_date,
+            leave_reason
+        }
+        const leaveinfo = await applyForLeave(data, userid)
+console.log("leaveinfo",leaveinfo);
+
+        const info = await getApprovalInfo(userid)
+        console.log('info', info[0].approver_email, info[0].name);
+        const approver_email = info[0].approver_email;
+        const doctor_name = info[0].name;
+        if (leaveinfo) {
+            await sendLeaveRequest(approver_email, doctor_name, start_date, end_date, leave_reason);
+            return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.LEAVE_REQUEST)
+            );
+        }
+        else {
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_LEAVE_REQUEST)
+            );
+        }
+    }
+    catch (error) {
+        next(error)
+    }
+}
+const showLeaveRequest=async(req,res,next)=>{
+    try{
+const{user:{userid}}=req;
+
+const leaveRequest=await getLeaveRequest(userid);
+
+ if (leaveRequest) {
+            return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.LEAVE_REQUEST_APPROVE,leaveRequest)
+            );
+        }
+        else {
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_LEAVE_REQUEST_APPROVE)
+            );
+        }
+    }
+    catch(error){
+        next(error)
+    }
+}
+const approveLeave=async(req,res,next)=>{
+    try{
+const{query:{leave_id}}=req;
+const leaveRequest=await getApproveLeaveInfo(leave_id);
+const approve=await changeLeaveStatus(leave_id)
+ if (approve) {
+    const start_date=leaveRequest[0].start_date;
+    const end_date=leaveRequest[0].end_date;
+    
+            const cancelAppointments = await markCancelled(start_date,end_date);
+
+            if (cancelAppointments) {
+                console.log('cancel',cancelAppointments);
+                
+                // await Promise.all(cancelAppointments.map(async (appointment) => {
+                //     const { email, patient_name, appointment_date, appointment_time, name } = appointment;
+                //     const reason = 'Doctor unavailability';
+                //     await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
+                // }));
+            }
+      
+            return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+                new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.LEAVE_APPROVE)
+            );
+        }
+        else {
+            return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+                new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_LEAVE_APPROVE)
+            );
+        }
+    }
+    catch(error){
+        next(error)
+    }
 }
 export default {
+showLeaveRequest,
+    approveLeave,
+    applyLeave,
     getObservation,
     deleteObservation,
     editObservation,

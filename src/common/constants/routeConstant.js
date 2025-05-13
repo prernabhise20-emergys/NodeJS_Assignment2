@@ -65,7 +65,10 @@ const ROUTE_CONSTANTS = {
   EDIT_OBSERVATION:"/editObservation",
   DELETE_OBSERVATION:"/deleteObservation",
   GET_OBSERVATION:"/getObservation",
-  UPLOAD_EXCELSHEET:"/uploadDoctors"
+  UPLOAD_EXCELSHEET:"/uploadDoctors",
+  APPLY_LEAVE:"/leaveApply",
+  DISPLAY_LEAVE_REQUEST:"/leaveRequest",
+  APPROVE_LEAVE:"/approveLeave"
 };
 
 export default ROUTE_CONSTANTS;

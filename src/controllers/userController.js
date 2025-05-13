@@ -45,7 +45,7 @@ const register = async (req, res, next) => {
   try {
     const { body: { email, user_password, first_name, last_name, mobile_number } } = req;
 
-    if(!email||!user_password||!first_name||!last_name||!mobile_number){
+    if (!email || !user_password || !first_name || !last_name || !mobile_number) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -142,7 +142,7 @@ const updateUser = async (req, res, next) => {
       body: { first_name, last_name, mobile_number },
     } = req;
 
-    if(!first_name||!last_name||!mobile_number){
+    if (!first_name || !last_name || !mobile_number) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -155,10 +155,19 @@ const updateUser = async (req, res, next) => {
       mobile_number,
     };
 
-    await updateUserData(formData, id);
+    const update=await updateUserData(formData, id);
+    if(update){
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG));
+      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG)
+    );
+  }
+  else{
+    return res
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_UPDATE)
+    );
+  }
   } catch (error) {
     next(error);
   }
@@ -166,7 +175,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    const { user: { userid: id, admin } } = req;
+    const { user: { userid: id, admin ,doctor} } = req;
 
     if (admin) {
       const adminCount = await checkAdminCount();
@@ -174,73 +183,51 @@ const deleteUser = async (req, res, next) => {
       if (adminCount <= 1) {
         throw CANNOT_DELETE_USER;
       }
-    }
+    }    
 
-    await deleteUserData(id);
+
+   const deleteprofile= await deleteUserData(doctor,id);
+if(deleteprofile){
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
-  } catch (error) {
+  } 
+  else{
+     return res
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_DELETE));
+  }
+}catch (error) {
     next(error);
   }
 };
-// const getUser = async (req, res, next) => {
-//   try {
-//     const { user: { userid: id, email: emailID } } = req;
-//     const formattedDoctorInfo = getUserData.map((id) => ({
-//       ...doctor,
-//       unavailable_from_date: formattDate(doctor.unavailable_from_date),
-//       unavailable_to_date: formattDate(doctor.unavailable_to_date),
-//     }));
-//       // const user = await getUserData(id);
-//       return res
-//         .status(SUCCESS_STATUS_CODE.SUCCESS)
-//         .send(
-//           new ResponseHandler(
-//             SUCCESS_STATUS_CODE.SUCCESS,
-//             SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
-//             formattedDoctorInfo
-//           )
-//         );
-//     }
-//    catch (error) {
-//     next(error);
-//   }
-// };
 
 const getUser = async (req, res, next) => {
   try {
     const { user: { userid: id, email: emailID } } = req;
 
-    const getUserDataArray = await getUserData(id);
+    const getUser = await getUserData(id);
 
-    const formattedDoctorInfo = Array.isArray(getUserDataArray)
-      ? getUserDataArray.map((doctor) => ({
-          ...doctor,
-          unavailable_from_date: formattDate(doctor.unavailable_from_date),
-          unavailable_to_date: formattDate(doctor.unavailable_to_date),
-        }))
-      : [];
-
-    return res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(
-        new ResponseHandler(
-          SUCCESS_STATUS_CODE.SUCCESS,
-          SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
-          formattedDoctorInfo
-        )
-      );
+    if (!getUser){
+      return res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(
+          new ResponseHandler(
+            SUCCESS_STATUS_CODE.SUCCESS,
+            SUCCESS_MESSAGE.USER_INFO_SUCCESS_MESSAGE,
+            getUser
+          )
+        );
+      }
   } catch (error) {
     next(error);
   }
 };
 
-
 const forgotPassword = async (req, res, next) => {
   try {
     const { body: { email } } = req;
-    if(!email){
+    if (!email) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -271,7 +258,7 @@ const forgotPassword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   try {
     const { body: { email, newPassword } } = req;
-    if(!email||!newPassword){
+    if (!email || !newPassword) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -289,7 +276,7 @@ const changePassword = async (req, res, next) => {
 
     const { oldPassword, newPassword } = req.body;
     const { userid, user_password } = req.user;
-    if(!oldPassword||!newPassword){
+    if (!oldPassword || !newPassword) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -319,21 +306,12 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-const formattDate = (dateString) => {
-  return new Date(dateString).toISOString().split('T')[0];
-};
-
 const getDoctors = async (req, res, next) => {
   try {
     const doctorInfo = await getDoctorInfo();
-    const formattedDoctorInfo = doctorInfo.map((doctor) => ({
-      ...doctor,
-      unavailable_from_date: formattDate(doctor.unavailable_from_date),
-      unavailable_to_date: formattDate(doctor.unavailable_to_date),
-    }));
-    
+
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, formattedDoctorInfo)
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
     );
   } catch (error) {
     next(error);
@@ -352,10 +330,10 @@ const getDoctors = async (req, res, next) => {
 // };
 
 const createAppointment = async (req, res, next) => {
-  try{
-  const { body: { patient_id, doctor_id, date, time,disease_type,disease_description } } = req;
-  
-    const isAvailable = await isDoctorAvailable(doctor_id, date,patient_id);
+  try {
+    const { body: { patient_id, doctor_id, date, time, disease_type, disease_description } } = req;
+
+    const isAvailable = await isDoctorAvailable(doctor_id, date, patient_id);
 
     if (!isAvailable) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -364,8 +342,8 @@ const createAppointment = async (req, res, next) => {
 
     }
 
-    const result = await createDoctorAppointment(patient_id, doctor_id, date, time,disease_type,disease_description);
-    
+    const result = await createDoctorAppointment(patient_id, doctor_id, date, time, disease_type, disease_description);
+
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
     );
@@ -379,7 +357,7 @@ const getDoctorAvailability = async (req, res, next) => {
   try {
     const { query: { doctor_id } } = req;
     const { body: { date } } = req;
-    if(!doctor_id){
+    if (!doctor_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );
@@ -388,15 +366,15 @@ const getDoctorAvailability = async (req, res, next) => {
 
     const doctorInTime = availableTimes[0]?.doctorInTime || 'Not Available';
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
- const is_availabile=availableTimes[0]?.is_available;
+    const is_availabile = availableTimes[0]?.is_available;
 
- const unavailable_from_date = availableTimes[0]?.unavailable_from_date
-  ? formatDate(availableTimes[0].unavailable_from_date)
-  : null;
+    const unavailable_from_date = availableTimes[0]?.unavailable_from_date
+      ? formatDate(availableTimes[0].unavailable_from_date)
+      : null;
 
-const unavailable_to_date = availableTimes[0]?.unavailable_to_date
-  ? formatDate(availableTimes[0].unavailable_to_date)
-  : null;
+    const unavailable_to_date = availableTimes[0]?.unavailable_to_date
+      ? formatDate(availableTimes[0].unavailable_to_date)
+      : null;
 
     const scheduleSlots = availableTimes
       .filter(row => row.appointment_time !== null && row.status === 'Scheduled')
@@ -464,17 +442,17 @@ const appointmentHistory = async (req, res, next) => {
 
 
 
-const rescheduleAppointment=async(req,res,next)=>{
+const rescheduleAppointment = async (req, res, next) => {
   try {
-  const { body: { doctor_id, date, time,disease_type,disease_description } } = req;
-  const{query:{appointment_id}}=req;
+    const { body: { doctor_id, date, time, disease_type, disease_description } } = req;
+    const { query: { appointment_id } } = req;
 
-if(!doctor_id|| !date|| !time||!disease_type||!disease_description||!appointment_id){
-  return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-    new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
-  );
-}
-    const result = await updateDoctorAppointment( doctor_id, date, time,disease_type,disease_description,appointment_id);
+    if (!doctor_id || !date || !time || !disease_type || !disease_description || !appointment_id) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
+    const result = await updateDoctorAppointment(doctor_id, date, time, disease_type, disease_description, appointment_id);
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_RESCHEDULE)
     );
@@ -483,10 +461,10 @@ if(!doctor_id|| !date|| !time||!disease_type||!disease_description||!appointment
     next(error);
   }
 }
-const getAppointmentData=async(req,res,next)=>{
+const getAppointmentData = async (req, res, next) => {
   try {
-    const{query:{appointment_id}}=req;
-    if(!appointment_id){
+    const { query: { appointment_id } } = req;
+    if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
         new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
       );

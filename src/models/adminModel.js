@@ -1,7 +1,7 @@
 import db from "../db/connection.js";
 import { AUTH_RESPONSES } from "../common/constants/response.js";
 import bcrypt from "bcryptjs";
-const { UNAUTHORIZED_ACCESS ,PATIENT_ID_NOT_EXIST} = AUTH_RESPONSES;
+const { UNAUTHORIZED_ACCESS, PATIENT_ID_NOT_EXIST } = AUTH_RESPONSES;
 
 const getInfo = async (is_admin, limit, offset) => {
   try {
@@ -291,23 +291,23 @@ const checkIfUserExists = async (email) => {
 const createDoctorData = async (data) => {
   try {
     const doctorData = { ...data };
-    const { first_name, last_name, email, user_password, contact_number, doctorCode } = data;
+    const { first_name, last_name, email, user_password, contact_number, doctorCode,leave_approval_senior_doctor_id } = data;
     const hashedPassword = await bcrypt.hash(user_password, 10);
 
     return await new Promise((resolve, reject) => {
       db.query(
         `INSERT INTO user_register (email, user_password, first_name, last_name, mobile_number,is_doctor, userCode) VALUES (?, ?,?, ?, ?, ?, ?)`,
-        [email, hashedPassword, first_name, last_name, contact_number,true, doctorCode],
+        [email, hashedPassword, first_name, last_name, contact_number, true, doctorCode],
         (error, result) => {
           if (error) {
             return reject(error);
           }
 
-          const userId = result.insertId; 
+          const userId = result.insertId;
 
           db.query(
-            `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [data.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode],
+            `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode, leave_approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [data.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode, leave_approval_senior_doctor_id],
             (error, result) => {
               if (error) {
                 return reject(error);
@@ -315,6 +315,17 @@ const createDoctorData = async (data) => {
               resolve(result);
             }
           );
+
+          // db.query(
+          //   `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          //   [data.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode],
+          //   (error, result) => {
+          //     if (error) {
+          //       return reject(error);
+          //     }
+          //     resolve(result);
+          //   }
+          // );
         }
       );
     });
@@ -383,24 +394,6 @@ const cancelStatus = async (appointment_id, reason) => {
   }
 };
 
-// const scheduleAppointment = async (appointment_id) => {
-//   try {
-//     return new Promise((resolve, reject) => {
-//       db.query(
-//         `UPDATE appointments SET status ='Scheduled' WHERE appointment_id = ?`,
-//         appointment_id,
-//         (error, result) => {
-//           if (error) {
-//             return reject(error);
-//           }
-//           resolve(result);
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 const scheduleAppointment = async (appointment_id) => {
   try {
     const result = await new Promise((resolve, reject) => {
@@ -637,22 +630,22 @@ const getUserRegisterDetails = async (userId) => {
 
 
 
-const createAdmin = async (data,adminCode) => {
+const createAdmin = async (data, adminCode) => {
   try {
-    const { first_name, last_name, email, user_password, mobile_number} = data;
+    const { first_name, last_name, email, user_password, mobile_number } = data;
     const hashedPassword = await bcrypt.hash(user_password, 10);
 
     return await new Promise((resolve, reject) => {
       db.query(
         `INSERT INTO user_register (email, user_password, first_name, last_name, mobile_number,is_admin, userCode) VALUES (?, ?,?, ?, ?, ?, ?)`,
-        [email, hashedPassword, first_name, last_name, mobile_number,true, adminCode],
+        [email, hashedPassword, first_name, last_name, mobile_number, true, adminCode],
         (error, result) => {
           if (error) {
             return reject(error);
           }
 
 
-    resolve(result)
+          resolve(result)
         }
       );
     });
@@ -667,17 +660,17 @@ const patientHaveAppointment = async (patient_id) => {
     db.query(
       `SELECT patient_id, status FROM appointments 
        WHERE patient_id = ? AND status IN ('Pending', 'Scheduled')`,
-      [patient_id], 
+      [patient_id],
       (error, results) => {
         if (error) {
           return reject(error);
         }
-        resolve(results); 
+        resolve(results);
       }
     );
   });
 };
-const checkPrescription=async(appointment_id)=>{
+const checkPrescription = async (appointment_id) => {
   try {
     const result = await new Promise((resolve, reject) => {
       db.query(

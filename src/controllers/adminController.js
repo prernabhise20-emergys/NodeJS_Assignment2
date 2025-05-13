@@ -13,8 +13,9 @@ import sendCancelledAppointmentEmail from "../common/utility/cancelledAppointmen
 import sendRegisterCode from "../common/utility/sendRegisterCode.js";
 import axios from 'axios';
 import fs from 'fs';
-import Buffer from "Buffer";
-// import generatedDoctorCode from '../common/utility/generatedNumber.js'
+// import Buffer from "Buffer";
+import convertToTimeFormat from '../common/utility/formattedDate.js'
+// import generateDoctorCode from '../common/utility/generatedNumber.js'
 // import generatePassword from '../common/utility/generatedNumber.js'
 import response1 from '../common/constants/pathConstant.js';
 import filePath from '../common/constants/pathConstant.js'
@@ -103,6 +104,14 @@ const adminDeletePatientData = async (req, res, next) => {
           SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE
         ));
     }
+    else{
+      return res
+        .status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(
+          ERROR_STATUS_CODE.BAD_REQUEST,
+          ERROR_MESSAGE.NOT_DELETE_MESSAGE
+        ));
+    }
 
   } catch (error) {
     next(error);
@@ -162,7 +171,8 @@ const addAdmin = async (req, res, next) => {
       user_password: password,
       mobile_number
     }
-    await createAdmin(data, adminCode)
+   const addAdmin= await createAdmin(data, adminCode);
+   if(addAdmin){
     const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
     const loginToken = `http://localhost:5173/account/user/login?token=${token}`
     await sendRegisterCode(email, name, adminCode, user_password, loginToken)
@@ -170,6 +180,12 @@ const addAdmin = async (req, res, next) => {
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADD_ADMIN));
+   }
+   else{
+     return res
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_ADMIN));
+   }
   } catch (error) {
     next(error);
   }
@@ -194,11 +210,17 @@ const removeAdmin = async (req, res, next) => {
       }
     }
 
-    await removeAdminAuthority(is_admin, email);
-
+    const deleteAdmin=await removeAdminAuthority(is_admin, email);
+if(deleteAdmin){
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REMOVE_ADMIN));
+}
+else{
+  return res
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_REMOVE_ADMIN));
+}
   } catch (error) {
     next(error);
   }
@@ -237,7 +259,7 @@ const generateDoctorCode = async () => {
 const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
-    const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name } } = req;
+    const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name,leave_approval_senior_doctor_id } } = req;
 
     if (!specialization || !contact_number || !email || !doctorInTime || !doctorOutTime || !first_name || !last_name) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -251,6 +273,7 @@ const addDoctor = async (req, res, next) => {
     const docCode = await generateDoctorCode();
     const password = await generatePassword(first_name)
     console.log("Doctor Password:",password);
+console.log("code",docCode);
 
     const data = {
       name: first_name + ' ' + last_name,
@@ -262,7 +285,8 @@ const addDoctor = async (req, res, next) => {
       doctorCode: docCode,
       user_password: password,
       first_name,
-      last_name
+      last_name,
+      leave_approval_senior_doctor_id
     };
 
     if (!is_admin) {
@@ -277,12 +301,17 @@ const addDoctor = async (req, res, next) => {
       const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
       const loginToken = `http://localhost:5173/account/user/login?token=${token}`
       await sendRegisterCode(data.email, data.name, data.doctorCode, data.user_password, loginToken);
-    }
+    
 
     return res.status(SUCCESS_STATUS_CODE.CREATED).send(
       new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
     );
-
+  }
+  else{
+    return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_DOCTOR)
+    );
+  }
   } catch (error) {
     next(error);
   }
@@ -293,10 +322,17 @@ const deleteDoctor = async (req, res, next) => {
   try {
     const { query: { doctor_id } } = req;
 
-    await deleteDoctorData(doctor_id);
+   const deleteDoc= await deleteDoctorData(doctor_id);
+   if(deleteDoc){
     return res
       .status(SUCCESS_STATUS_CODE.SUCCESS)
       .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+   }
+   else{
+     return res
+      .status(ERROR_STATUS_CODE.BAD_REQUEST)
+      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_DELETE_DOCTOR));
+   }
   } catch (error) {
     next(error);
   }
@@ -406,7 +442,7 @@ const approveAppointment = async (req, res, next) => {
         );
       } else {
         return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.NOT_CHANGE_STATUS)
+          new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_APPROVE)
         );
       }
     } 
@@ -611,7 +647,7 @@ const user_password = `${first_name.toLowerCase()}@${doctorCode}`;
     }
 
 
-    return res.status(200).send(new ResponseHandler(200, "Doctors processed", {
+    return res.status(200).send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADD_DOCTOR, {
       inserted: insertedDoctors.length,
       failed: errors.length,
       errors
@@ -622,104 +658,9 @@ const user_password = `${first_name.toLowerCase()}@${doctorCode}`;
   }
 };
 
-const convertToTimeFormat = decimalTime => {
-  const timeNum = parseFloat(decimalTime);
-  if (isNaN(timeNum)) return '00:00:00';
-
-  const hours = Math.floor(timeNum);
-  const minutes = Math.round((timeNum - hours) * 60);
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
-};
-
-
-// const uploadDoctorsFromExcel = async (req, res, next) => {
-//   try {
-//     const file = req.file;
-//     if (!file) {
-//       return res.status(400).send(new ResponseHandler(400, "No file uploaded"));
-//     }
-// console.log(req.file);
-
-//     const workbook = xlsx.readFile(file.path);
-//     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-//     const records = xlsx.utils.sheet_to_json(sheet, { header: 1, defval: '', range: 3 });
-
-//     const errors = [];
-//     const insertedDoctors = [];
-
-//     for (const [index, record] of records.entries()) {
-//       if (record.every(cell => !cell)) continue;
-
-//       const [ , , first_name, last_name, , contact_number, email, specialization, doctorInTime, doctorOutTime] =
-//         record.map(cell => cell?.toString().trim());
-
-//       if (![email, first_name, last_name, specialization, contact_number, doctorInTime, doctorOutTime].every(Boolean)) {
-//         errors.push({ row: index + 4, email: email || 'N/A', error: 'Missing required fields' });
-//         continue;
-//       }
-
-//       if (!validateEmail(email)) {
-//         errors.push({ row: index + 4, email, error: "Invalid email format" });
-//         continue;
-//       }
-
-//       if (await checkIfUserExists(email)) {
-//         errors.push({ row: index + 4, email, error: "User already exists" });
-//         continue;
-//       }
-
-//       const doctorCode = await generateDoctorCode();
-//       const user_password = `${first_name.toLowerCase()}@${contact_number.slice(-4)}`;
-
-//       const doctorData = {
-//         name: `${first_name} ${last_name}`,
-//         specialization,
-//         contact_number,
-//         email,
-//         doctorInTime: convertToTimeFormat(doctorInTime),
-//         doctorOutTime: convertToTimeFormat(doctorOutTime),
-//         doctorCode,
-//         user_password,
-//         first_name,
-//         last_name
-//       };
-
-//       try {
-//         const result = await createDoctorData(doctorData);
-//         insertedDoctors.push({ email, doctor_id: result.insertId });
-
-//         const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
-//         const loginToken = `http://localhost:5173/account/user/login?token=${token}`;
-//         await sendRegisterCode(email, doctorData.name, doctorCode, user_password, loginToken);
-//       } catch (err) {
-//         errors.push({ row: index + 4, email, error: err.message });
-//       }
-//     }
-
-//     fs.unlinkSync(file.path); 
-
-//     return res.status(200).send(new ResponseHandler(200, "Doctors processed", {
-//       inserted: insertedDoctors.length,
-//       failed: errors.length,
-//       errors
-//     }));
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-// const validateEmail = email => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
-
-// const convertToTimeFormat = decimalTime => {
-//   if (isNaN(decimalTime)) return '00:00:00';
-//   const hours = Math.floor(decimalTime);
-//   const minutes = Math.round((decimalTime - hours) * 60);
-//   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
-// };
 
 export default {
   uploadDoctorsFromExcel,
- generateDoctorCode ,
   downloadDocument,
   setAppointmentCancelled,
   getAllEmailForDoctor,
