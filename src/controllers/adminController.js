@@ -145,6 +145,12 @@ const ageGroupData = async (req, res, next) => {
   }
 };
 
+  const generatePassword = async (first_name) => {
+    const randomNumber = Math.floor(100000 + Math.random() * 900000);
+    const newCode = `${first_name}@${randomNumber}`;
+  
+    return newCode;
+  };
 
 const addAdmin = async (req, res, next) => {
   try {
@@ -172,11 +178,12 @@ const addAdmin = async (req, res, next) => {
       user_password: password,
       mobile_number
     }
+    
     const addAdmin = await createAdmin(data, adminCode);
     if (addAdmin) {
       const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
       const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-      await sendRegisterCode(email, name, adminCode, user_password, loginToken)
+      await sendRegisterCode(email, name, adminCode, password, loginToken)
 
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
@@ -251,12 +258,7 @@ const generateDoctorCode = async () => {
 
   return newCode;
 };
-const generatePassword = async (first_name) => {
-  const randomNumber = Math.floor(100000 + Math.random() * 900000);
-  const newCode = `${first_name}@${randomNumber}`;
 
-  return newCode;
-};
 const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;

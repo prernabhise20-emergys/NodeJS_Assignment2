@@ -204,11 +204,11 @@ const deleteUser = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   try {
-    const { user: { userid: id, email: emailID } } = req;
+    const { user: { userid: id } } = req;
 
     const getUser = await getUserData(id);
 
-    if (!getUser) {
+    if (getUser) {
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
@@ -372,9 +372,7 @@ const getDoctorAvailability = async (req, res, next) => {
         doctorOutTime,
         scheduleSlots,
         pendingSlots,
-        is_availabile,
-        
-       e
+        is_availabile
       })
     );
   } catch (error) {

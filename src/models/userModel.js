@@ -168,6 +168,7 @@ const loginUser = (email) => {
 
 const updateUserData = async (formData, id) => {
   try {
+    
     const { first_name, last_name, mobile_number } =
       formData;
     return new Promise((resolve, reject) => {
