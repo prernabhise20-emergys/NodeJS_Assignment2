@@ -12,11 +12,11 @@ const getUserData = async (userid) => {
           u.first_name, 
           u.last_name, 
           u.mobile_number,
-          d.is_available,
+          d.is_available
         FROM user_register u
         LEFT JOIN doctors d ON u.id = d.user_id
         WHERE u.is_deleted = FALSE 
-        AND u.id = ?;`,
+        AND u.id = ?`,
         [userid], 
         (error, result) => {
           if (error) return reject(error);

@@ -262,11 +262,6 @@ const addDoctor = async (req, res, next) => {
     const { user: { admin: is_admin } } = req;
     const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name, leave_approval_senior_doctor_id } } = req;
 
-    if (!specialization || !contact_number || !email || !doctorInTime || !doctorOutTime || !first_name || !last_name) {
-      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
-      );
-    }
     const userExists = await checkIfUserExists(email);
     if (userExists) {
       throw USER_EXISTS;
