@@ -195,26 +195,20 @@ const changeAvailabilityStatus = async (is_available, userid) => {
   }
 };
 
-const markCancelled = async (start_date, end_date) => {
+const markCancelled = async (doctor_id, start_date, end_date) => {
   try {
     return new Promise((resolve, reject) => {
-      console.log(start_date,end_date);
-      
       db.query(
-        `SELECT appointment_id FROM appointments WHERE appointment_date BETWEEN ? AND ?;`,
-        [start_date, end_date],
+        `SELECT appointment_id FROM appointments WHERE appointment_date BETWEEN ? AND ? and doctor_id=?;`,
+        [start_date, end_date, doctor_id],
         (error, result) => {
           if (error) return reject(error);
 
           const ids = result.map(row => row.appointment_id);
 
-          if (ids.length === 0) {
-            return resolve([]);
-          }
-
           db.query(
-            `UPDATE appointments SET status='Cancelled' WHERE appointment_date BETWEEN ? AND ?;`,
-            [start_date, end_date],
+            `UPDATE appointments SET status='Cancelled' WHERE appointment_date BETWEEN ? AND ? and doctor_id;`,
+            [start_date, end_date, doctor_id],
             (updateError) => {
               if (updateError) return reject(updateError);
 
@@ -365,7 +359,7 @@ const getApprovalInfo = async (user_id) => {
         SELECT d2.email AS approver_email,d1.name
         FROM doctors d1
         JOIN doctors d2 ON d1.leave_approval = d2.doctor_id
-        WHERE d2.user_id = ?;
+        WHERE d1.user_id = ?;
         `,
         [user_id],
         (error, results) => {
@@ -382,16 +376,15 @@ const getApprovalInfo = async (user_id) => {
     return result;
 
   } catch (error) {
-    console.error("Error applying for leave:", error);
     throw error;
   }
 };
 
-const getLeaveRequest=async(userid)=>{
-  try{
-const result = await new Promise((resolve, reject) => {
+const getLeaveRequest = async (userid) => {
+  try {
+    const result = await new Promise((resolve, reject) => {
 
-   
+
       db.query(`SELECT doctor_id FROM doctors WHERE user_id = ?`, userid, (error, result) => {
         if (error) {
           return reject(error);
@@ -399,18 +392,16 @@ const result = await new Promise((resolve, reject) => {
         resolve(result);
       });
     });
-          const doctor_id = result[0].doctor_id;
-console.log('doctorid',doctor_id);
+    const doctor_id = result[0].doctor_id;
+    console.log('doctorid', doctor_id);
     const selectResult = await new Promise((resolve, reject) => {
-
       db.query(
         `
-      
   SELECT l.leave_id,d1.name,l.start_date,l.end_date,l.leave_status,l.leave_reason
         FROM doctors d1
         JOIN doctors d2 ON d1.leave_approval = d2.doctor_id
         join leave_application_details l on l.doctor_id=d1.doctor_id
-        WHERE l.approved_by = ? and l.leave_status='Pending';;
+        WHERE l.approved_by = ? and l.leave_status in ('Pending','Approved');
         `,
         doctor_id,
         (error, results) => {
@@ -418,25 +409,25 @@ console.log('doctorid',doctor_id);
             return reject(error);
           }
 
-          console.log('result',results);
+          console.log('result', results);
           resolve(results);
         }
       );
-     });
+    });
 
-   return selectResult 
-  
+    return selectResult
+
   }
-  catch(error){
+  catch (error) {
     throw error;
   }
 }
 
-const changeLeaveStatus=async(leave_id)=>{
-  try{
- return new Promise((resolve, reject) => {
-      db.query(`update leave_application_details set leave_status='Approved' where leave_id=?`,
-       leave_id,
+const changeLeaveStatus = async (leave_id, doctor_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(`update leave_application_details set leave_status='Approved' where leave_id=? and doctor_id=?`,
+        [leave_id, doctor_id],
         (error, result) => {
           if (error) {
             return reject(error);
@@ -445,18 +436,30 @@ const changeLeaveStatus=async(leave_id)=>{
         });
     });
   }
-  catch(error){
+  catch (error) {
     throw error;
   }
 }
-const getApproveLeaveInfo=async(leave_id)=>{
-  try{
-const selectResult = await new Promise((resolve, reject) => {
+const getApproveLeaveInfo = async (leave_id) => {
+  try {
+    const selectResult = await new Promise((resolve, reject) => {
 
       db.query(
         `
-      
-  SELECT leave_id,start_date,end_date,leave_reason from leave_application_details where leave_id=?;
+    SELECT 
+	    l.leave_id, 
+    d1.email, 
+ l.doctor_id, 
+    l.start_date, 
+    l.end_date, 
+    l.leave_reason,
+    d2.name AS doctor_name, 
+    d1.email, 
+       d1.name AS approval_doctor_name 
+FROM leave_application_details l 
+join doctors d1 on l.approved_by=d1.doctor_id 
+JOIN doctors d2 ON d1.doctor_id = d2.leave_approval 
+WHERE l.leave_id = ?
         `,
         leave_id,
         (error, results) => {
@@ -464,16 +467,16 @@ const selectResult = await new Promise((resolve, reject) => {
             return reject(error);
           }
 
-          console.log('result',results);
+          console.log('result', results);
           resolve(results);
         }
       );
-     });
+    });
 
-   return selectResult 
-  
+    return selectResult
+
   }
-  catch(error){
+  catch (error) {
     throw error;
   }
 }

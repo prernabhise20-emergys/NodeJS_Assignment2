@@ -21,6 +21,7 @@ import response1 from '../common/constants/pathConstant.js';
 import filePath from '../common/constants/pathConstant.js'
 
 import {
+  updateLeaveApproval,
   checkIfUserExists,
   createAdmin,
   patientHaveAppointment,
@@ -44,7 +45,7 @@ import {
   getAllPatientAppointment,
   cancelStatus
 } from "../models/adminModel.js";
-const {NO_FILE_FOUND, APPOINTMENT_BOOKED, USER_EXISTS, UNAUTHORIZED_ACCESS, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
+const { NO_FILE_FOUND, APPOINTMENT_BOOKED, USER_EXISTS, UNAUTHORIZED_ACCESS, CANNOT_DELETE_SUPERADMIN, CANNOT_DELETE_USER } = AUTH_RESPONSES;
 
 const getAllInfo = async (req, res, next) => {
   try {
@@ -104,7 +105,7 @@ const adminDeletePatientData = async (req, res, next) => {
           SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE
         ));
     }
-    else{
+    else {
       return res
         .status(ERROR_STATUS_CODE.BAD_REQUEST)
         .send(new ResponseHandler(
@@ -159,7 +160,7 @@ const addAdmin = async (req, res, next) => {
       );
     }
     const password = await generatePassword(first_name)
-    console.log("Admin Password:",password);
+    console.log("Admin Password:", password);
 
     const name = first_name + ' ' + last_name;
     const randomNumber = Math.floor(100 + Math.random() * 900);
@@ -171,21 +172,21 @@ const addAdmin = async (req, res, next) => {
       user_password: password,
       mobile_number
     }
-   const addAdmin= await createAdmin(data, adminCode);
-   if(addAdmin){
-    const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
-    const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-    await sendRegisterCode(email, name, adminCode, user_password, loginToken)
+    const addAdmin = await createAdmin(data, adminCode);
+    if (addAdmin) {
+      const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+      const loginToken = `http://localhost:5173/account/user/login?token=${token}`
+      await sendRegisterCode(email, name, adminCode, user_password, loginToken)
 
-    return res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADD_ADMIN));
-   }
-   else{
-     return res
-      .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_ADMIN));
-   }
+      return res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.ADD_ADMIN));
+    }
+    else {
+      return res
+        .status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_ADMIN));
+    }
   } catch (error) {
     next(error);
   }
@@ -210,17 +211,17 @@ const removeAdmin = async (req, res, next) => {
       }
     }
 
-    const deleteAdmin=await removeAdminAuthority(is_admin, email);
-if(deleteAdmin){
-    return res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REMOVE_ADMIN));
-}
-else{
-  return res
-      .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_REMOVE_ADMIN));
-}
+    const deleteAdmin = await removeAdminAuthority(is_admin, email);
+    if (deleteAdmin) {
+      return res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.REMOVE_ADMIN));
+    }
+    else {
+      return res
+        .status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_REMOVE_ADMIN));
+    }
   } catch (error) {
     next(error);
   }
@@ -245,21 +246,21 @@ const getAdmin = async (req, res, next) => {
 };
 
 const generateDoctorCode = async () => {
-    const randomNumber = Math.floor(100 + Math.random() * 900);
-    const newCode = `DR${randomNumber}`;
-  
-    return newCode;
-  };
-  const generatePassword = async (first_name) => {
-    const randomNumber = Math.floor(100000 + Math.random() * 900000);
-    const newCode = `${first_name}@${randomNumber}`;
-  
-    return newCode;
-  };
+  const randomNumber = Math.floor(100 + Math.random() * 900);
+  const newCode = `DR${randomNumber}`;
+
+  return newCode;
+};
+const generatePassword = async (first_name) => {
+  const randomNumber = Math.floor(100000 + Math.random() * 900000);
+  const newCode = `${first_name}@${randomNumber}`;
+
+  return newCode;
+};
 const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
-    const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name,leave_approval_senior_doctor_id } } = req;
+    const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name, leave_approval_senior_doctor_id } } = req;
 
     if (!specialization || !contact_number || !email || !doctorInTime || !doctorOutTime || !first_name || !last_name) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -272,8 +273,8 @@ const addDoctor = async (req, res, next) => {
     }
     const docCode = await generateDoctorCode();
     const password = await generatePassword(first_name)
-    console.log("Doctor Password:",password);
-console.log("code",docCode);
+    console.log("Doctor Password:", password);
+    console.log("code", docCode);
 
     const data = {
       name: first_name + ' ' + last_name,
@@ -301,17 +302,17 @@ console.log("code",docCode);
       const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
       const loginToken = `http://localhost:5173/account/user/login?token=${token}`
       await sendRegisterCode(data.email, data.name, data.doctorCode, data.user_password, loginToken);
-    
 
-    return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
-    );
-  }
-  else{
-    return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-      new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_DOCTOR)
-    );
-  }
+
+      return res.status(SUCCESS_STATUS_CODE.CREATED).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
+      );
+    }
+    else {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_DOCTOR)
+      );
+    }
   } catch (error) {
     next(error);
   }
@@ -322,17 +323,17 @@ const deleteDoctor = async (req, res, next) => {
   try {
     const { query: { doctor_id } } = req;
 
-   const deleteDoc= await deleteDoctorData(doctor_id);
-   if(deleteDoc){
-    return res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
-   }
-   else{
-     return res
-      .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_DELETE_DOCTOR));
-   }
+    const deleteDoc = await deleteDoctorData(doctor_id);
+    if (deleteDoc) {
+      return res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+    }
+    else {
+      return res
+        .status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_DELETE_DOCTOR));
+    }
   } catch (error) {
     next(error);
   }
@@ -348,7 +349,7 @@ const changeAppointmentsStatus = async (req, res, next) => {
       );
     }
 
-   
+
     if (is_admin || is_doctor) {
       const result = await changeStatus(status, appointment_id);
 
@@ -378,11 +379,11 @@ const changeAppointmentsStatus = async (req, res, next) => {
 const setAppointmentCancelled = async (req, res, next) => {
   try {
     const { query: { appointment_id } } = req;
-    const { user: { admin: is_admin, email,doctor:is_doctor } } = req;
+    const { user: { admin: is_admin, email, doctor: is_doctor } } = req;
     const { body: { reason } } = req
 
-   
-    if (is_admin||is_doctor) {
+
+    if (is_admin || is_doctor) {
 
       const result = await cancelStatus(appointment_id, reason);
 
@@ -411,7 +412,7 @@ const setAppointmentCancelled = async (req, res, next) => {
 const approveAppointment = async (req, res, next) => {
   try {
     const { query: { appointment_id } } = req;
-    const { user: { admin: is_admin, email,doctor:is_doctor } } = req; 
+    const { user: { admin: is_admin, email, doctor: is_doctor } } = req;
 
     if (!appointment_id) {
       return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
@@ -419,7 +420,7 @@ const approveAppointment = async (req, res, next) => {
       );
     }
 
-    if (is_admin||is_doctor) {
+    if (is_admin || is_doctor) {
       const result = await scheduleAppointment(appointment_id);
       const data = await getPatientData(appointment_id);
 
@@ -445,7 +446,7 @@ const approveAppointment = async (req, res, next) => {
           new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_APPROVE)
         );
       }
-    } 
+    }
   } catch (error) {
     next(error);
   }
@@ -546,7 +547,7 @@ const getAllEmailForDoctor = async (req, res, next) => {
 };
 const downloadDocument = async (req, res, next) => {
   try {
-  
+
     const response = await axios({
       method: 'GET',
       url: response1.response1,
@@ -576,7 +577,7 @@ const uploadDoctorsFromExcel = async (req, res, next) => {
   try {
     const file = req.file;
     if (!file) {
-        throw NO_FILE_FOUND;
+      throw NO_FILE_FOUND;
     }
 
     const workbook = xlsx.readFile(file.path);
@@ -609,7 +610,7 @@ const uploadDoctorsFromExcel = async (req, res, next) => {
       });
 
       if (![first_name, last_name, email, contact_number, specialization, doctorInTime, doctorOutTime].every(Boolean)) {
-        errors.push({ row: index + 2, email: email || null});
+        errors.push({ row: index + 2, email: email || null });
         continue;
       }
 
@@ -617,8 +618,8 @@ const uploadDoctorsFromExcel = async (req, res, next) => {
         errors.push({ row: index + 2, email, error: 'User already exists' });
         continue;
       }
-const doctorCode = String(contact_number).padStart(4, '0').slice(-4);
-const user_password = `${first_name.toLowerCase()}@${doctorCode}`;
+      const doctorCode = String(contact_number).padStart(4, '0').slice(-4);
+      const user_password = `${first_name.toLowerCase()}@${doctorCode}`;
 
       const doctorData = {
         name: `${first_name} ${last_name}`,
@@ -658,8 +659,33 @@ const user_password = `${first_name.toLowerCase()}@${doctorCode}`;
   }
 };
 
+const changeLeaveApproval = async (req, res, next) => {
+  try {
+    const { query: { leave_approval_senior_doctor_id, doctor_id } } = req;
+
+    if (!leave_approval_senior_doctor_id || !doctor_id) {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+      );
+    }
+    const changeApproval = await updateLeaveApproval(leave_approval_senior_doctor_id, doctor_id)
+    if (changeApproval) {
+      return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+        new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.CHANGE_LEAVE_APPROVAL)
+      );
+    } else {
+      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_CHANGE_LEAVE_APPROVAL)
+      );
+    }
+  }
+  catch (error) {
+    next(error)
+  }
+}
 
 export default {
+  changeLeaveApproval,
   uploadDoctorsFromExcel,
   downloadDocument,
   setAppointmentCancelled,

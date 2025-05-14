@@ -190,4 +190,19 @@ const sendLeaveRequestBody = (name, startDate, endDate, leaveReason) => {
   `;
 };
 
-export { otpMailBody,sendLeaveRequestBody, verificationEmail, prescriptionBody,notifyDoctorMailBody, approveRequestMailBody, updatedPrescriptionBody, cancelAppointmentMailBody, sendUserCode }
+const leaveApproveBody = (d_name,start_date,end_date,leave_approver) => {
+  return `
+    <html>
+      <body>
+        <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+          <p>Hello,${d_name}</p>
+          <p>I hope you are doing well. Your leave request from ${start_date} to ${end_date} has been approved. Please ensure that all necessary tasks are delegated before your leave to maintain workflow continuity.</p>
+
+          <p>Best regards,</p>
+          <p>${leave_approver}</p>
+        </div>
+      </body>
+    </html>
+  `;
+};
+export {leaveApproveBody, otpMailBody, sendLeaveRequestBody, verificationEmail, prescriptionBody,notifyDoctorMailBody, approveRequestMailBody, updatedPrescriptionBody, cancelAppointmentMailBody, sendUserCode }

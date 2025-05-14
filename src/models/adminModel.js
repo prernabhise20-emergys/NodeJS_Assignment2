@@ -291,7 +291,7 @@ const checkIfUserExists = async (email) => {
 const createDoctorData = async (data) => {
   try {
     const doctorData = { ...data };
-    const { first_name, last_name, email, user_password, contact_number, doctorCode,leave_approval_senior_doctor_id } = data;
+    const { first_name, last_name, email, user_password, contact_number, doctorCode, leave_approval_senior_doctor_id } = data;
     const hashedPassword = await bcrypt.hash(user_password, 10);
 
     return await new Promise((resolve, reject) => {
@@ -315,17 +315,6 @@ const createDoctorData = async (data) => {
               resolve(result);
             }
           );
-
-          // db.query(
-          //   `INSERT INTO doctors (name, specialization, contact_number, email, user_id, doctorInTime, doctorOutTime, doctorCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          //   [data.name, doctorData.specialization, contact_number, email, userId, doctorData.doctorInTime, doctorData.doctorOutTime, doctorCode],
-          //   (error, result) => {
-          //     if (error) {
-          //       return reject(error);
-          //     }
-          //     resolve(result);
-          //   }
-          // );
         }
       );
     });
@@ -691,8 +680,27 @@ const checkPrescription = async (appointment_id) => {
   }
 }
 
-
+const updateLeaveApproval = async (leave_approval_senior_doctor_id, doctor_id) => {
+  try {
+    return new Promise((resolve, reject) => {
+      db.query(
+        `UPDATE doctors SET leave_approval= ? WHERE doctor_id = ?`,
+        [leave_approval_senior_doctor_id, doctor_id],
+        (error, result) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve(result);
+        }
+      );
+    });
+  }
+  catch (error) {
+    throw error;
+  }
+}
 export {
+  updateLeaveApproval,
   checkPrescription,
   checkIfUserExists,
   patientHaveAppointment,

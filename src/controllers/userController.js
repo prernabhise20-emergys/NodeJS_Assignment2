@@ -155,19 +155,19 @@ const updateUser = async (req, res, next) => {
       mobile_number,
     };
 
-    const update=await updateUserData(formData, id);
-    if(update){
-    return res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG)
-    );
-  }
-  else{
-    return res
-      .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_UPDATE)
-    );
-  }
+    const update = await updateUserData(formData, id);
+    if (update) {
+      return res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.USER_UPDATE_SUCCESS_MSG)
+        );
+    }
+    else {
+      return res
+        .status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_UPDATE)
+        );
+    }
   } catch (error) {
     next(error);
   }
@@ -175,7 +175,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    const { user: { userid: id, admin ,doctor} } = req;
+    const { user: { userid: id, admin, doctor } } = req;
 
     if (admin) {
       const adminCount = await checkAdminCount();
@@ -183,21 +183,21 @@ const deleteUser = async (req, res, next) => {
       if (adminCount <= 1) {
         throw CANNOT_DELETE_USER;
       }
-    }    
+    }
 
 
-   const deleteprofile= await deleteUserData(doctor,id);
-if(deleteprofile){
-    return res
-      .status(SUCCESS_STATUS_CODE.SUCCESS)
-      .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
-  } 
-  else{
-     return res
-      .status(ERROR_STATUS_CODE.BAD_REQUEST)
-      .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_DELETE));
-  }
-}catch (error) {
+    const deleteprofile = await deleteUserData(doctor, id);
+    if (deleteprofile) {
+      return res
+        .status(SUCCESS_STATUS_CODE.SUCCESS)
+        .send(new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.DELETE_SUCCESS_MESSAGE));
+    }
+    else {
+      return res
+        .status(ERROR_STATUS_CODE.BAD_REQUEST)
+        .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_TO_DELETE));
+    }
+  } catch (error) {
     next(error);
   }
 };
@@ -208,7 +208,7 @@ const getUser = async (req, res, next) => {
 
     const getUser = await getUserData(id);
 
-    if (!getUser){
+    if (!getUser) {
       return res
         .status(SUCCESS_STATUS_CODE.SUCCESS)
         .send(
@@ -218,7 +218,7 @@ const getUser = async (req, res, next) => {
             getUser
           )
         );
-      }
+    }
   } catch (error) {
     next(error);
   }
@@ -318,16 +318,6 @@ const getDoctors = async (req, res, next) => {
   }
 };
 
-// const getDoctors = async (req, res, next) => {
-//   try {
-//     const doctorInfo = await getDoctorInfo();
-//     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-//       new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.RETRIEVE_INFO_SUCCESS_MESSAGE, doctorInfo)
-//     );
-//   } catch (error) {
-//     next(error)
-//   }
-// };
 
 const createAppointment = async (req, res, next) => {
   try {
@@ -345,7 +335,7 @@ const createAppointment = async (req, res, next) => {
     const result = await createDoctorAppointment(patient_id, doctor_id, date, time, disease_type, disease_description);
 
     return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
-      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.insertId })
+      new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.APPOINTMENT_BOOKED, { appointment_id: result.appointment_id })
     );
 
   } catch (error) {
@@ -368,14 +358,6 @@ const getDoctorAvailability = async (req, res, next) => {
     const doctorOutTime = availableTimes[0]?.doctorOutTime || 'Not Available';
     const is_availabile = availableTimes[0]?.is_available;
 
-    const unavailable_from_date = availableTimes[0]?.unavailable_from_date
-      ? formatDate(availableTimes[0].unavailable_from_date)
-      : null;
-
-    const unavailable_to_date = availableTimes[0]?.unavailable_to_date
-      ? formatDate(availableTimes[0].unavailable_to_date)
-      : null;
-
     const scheduleSlots = availableTimes
       .filter(row => row.appointment_time !== null && row.status === 'Scheduled')
       .map(row => row.appointment_time);
@@ -391,8 +373,8 @@ const getDoctorAvailability = async (req, res, next) => {
         scheduleSlots,
         pendingSlots,
         is_availabile,
-        unavailable_from_date,
-        unavailable_to_date
+        
+       e
       })
     );
   } catch (error) {

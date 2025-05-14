@@ -11,6 +11,7 @@ import {
 const router = express.Router();
 
 const {
+  CHANGE_LEAVE_APPROVAL,
   UPLOAD_EXCELSHEET,
   DOWNLOAD_DOCUMENT,
   CANCELLED_APPOINTMENT,
@@ -63,4 +64,5 @@ router.get(
   adminController.downloadDocument
 );
 router.post(UPLOAD_EXCELSHEET,authenticateUser,uploads.single('file'),adminController.uploadDoctorsFromExcel)
+router.put(CHANGE_LEAVE_APPROVAL,authenticateUser,adminController.changeLeaveApproval)
 export default router;

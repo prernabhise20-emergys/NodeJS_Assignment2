@@ -68,10 +68,12 @@ const ERROR_MESSAGE = {
   FAILED_TO_DELETE:"Failed to delete information",
   FAILED_LEAVE_REQUEST:"Failed to sent leave request",
   FAILED_LEAVE_REQUEST_APPROVE:"Failed to approve leave request",
-  FAILED_LEAVE_APPROVE:"Failed to approved leave"
+  FAILED_LEAVE_APPROVE:"Failed to approved leave",
+  FAILED_CHANGE_LEAVE_APPROVAL:"Failed to change leave approval"
 };
 
 const SUCCESS_MESSAGE = {
+  CHANGE_LEAVE_APPROVAL:"Leave Approval changed successfully",
   LEAVE_APPROVE:"Leave is Approved",
   LEAVE_REQUEST_APPROVE:"Leave request for approved.",
   LEAVE_REQUEST:"Leave request is sent successfully",

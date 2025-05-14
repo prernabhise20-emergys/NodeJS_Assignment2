@@ -68,7 +68,8 @@ const ROUTE_CONSTANTS = {
   UPLOAD_EXCELSHEET:"/uploadDoctors",
   APPLY_LEAVE:"/leaveApply",
   DISPLAY_LEAVE_REQUEST:"/leaveRequest",
-  APPROVE_LEAVE:"/approveLeave"
+  APPROVE_LEAVE:"/approveLeave",
+  CHANGE_LEAVE_APPROVAL:"/changeLeaveApproval"
 };
 
 export default ROUTE_CONSTANTS;

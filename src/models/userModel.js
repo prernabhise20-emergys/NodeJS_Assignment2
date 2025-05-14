@@ -13,8 +13,6 @@ const getUserData = async (userid) => {
           u.last_name, 
           u.mobile_number,
           d.is_available,
-          d.unavailable_from_date,
-          d.unavailable_to_date
         FROM user_register u
         LEFT JOIN doctors d ON u.id = d.user_id
         WHERE u.is_deleted = FALSE 
@@ -41,7 +39,7 @@ const getDoctorData = async (userid) => {
     u.first_name, 
     u.last_name, 
    u.mobile_number,
-   d.doctorInTime,d.doctorOutTime,d.is_available,d.unavailable_from_date,d.unavailable_to_date
+   d.doctorInTime,d.doctorOutTime,d.is_available
     from user_register u join doctors d
     on(u.id=d.user_id)
     WHERE u.is_deleted = FALSE  
@@ -389,9 +387,7 @@ const getDoctorInfo = async () => {
   try {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT doctor_id, name, specialization, doctorInTime, doctorOutTime, is_available, 
-       unavailable_from_date, 
-       unavailable_to_date
+        `SELECT doctor_id, name, specialization, doctorInTime, doctorOutTime, is_available   
 FROM doctors 
 WHERE is_deleted = false;
 `,
@@ -499,8 +495,6 @@ const checkDoctorAvailability = async (doctor_id, date) => {
     a.appointment_time,
     a.status,
     d.is_available,
-    d.unavailable_from_date,
-    d.unavailable_to_date,
     p.patient_id,
     p.patient_name,
     p.date_of_birth,
@@ -534,8 +528,6 @@ SELECT
     NULL AS appointment_time,
     NULL AS status,
     d.is_available,
-    d.unavailable_from_date,
-    d.unavailable_to_date,
     NULL AS patient_id,
     NULL AS patient_name,
     NULL AS date_of_birth,
@@ -580,7 +572,7 @@ const getSearchedDoctor = async (keyword) => {
   try {
     const searchQuery = `%${keyword}%`;
     return await new Promise((resolve, reject) => {
-      db.query(` SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime,is_available,unavailable_from_date,unavailable_to_date 
+      db.query(` SELECT doctor_id,name, specialization, doctorInTime, doctorOutTime,is_available
           FROM doctors 
           WHERE is_deleted = false 
           AND (name LIKE ? OR specialization LIKE ?)`, [searchQuery, searchQuery], (error, results) => {
