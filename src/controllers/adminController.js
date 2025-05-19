@@ -21,6 +21,7 @@ import response1 from '../common/constants/pathConstant.js';
 import filePath from '../common/constants/pathConstant.js'
 
 import {
+  doctorCount,
   updateLeaveApproval,
   checkIfUserExists,
   createAdmin,
@@ -145,12 +146,12 @@ const ageGroupData = async (req, res, next) => {
   }
 };
 
-  const generatePassword = async (first_name) => {
-    const randomNumber = Math.floor(100000 + Math.random() * 900000);
-    const newCode = `${first_name}@${randomNumber}`;
-  
-    return newCode;
-  };
+const generatePassword = async (first_name) => {
+  const randomNumber = Math.floor(100000 + Math.random() * 900000);
+  const newCode = `${first_name}@${randomNumber}`;
+
+  return newCode;
+};
 
 const addAdmin = async (req, res, next) => {
   try {
@@ -178,7 +179,7 @@ const addAdmin = async (req, res, next) => {
       user_password: password,
       mobile_number
     }
-    
+
     const addAdmin = await createAdmin(data, adminCode);
     if (addAdmin) {
       const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
@@ -263,11 +264,14 @@ const addDoctor = async (req, res, next) => {
   try {
     const { user: { admin: is_admin } } = req;
     const { body: { specialization, contact_number, email, doctorInTime, doctorOutTime, first_name, last_name, leave_approval_senior_doctor_id } } = req;
+    console.log(req.body);
 
-    const userExists = await checkIfUserExists(email);
-    if (userExists) {
-      throw USER_EXISTS;
-    }
+    // const userExists = await checkIfUserExists(email);
+
+    // if (userExists) {
+    //   throw USER_EXISTS;
+    // }
+
     const docCode = await generateDoctorCode();
     const password = await generatePassword(first_name)
     console.log("Doctor Password:", password);
@@ -287,29 +291,35 @@ const addDoctor = async (req, res, next) => {
       leave_approval_senior_doctor_id
     };
 
+    const count = await doctorCount();
+    console.log('count', count[0].totalDoctors);
+    if( count[0].totalDoctors<=0){
+      console.log('less than');
+      await add 
+    }
     if (!is_admin) {
       return res
         .status(ERROR_STATUS_CODE.BAD_REQUEST)
         .send(new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.ADMIN_ACCESS));
     }
 
-    const result = await createDoctorData(data);
+    // const result = await createDoctorData(data);
 
-    if (result) {
-      const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
-      const loginToken = `http://localhost:5173/account/user/login?token=${token}`
-      await sendRegisterCode(data.email, data.name, data.doctorCode, data.user_password, loginToken);
+    // if (result) {
+    //   const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '3h' });
+    //   const loginToken = `http://localhost:5173/account/user/login?token=${token}`
+    //   await sendRegisterCode(data.email, data.name, data.doctorCode, data.user_password, loginToken);
 
 
-      return res.status(SUCCESS_STATUS_CODE.CREATED).send(
-        new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
-      );
-    }
-    else {
-      return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
-        new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_DOCTOR)
-      );
-    }
+    //   return res.status(SUCCESS_STATUS_CODE.CREATED).send(
+    //     new ResponseHandler(SUCCESS_STATUS_CODE.CREATED, SUCCESS_MESSAGE.ADDED_DOCTOR_INFO_MESSAGE, { doctor_id: result.insertId })
+    //   );
+    // }
+    // else {
+    //   return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+    //     new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.FAILED_ADD_DOCTOR)
+    //   );
+    // }
   } catch (error) {
     next(error);
   }

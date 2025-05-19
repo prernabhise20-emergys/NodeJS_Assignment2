@@ -513,6 +513,7 @@ ORDER BY a.appointment_id;
 };
 
 const checkDoctor = async (email) => {
+  try{
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT id,first_name,last_name,mobile_number FROM user_register WHERE email=?;`, email,
@@ -524,6 +525,10 @@ const checkDoctor = async (email) => {
       }
     );
   });
+}
+catch(error){
+  throw error;
+}
 };
 
 
@@ -699,7 +704,27 @@ const updateLeaveApproval = async (leave_approval_senior_doctor_id, doctor_id) =
     throw error;
   }
 }
+
+const doctorCount = async () => {
+  try {
+     return new Promise((resolve, reject) => {
+    db.query(
+      ` select count(doctor_id)as totalDoctors from doctors where is_deleted=false`,
+      (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      }
+    );
+  });
+  }
+  catch (error) {
+    throw error;
+  }
+}
 export {
+  doctorCount,
   updateLeaveApproval,
   checkPrescription,
   checkIfUserExists,

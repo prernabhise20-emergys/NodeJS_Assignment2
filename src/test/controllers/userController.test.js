@@ -613,9 +613,7 @@ describe('getDoctors', () => {
       userModel.isDoctorAvailable.mockResolvedValue(false);
   
       await userController.createAppointment(req, res, next);
-  
-      // expect(userModel.isDoctorAvailable).toHaveBeenCalledWith(testConstants.createAppointmentBody.doctor_id, testConstants.createAppointmentBody.date, testConstants.createAppointmentBody.time);
-  
+    
       expect(res.status).toHaveBeenCalledWith(ERROR_STATUS_CODE.BAD_REQUEST);
   
       expect(res.send).toHaveBeenCalledWith(
