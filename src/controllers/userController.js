@@ -271,6 +271,7 @@ const resetPassword = async (req, res, next) => {
     next(error);
   }
 };
+
 const changePassword = async (req, res, next) => {
   try {
 

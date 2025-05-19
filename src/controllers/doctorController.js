@@ -4,7 +4,7 @@ import {
     SUCCESS_STATUS_CODE,
     ERROR_STATUS_CODE
 } from "../common/constants/statusConstant.js";
-import formatDate from "../common/utility/formattedDate.js";
+// import formatDate from "../common/utility/formattedDate.js";
 import { ResponseHandler } from "../common/utility/handlers.js";
 import { uploadFile } from "../common/utility/upload.js";
 import sendPrescription from "../common/utility/sendPrescription.js";
@@ -177,15 +177,79 @@ const displayAppointments = async (req, res, next) => {
 //       next(error);
 //     }
 //   };
-
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    // const month =date.getMonth();
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 import { generatePdf } from "../common/utility/prescriptionPdf.js";
 
 
+// const uploadPrescription = async (req, res, next) => {
+//     try {
+//         const { body: { appointment_id, table_info } } = req;
+//         const { user: { email } } = req;
+
+//         if (!appointment_id || !table_info || table_info.length === 0) {
+//             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//                 new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+//             );
+//         }
+
+//         const { medicines, capacity, notes, timing, dosage, course_duration } = table_info[0];
+
+//         if (!medicines || !capacity || !timing || !dosage || !course_duration) {
+//             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
+//                 new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
+//             );
+//         }
+  
+//         const patientData = await getAppointmentData(appointment_id);
+//         console.log(patientData);
+        
+//         const { patient_id, patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
+
+//         const formattedAppointmentDate = formatDate(appointmentDate);
+//         const formattedBirthDate = formatDate(date_of_birth);
+
+//         const data = {
+//             medicines,
+//             capacity,
+//             dosage,
+//             notes,
+//             timing,
+//             courseDuration: course_duration
+//         };
+
+//         const pdfBuffer = await generatePdf(data, patientName, formattedAppointmentDate, age, gender, doctorName, specialization, formattedBirthDate);
+//         const result = await uploadFile({ buffer: pdfBuffer, originalname: "prescription.pdf" }, patient_id);
+
+//         if (!result || !result.secure_url) {
+//             return res.status(ERROR_STATUS_CODE.INTERNAL_ERROR).send(
+//                 new ResponseHandler(ERROR_STATUS_CODE.INTERNAL_ERROR, "Failed to upload prescription")
+//             );
+//         }
+
+//         const cloudinaryUniquePath = result.secure_url.split("raw/upload/")[1];
+
+//         await savePrescription(appointment_id, cloudinaryUniquePath, new Date().toISOString().slice(0, 19).replace("T", " "));
+//         await sendPrescription(email, result.secure_url);
+
+//         return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
+//             new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
+//         );
+//     } catch (error) {
+//         next(error);
+//     }
+// };
 const uploadPrescription = async (req, res, next) => {
-    try {
+     try {
         const { body: { appointment_id, medicines, capacity, morning, afternoon, evening, courseDuration, notes, dosage } } = req;
         const { user: { email } } = req;
-
+        
         if (!appointment_id || !medicines || !capacity || !morning || !afternoon || !evening || !dosage || !courseDuration || !notes) {
             return res.status(ERROR_STATUS_CODE.BAD_REQUEST).send(
                 new ResponseHandler(ERROR_STATUS_CODE.BAD_REQUEST, ERROR_MESSAGE.REQUIRED_FIELDS)
@@ -193,7 +257,6 @@ const uploadPrescription = async (req, res, next) => {
         }
 
         const patientData = await getAppointmentData(appointment_id);
-
 
         const { patient_id, patientName, date: appointmentDate, age, doctorName, specialization, gender, date_of_birth } = patientData;
 
@@ -220,7 +283,6 @@ const uploadPrescription = async (req, res, next) => {
             new ResponseHandler(SUCCESS_STATUS_CODE.SUCCESS, SUCCESS_MESSAGE.PRESCRIPTION_UPLOAD, { cloudinaryUrl: cloudinaryUniquePath })
         );
     } catch (error) {
-        console.error("Error:", error);
         next(error);
     }
 };
@@ -271,7 +333,7 @@ const updateExistsPrescription = async (req, res, next) => {
             medicines,
             capacity,
             dosage,
-            notes,  // ✅ Ensure notes is passed to generatePdf
+            notes,
             morning,
             afternoon,
             evening,
@@ -321,7 +383,6 @@ const updateExistsPrescription = async (req, res, next) => {
             })
         );
     } catch (error) {
-        console.error("Error in updateExistsPrescription:", error); // ✅ Log for debugging
         next(error);
     }
 };
@@ -454,7 +515,7 @@ const applyLeave = async (req, res, next) => {
         const info = await getApprovalInfo(userid)
         const approver_email = info[0].approver_email;
         const doctor_name = info[0].name;
-        
+
         if (leaveinfo) {
             await sendLeaveRequest(approver_email, doctor_name, start_date, end_date, leave_reason);
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
@@ -474,7 +535,7 @@ const applyLeave = async (req, res, next) => {
 const showLeaveRequest = async (req, res, next) => {
     try {
         const { user: { userid } } = req;
-      
+
         const leaveRequest = await getLeaveRequest(userid);
 
         if (leaveRequest.length > 0) {
@@ -495,12 +556,12 @@ const approveLeave = async (req, res, next) => {
     try {
         const { query: { leave_id } } = req;
         const leaveRequest = await getApproveLeaveInfo(leave_id);
-        console.log('request',leaveRequest);
-        const d_name=leaveRequest[0].doctor_name;
-        const d_email=leaveRequest[0].email;
+        console.log('request', leaveRequest);
+        const d_name = leaveRequest[0].doctor_name;
+        const d_email = leaveRequest[0].email;
         const doctor_id = leaveRequest[0].doctor_id
         const leav_id = leaveRequest[0].leave_id
-        const leave_approver=leaveRequest[0].approval_doctor_name
+        const leave_approver = leaveRequest[0].approval_doctor_name
         const approve = await changeLeaveStatus(leave_id, doctor_id)
         if (approve) {
             const start_date = leaveRequest[0].start_date;
@@ -512,7 +573,7 @@ const approveLeave = async (req, res, next) => {
                 const { email, patient_name, appointment_date, appointment_time, name } = cancelAppointments[0];
 
                 await sendCancelledAppointmentEmail(email, reason, patient_name, appointment_date, appointment_time, name);
-        await leaveApprove(d_email,d_name,start_date,end_date,leave_approver)
+                await leaveApprove(d_email, d_name, start_date, end_date, leave_approver)
             }
 
             return res.status(SUCCESS_STATUS_CODE.SUCCESS).send(
